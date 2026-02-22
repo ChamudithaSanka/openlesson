@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 
+import studentRegRoutes from "./routes/studentRegRoute.js"; 
+
+
 const app = express();
 
 // Middleware
@@ -9,6 +12,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes will be added here
+app.use("/api/students", studentRegRoutes);
+
 
 // Error handler
 app.use((err, req, res, next) => {
