@@ -1,0 +1,88 @@
+const Report = require("../models/reportModel");
+
+// 🔹 Create Report
+exports.createReport = async (req, res) => {
+  try {
+    const { subject, description } = req.body;
+
+    if (!subject || !description) {
+      return res.status(400).json({ message: "Subject and description are required" });
+    }
+
+    const newReport = new Report({
+      studentId: req.user.id,
+      subject,
+      description,
+    });
+
+    await newReport.save();
+
+    res.status(201).json({
+      message: "Report submitted successfully",
+      report: newReport,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// 🔹 Get Logged-in Student Reports
+exports.getMyReports = async (req, res) => {
+  try {
+    const reports = await Report.find({ studentId: req.user.id }).sort({ createdAt: -1 });
+
+    res.status(200).json(reports);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// 🔹 Update Report (Student can edit subject & description only)
+exports.updateReport = async (req, res) => {
+  try {
+    const { subject, description } = req.body;
+
+    const report = await Report.findById(req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    if (report.studentId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    if (subject) report.subject = subject;
+    if (description) report.description = description;
+
+    await report.save();
+
+    res.status(200).json({
+      message: "Report updated successfully",
+      report,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// 🔹 Delete Report
+exports.deleteReport = async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    if (report.studentId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    await report.deleteOne();
+
+    res.status(200).json({ message: "Report deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
