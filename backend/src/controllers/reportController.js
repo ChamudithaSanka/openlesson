@@ -1,5 +1,5 @@
 import Report from "../models/reportModel.js";
-import Notification from "../models/notificationModel.js";
+import Notification from "../models/studentNotificationModel.js";
 
 // 🔹 Create Report
 export const createReport = async (req, res) => {
