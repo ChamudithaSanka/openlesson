@@ -1,4 +1,5 @@
 import Report from "../models/reportModel.js";
+import Notification from "../models/notificationModel.js";
 
 // 🔹 Create Report
 export const createReport = async (req, res) => {
@@ -18,6 +19,13 @@ export const createReport = async (req, res) => {
     });
 
     await newReport.save();
+
+    // Create notification for student
+    await Notification.create({
+      studentId: req.user.id,
+      type: "Report",
+      message: `Your report on "${subject}" has been submitted successfully.`,
+    });
 
     res.status(201).json({
       message: "Report submitted successfully",
@@ -66,6 +74,15 @@ export const updateReport = async (req, res) => {
     if (description) report.description = description;
 
     await report.save();
+
+
+    //Notify student about the update
+    await Notification.create({
+      studentId: report.studentId,
+      type: "Report",
+      message: `Your report on "${report.subject}" has been updated. New status: ${report.status || "Updated"}`,
+    });
+
 
     res.status(200).json({
       message: "Report updated successfully",
