@@ -1,12 +1,14 @@
-const Report = require("../models/reportModel");
+import Report from "../models/reportModel.js";
 
 // 🔹 Create Report
-exports.createReport = async (req, res) => {
+export const createReport = async (req, res) => {
   try {
     const { subject, description } = req.body;
 
     if (!subject || !description) {
-      return res.status(400).json({ message: "Subject and description are required" });
+      return res.status(400).json({
+        message: "Subject and description are required",
+      });
     }
 
     const newReport = new Report({
@@ -22,23 +24,31 @@ exports.createReport = async (req, res) => {
       report: newReport,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
 // 🔹 Get Logged-in Student Reports
-exports.getMyReports = async (req, res) => {
+export const getMyReports = async (req, res) => {
   try {
-    const reports = await Report.find({ studentId: req.user.id }).sort({ createdAt: -1 });
+    const reports = await Report.find({
+      studentId: req.user.id,
+    }).sort({ createdAt: -1 });
 
     res.status(200).json(reports);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
-// 🔹 Update Report (Student can edit subject & description only)
-exports.updateReport = async (req, res) => {
+// 🔹 Update Report
+export const updateReport = async (req, res) => {
   try {
     const { subject, description } = req.body;
 
@@ -62,12 +72,15 @@ exports.updateReport = async (req, res) => {
       report,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
 // 🔹 Delete Report
-exports.deleteReport = async (req, res) => {
+export const deleteReport = async (req, res) => {
   try {
     const report = await Report.findById(req.params.id);
 
@@ -81,8 +94,13 @@ exports.deleteReport = async (req, res) => {
 
     await report.deleteOne();
 
-    res.status(200).json({ message: "Report deleted successfully" });
+    res.status(200).json({
+      message: "Report deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
