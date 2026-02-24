@@ -9,6 +9,16 @@ export const createFeedback = async (req, res) => {
     const feedback = new Feedback({ studentId, teacherId, rating, comment });
     await feedback.save();
 
+
+      //notification for feedback submitted
+    await Notification.create({
+    studentId: feedback.studentId,
+    type: "Feedback",
+    message: `Your feedback for the teacher has been submitted successfully.`,
+    });
+
+
+    
     res.status(201).json({ message: "Feedback created successfully", feedback });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
