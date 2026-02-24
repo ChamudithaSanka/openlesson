@@ -1,12 +1,15 @@
-const express = require("express");
+import express from "express";
+import { createReport, 
+    getMyReports, 
+    updateReport, 
+    deleteReport } from "../controllers/reportController.js";
+import { protect } from "../middleware/auth.js";
+
 const router = express.Router();
-const reportController = require("../controllers/reportController");
-const authMiddleware = require("../middleware/authMiddleware");
 
-// Protected routes
-router.post("/", authMiddleware, reportController.createReport);
-router.get("/my-reports", authMiddleware, reportController.getMyReports);
-router.put("/:id", authMiddleware, reportController.updateReport);
-router.delete("/:id", authMiddleware, reportController.deleteReport);
+router.post("/", protect, createReport);
+router.get("/my-reports", protect, getMyReports);
+router.put("/:id", protect, updateReport);
+router.delete("/:id", protect, deleteReport);
 
-module.exports = router;
+export default router;
