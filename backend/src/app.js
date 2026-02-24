@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import studySessionRoutes from "./routes/studySession.route.js";
 
 const app = express();
 
@@ -8,7 +9,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes will be added here
+// Routes
+app.use("/api/study-sessions", studySessionRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
