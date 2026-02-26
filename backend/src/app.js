@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import studySessionRoutes from "./routes/studySession.route.js";
+import announcementRoutes from "./routes/announcement.route.js";
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/study-sessions", studySessionRoutes);
+app.use("/api/announcements", announcementRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
