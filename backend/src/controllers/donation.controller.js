@@ -22,31 +22,6 @@ export const createDonation = async (req, res) => {
   }
 };
 
-// @desc    Complete a donation (simulate Stripe confirmation)
-// @route   PUT /api/donations/:id/complete
-// @access  Private (donor)
-export const completeDonation = async (req, res) => {
-  try {
-    const donation = await Donation.findById(req.params.id);
-
-    if (!donation) {
-      return res.status(404).json({ success: false, message: "Donation not found" });
-    }
-
-    donation.paymentStatus = "Completed";
-    await donation.save();
-
-    // Update totalDonated on donor
-    await Donor.findByIdAndUpdate(donation.donorId, {
-      $inc: { totalDonated: donation.amount },
-    });
-
-    res.json({ success: true, donation });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
 // @desc    Get logged-in donor's donation history
 // @route   GET /api/donations/my
 // @access  Private (donor)
