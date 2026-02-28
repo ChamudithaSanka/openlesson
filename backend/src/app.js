@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import studySessionRoutes from "./routes/studySession.route.js";
 import announcementRoutes from "./routes/announcement.route.js";
+import donorRoutes from "./routes/donor.route.js";
+import donationRoutes from "./routes/donation.route.js";
 
 const app = express();
 
@@ -13,6 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/study-sessions", studySessionRoutes);
 app.use("/api/announcements", announcementRoutes);
+app.use("/api/donors", donorRoutes);
+app.use("/api/donations", donationRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
