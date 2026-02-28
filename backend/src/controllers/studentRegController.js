@@ -1,5 +1,4 @@
 import Student from '../models/studentRegModel.js';
-import Grade from '../models/gradeModel.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 

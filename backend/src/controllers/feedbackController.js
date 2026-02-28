@@ -1,6 +1,4 @@
 import Feedback from "../models/feedbackModel.js";
-import Teacher from "../models/teacherModel.js";
-import Notification from "../models/studentNotificationModel.js";
 
 // CREATE feedback
 export const createFeedback = async (req, res) => {
@@ -9,13 +7,6 @@ export const createFeedback = async (req, res) => {
 
     const feedback = new Feedback({ studentId, teacherId, rating, comment });
     await feedback.save();
-
-    // Create notification for feedback submitted
-    await Notification.create({
-      studentId: feedback.studentId,
-      type: "Feedback",
-      message: `Your feedback for the teacher has been submitted successfully.`,
-    });
 
     res.status(201).json({ message: "Feedback created successfully", feedback });
   } catch (err) {

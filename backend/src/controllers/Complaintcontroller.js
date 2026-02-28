@@ -1,5 +1,4 @@
 import Complaint from "../models/ComplaintModel.js";
-import Notification from "../models/studentNotificationModel.js";
 
 // 🔹 Create Complaint
 export const createComplaint = async (req, res) => {
@@ -20,13 +19,6 @@ export const createComplaint = async (req, res) => {
     });
 
     await newComplaint.save();
-
-    // Create notification for student
-    await Notification.create({
-      studentId: req.user.id,
-      type: "Report",
-      message: `Your complaint about "${subject}" has been submitted successfully. We'll look into it shortly.`,
-    });
 
     res.status(201).json({
       message: "Complaint submitted successfully",
@@ -83,13 +75,6 @@ export const updateComplaint = async (req, res) => {
     if (category) complaint.category = category;
 
     await complaint.save();
-
-    // Notify student about the update
-    await Notification.create({
-      studentId: complaint.studentId,
-      type: "Report",
-      message: `Your complaint about "${complaint.subject}" has been updated successfully.`,
-    });
 
     res.status(200).json({
       message: "Complaint updated successfully",
