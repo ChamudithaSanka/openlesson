@@ -1,5 +1,11 @@
 import express from "express";
 import cors from "cors";
+import studySessionRoutes from "./routes/studySession.route.js";
+import announcementRoutes from "./routes/announcement.route.js";
+import gradeRoutes from "./routes/grade.route.js";
+import subjectRoutes from "./routes/subject.route.js";
+import donorRoutes from "./routes/donor.route.js";
+import donationRoutes from "./routes/donation.route.js";
 
 const app = express();
 
@@ -9,20 +15,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-import quizRoutes from './routes/quizRoutes.js';
-import teacherRoutes from './routes/teacherRoutes.js';
-import gradeRoutes from './routes/gradeRoutes.js';
-import subjectRoutes from './routes/subjectRoutes.js';
-
-app.use('/api/quizzes', quizRoutes);
-app.use('/api/teachers', teacherRoutes);
-app.use('/api/grades', gradeRoutes);
-app.use('/api/subjects', subjectRoutes);
-
-// Health check route
-app.get('/', (req, res) => {
-  res.json({ message: 'OpenLesson API is running', status: 'success' });
-});
+app.use("/api/study-sessions", studySessionRoutes);
+app.use("/api/announcements", announcementRoutes);
+app.use("/api/grades", gradeRoutes);
+app.use("/api/subjects", subjectRoutes);
+app.use("/api/donors", donorRoutes);
+app.use("/api/donations", donationRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
