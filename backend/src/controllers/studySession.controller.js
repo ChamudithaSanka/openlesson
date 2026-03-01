@@ -3,7 +3,9 @@ import StudySession from "../models/studySession.model.js";
 // GET /api/study-sessions
 export const getAllStudySessions = async (req, res) => {
   try {
-    const sessions = await StudySession.find();
+    const sessions = await StudySession.find()
+      .populate("gradeId", "gradeName description")
+      .populate("subjectId", "subjectName description");
     res.status(200).json({ success: true, data: sessions });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -13,7 +15,9 @@ export const getAllStudySessions = async (req, res) => {
 // GET /api/study-sessions/:id
 export const getStudySessionById = async (req, res) => {
   try {
-    const session = await StudySession.findById(req.params.id);
+    const session = await StudySession.findById(req.params.id)
+      .populate("gradeId", "gradeName description")
+      .populate("subjectId", "subjectName description");
     if (!session) {
       return res.status(404).json({ success: false, message: "Study session not found" });
     }
