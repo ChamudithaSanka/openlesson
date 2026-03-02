@@ -9,14 +9,9 @@ import donationRoutes from "./routes/donation.route.js";
 import teacherRoutes from "./routes/teacher.route.js";
 import quizRoutes from "./routes/quiz.route.js";
 import studyMaterialRoutes from "./routes/studyMaterial.route.js";
-
 import studentRegRoutes from "./routes/studentRegRoute.js"; 
 import feedbackRoutes from "./routes/feedbackRoute.js"; 
 import reportRoutes from "./routes/Complaintroute.js";
-import gradeRoutes from "./routes/grade.route.js";
-import teacherRoutes from "./routes/teacher.route.js"
-import subjectRoutes from "./routes/subject.route.js"
-
 
 const app = express();
 
@@ -40,10 +35,6 @@ app.use("/api/donations", donationRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/study-materials", studyMaterialRoutes);
-
-app.use("/api/grades", gradeRoutes);
-app.use("/api/teachers", teacherRoutes)
-app.use("/api/subjects", subjectRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
