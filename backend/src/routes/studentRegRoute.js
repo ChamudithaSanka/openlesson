@@ -40,7 +40,7 @@ const validateStudentRegistration = [
 router.post('/register', validateStudentRegistration, registerStudent);
 
 
-//profile update input validation
+//profile update input validation functionality
 const validateProfileUpdate = [
   body('email').optional().isEmail().withMessage('Valid email is required'),
   body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
