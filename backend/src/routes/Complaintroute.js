@@ -5,7 +5,6 @@ import {
   updateComplaint,
   deleteComplaint,
 } from "../controllers/Complaintcontroller.js";
-import { protect } from "../middleware/auth.js";
 import { body, validationResult } from "express-validator";
 
 const router = express.Router();
@@ -26,15 +25,15 @@ const validateComplaint = [
 ];
 
 // Create complaint
-router.post("/", protect, validateComplaint, createComplaint);
+router.post("/", validateComplaint, createComplaint);
 
 // Get my complaints
-router.get("/my-complaints", protect, getMyComplaints);
+router.get("/my-complaints", getMyComplaints);
 
 // Update complaint
-router.put("/:id", protect, validateComplaint, updateComplaint);
+router.put("/:id", validateComplaint, updateComplaint);
 
 // Delete complaint
-router.delete("/:id", protect, deleteComplaint);
+router.delete("/:id", deleteComplaint);
 
 export default router;
