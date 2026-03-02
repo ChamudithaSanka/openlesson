@@ -1,8 +1,8 @@
+// Quiz Controller - Handles all quiz operations
+
 import Quiz from "../models/quiz.model.js";
 
-// @desc    Create a new quiz
-// @route   POST /api/quizzes
-// @access  Public
+// CREATE - Add new quiz
 export const createQuiz = async (req, res) => {
   try {
     const quiz = await Quiz.create(req.body);
@@ -12,9 +12,7 @@ export const createQuiz = async (req, res) => {
   }
 };
 
-// @desc    Get all quizzes
-// @route   GET /api/quizzes
-// @access  Public
+// READ - Get all quizzes
 export const getAllQuizzes = async (req, res) => {
   try {
     const quizzes = await Quiz.find()
@@ -29,9 +27,7 @@ export const getAllQuizzes = async (req, res) => {
   }
 };
 
-// @desc    Get single quiz by ID
-// @route   GET /api/quizzes/:id
-// @access  Public
+// READ - Get single quiz by ID
 export const getQuizById = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id)
@@ -49,12 +45,14 @@ export const getQuizById = async (req, res) => {
   }
 };
 
-// @desc    Update quiz
-// @route   PUT /api/quizzes/:id
-// @access  Public
+// UPDATE - Edit quiz
 export const updateQuiz = async (req, res) => {
   try {
-    const quiz = await Quiz.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+    const quiz = await Quiz.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    )
       .populate("gradeId", "gradeName description")
       .populate("subjectId", "subjectName description")
       .populate("createdBy", "fullName email");
@@ -69,9 +67,7 @@ export const updateQuiz = async (req, res) => {
   }
 };
 
-// @desc    Delete quiz
-// @route   DELETE /api/quizzes/:id
-// @access  Public
+// DELETE - Remove quiz
 export const deleteQuiz = async (req, res) => {
   try {
     const quiz = await Quiz.findByIdAndDelete(req.params.id);

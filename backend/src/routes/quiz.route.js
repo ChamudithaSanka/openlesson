@@ -1,3 +1,5 @@
+// Quiz Routes - Maps URLs to controller functions
+
 import express from "express";
 import {
   createQuiz,
@@ -9,11 +11,19 @@ import {
 
 const router = express.Router();
 
-// Simple CRUD routes - no authentication
+// CREATE - POST /api/quizzes
 router.post("/", createQuiz);
+
+// READ - GET /api/quizzes
 router.get("/", getAllQuizzes);
+
+// READ - GET /api/quizzes/:id
 router.get("/:id", getQuizById);
+
+// UPDATE - PUT /api/quizzes/:id
 router.put("/:id", updateQuiz);
+
+// DELETE - DELETE /api/quizzes/:id
 router.delete("/:id", deleteQuiz);
 
 export default router;
