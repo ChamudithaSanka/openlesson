@@ -35,7 +35,7 @@ const newComplaint = new Complaint({
 // 🔹 Get Logged-in Student's Complaints
 export const getMyComplaints = async (req, res) => {
   try {
-    const { studentId } = req.query;
+    const { studentId } = req.params;
 
   const complaints = await Complaint.find({ studentId }).sort({ createdAt: -1 });
 
