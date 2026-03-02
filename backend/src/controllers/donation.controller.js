@@ -3,13 +3,13 @@ import Donor from "../models/donor.model.js";
 
 // @desc    Create a new donation
 // @route   POST /api/donations
-// @access  Private (donor)
+// @access  Public
 export const createDonation = async (req, res) => {
   try {
-    const { amount, paymentMethod, message } = req.body;
+    const { donorId, amount, paymentMethod, message } = req.body;
 
     const donation = await Donation.create({
-      donorId: req.user.id,
+      donorId,
       amount,
       paymentMethod,
       message,
@@ -22,12 +22,12 @@ export const createDonation = async (req, res) => {
   }
 };
 
-// @desc    Get logged-in donor's donation history
-// @route   GET /api/donations/my
-// @access  Private (donor)
+// @desc    Get donation history for a specific donor
+// @route   GET /api/donations/my/:donorId
+// @access  Public
 export const getMyDonations = async (req, res) => {
   try {
-    const donations = await Donation.find({ donorId: req.user.id }).sort({ createdAt: -1 });
+    const donations = await Donation.find({ donorId: req.params.donorId }).sort({ createdAt: -1 });
     res.json({ success: true, count: donations.length, donations });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

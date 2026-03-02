@@ -49,11 +49,11 @@ export const loginDonor = async (req, res) => {
 };
 
 // @desc    Get donor profile
-// @route   GET /api/donors/profile
-// @access  Private (donor)
+// @route   GET /api/donors/profile/:id
+// @access  Public
 export const getDonorProfile = async (req, res) => {
   try {
-    const donor = await Donor.findById(req.user.id).select("-password");
+    const donor = await Donor.findById(req.params.id).select("-password");
     if (!donor) {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
@@ -71,7 +71,7 @@ export const updateDonorProfile = async (req, res) => {
     const { fullName, phone, password } = req.body;
 
     const donor = await Donor.findByIdAndUpdate(
-      req.user.id,
+      req.params.id,
       { fullName, phone, password },
       { new: true, runValidators: true }
     ).select("-password");
