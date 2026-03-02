@@ -7,6 +7,8 @@ import subjectRoutes from "./routes/subject.route.js";
 import donorRoutes from "./routes/donor.route.js";
 import donationRoutes from "./routes/donation.route.js";
 import teacherRoutes from "./routes/teacher.route.js";
+import quizRoutes from "./routes/quiz.route.js";
+import studyMaterialRoutes from "./routes/studyMaterial.route.js";
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use("/api/subjects", subjectRoutes);
 app.use("/api/donors", donorRoutes);
 app.use("/api/donations", donationRoutes);
 app.use("/api/teachers", teacherRoutes);
+app.use("/api/quizzes", quizRoutes);
+app.use("/api/study-materials", studyMaterialRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
