@@ -1,5 +1,4 @@
 import Student from '../models/studentRegModel.js';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 export const registerStudent = async (req, res) => {
@@ -37,14 +36,8 @@ export const loginStudent = async (req, res) => {
 
     console.log('JWT_SECRET:', process.env.JWT_SECRET);
     
-    const token = jwt.sign(
-      { id: student._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
 
     res.json({
-      token,
       studentId: student._id,
       fullName: student.fullName
     });

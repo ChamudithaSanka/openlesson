@@ -11,8 +11,8 @@ export const createComplaint = async (req, res) => {
       });
     }
 
-    const newComplaint = new Complaint({
-      studentId: req.user.id,
+const newComplaint = new Complaint({
+  studentId,
       subject,
       description,
       category: category || "Other",
@@ -35,9 +35,9 @@ export const createComplaint = async (req, res) => {
 // 🔹 Get Logged-in Student's Complaints
 export const getMyComplaints = async (req, res) => {
   try {
-    const complaints = await Complaint.find({
-      studentId: req.user.id,
-    }).sort({ createdAt: -1 });
+    const { studentId } = req.query;
+
+  const complaints = await Complaint.find({ studentId }).sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
   } catch (error) {
@@ -59,9 +59,6 @@ export const updateComplaint = async (req, res) => {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
-    if (complaint.studentId.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Unauthorized action" });
-    }
 
     // Only allow updates if complaint is still Open
     if (complaint.status !== "Open") {
