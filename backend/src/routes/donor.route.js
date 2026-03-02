@@ -16,13 +16,13 @@ const router = express.Router();
 router.post("/register", registerDonor);
 router.post("/login", loginDonor);
 
-// Donor private routes
-router.get("/profile", protect, authorize("donor"), getDonorProfile);
-router.put("/profile", protect, authorize("donor"), updateDonorProfile);
+// Donor  routes
+router.get("/profile", getDonorProfile);
+router.put("/profile", updateDonorProfile);
 
-// Admin only routes
-router.get("/", protect, authorize("admin"), getAllDonors);
-router.put("/:id/status", protect, authorize("admin"), updateDonorStatus);
-router.delete("/:id", protect, authorize("admin"), deleteDonor);
+// Admin routes
+router.get("/", getAllDonors);
+router.put("/:id/status", updateDonorStatus);
+router.delete("/:id", deleteDonor);
 
 export default router;

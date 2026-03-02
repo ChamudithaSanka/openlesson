@@ -12,13 +12,13 @@ import { protect, authorize } from "../middleware/auth.js";
 const router = express.Router();
 
 // Donor routes
-router.post("/", protect, authorize("donor"), createDonation);
-router.get("/my", protect, authorize("donor"), getMyDonations);
+router.post("/", createDonation);
+router.get("/my", getMyDonations);
 
 // Admin routes
-router.get("/", protect, authorize("admin"), getAllDonations);
-router.get("/:id", protect, authorize("admin"), getDonationById);
-router.put("/:id", protect, authorize("admin"), updateDonationStatus);
-router.delete("/:id", protect, authorize("admin"), deleteDonation);
+router.get("/", getAllDonations);
+router.get("/:id", getDonationById);
+router.put("/:id", updateDonationStatus);
+router.delete("/:id", deleteDonation);
 
 export default router;
