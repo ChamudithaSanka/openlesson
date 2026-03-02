@@ -11,6 +11,9 @@ import teacherRoutes from "./routes/teacher.route.js";
 import studentRegRoutes from "./routes/studentRegRoute.js"; 
 import feedbackRoutes from "./routes/feedbackRoute.js"; 
 import reportRoutes from "./routes/Complaintroute.js";
+import gradeRoutes from "./routes/grade.route.js";
+import teacherRoutes from "./routes/teacher.route.js"
+import subjectRoutes from "./routes/subject.route.js"
 
 
 const app = express();
@@ -33,6 +36,10 @@ app.use("/api/subjects", subjectRoutes);
 app.use("/api/donors", donorRoutes);
 app.use("/api/donations", donationRoutes);
 app.use("/api/teachers", teacherRoutes);
+
+app.use("/api/grades", gradeRoutes);
+app.use("/api/teachers", teacherRoutes)
+app.use("/api/subjects", subjectRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
