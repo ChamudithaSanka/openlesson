@@ -94,10 +94,6 @@ export const deleteComplaint = async (req, res) => {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
-    if (complaint.studentId.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Unauthorized action" });
-    }
-
     await complaint.deleteOne();
 
     res.status(200).json({
