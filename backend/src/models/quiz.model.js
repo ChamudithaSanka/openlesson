@@ -1,5 +1,8 @@
+// Quiz Model - Defines quiz data structure in MongoDB
+
 import mongoose from "mongoose";
 
+// Question Schema - Structure for each question
 const questionSchema = new mongoose.Schema({
   questionText: {
     type: String,
@@ -7,7 +10,7 @@ const questionSchema = new mongoose.Schema({
   },
   questionType: {
     type: String,
-    enum: ["single", "multiple"],
+    enum: ["single", "multiple"],  // single or multiple choice
     required: true,
   },
   options: {
@@ -16,10 +19,11 @@ const questionSchema = new mongoose.Schema({
   },
   correctAnswers: {
     type: [Number],
-    required: true,
+    required: true,  // indices of correct options
   },
 });
 
+// Quiz Schema - Main quiz structure
 const quizSchema = new mongoose.Schema(
   {
     title: {
@@ -33,12 +37,12 @@ const quizSchema = new mongoose.Schema(
     },
     subjectId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Subject",
+      ref: "Subject",  // reference to Subject collection
       required: true,
     },
     gradeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Grade",
+      ref: "Grade",  // reference to Grade collection
       required: true,
     },
     questions: [questionSchema],
@@ -48,15 +52,15 @@ const quizSchema = new mongoose.Schema(
     },
     duration: {
       type: Number,
-      required: true,
+      required: true,  // in minutes
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Teacher",
+      ref: "Teacher",  // reference to Teacher collection
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true }  // adds createdAt and updatedAt automatically
 );
 
 const Quiz = mongoose.model("Quiz", quizSchema);
