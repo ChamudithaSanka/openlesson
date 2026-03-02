@@ -16,9 +16,9 @@ const router = express.Router();
 router.post("/register", registerDonor);
 router.post("/login", loginDonor);
 
-// Donor  routes
-router.get("/profile", getDonorProfile);
-router.put("/profile", updateDonorProfile);
+// Donor routes
+router.get("/profile/:id", getDonorProfile);
+router.put("/profile/:id", updateDonorProfile);
 
 // Admin routes
 router.get("/", getAllDonors);

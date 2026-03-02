@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Donor routes
 router.post("/", createDonation);
-router.get("/my", getMyDonations);
+router.get("/my/:donorId", getMyDonations);
 
 // Admin routes
 router.get("/", getAllDonations);
