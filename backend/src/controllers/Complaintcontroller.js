@@ -3,7 +3,7 @@ import Complaint from "../models/ComplaintModel.js";
 // 🔹 Create Complaint
 export const createComplaint = async (req, res) => {
   try {
-    const { subject, description, category } = req.body;
+    const { studentId,subject, description, category } = req.body;
 
     if (!subject || !description) {
       return res.status(400).json({
@@ -35,7 +35,7 @@ const newComplaint = new Complaint({
 // 🔹 Get Logged-in Student's Complaints
 export const getMyComplaints = async (req, res) => {
   try {
-    const { studentId } = req.query;
+    const { studentId } = req.params;
 
   const complaints = await Complaint.find({ studentId }).sort({ createdAt: -1 });
 
@@ -92,10 +92,6 @@ export const deleteComplaint = async (req, res) => {
 
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
-    }
-
-    if (complaint.studentId.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Unauthorized action" });
     }
 
     await complaint.deleteOne();

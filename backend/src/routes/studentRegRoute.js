@@ -21,7 +21,7 @@ router.post('/login', loginStudent);
 router.put('/profile/:id', updateProfile);
 
 //deactivate the account of the student
-router.put('/deactivate/:id', deactivateStudent);
+router.delete('/deactivate/:id', deactivateStudent);
 
 
 //student registration input validation

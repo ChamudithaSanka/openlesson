@@ -28,7 +28,7 @@ const validateComplaint = [
 router.post("/", validateComplaint, createComplaint);
 
 // Get my complaints
-router.get("/my-complaints", getMyComplaints);
+router.get("/my-complaints/:studentId", getMyComplaints);
 
 // Update complaint
 router.put("/:id", validateComplaint, updateComplaint);
