@@ -1,0 +1,5 @@
+react-router-dom → routing (pages like login, dashboard)
+axios → API calls to backend
+react-hook-form → form handling
+zod → form validation
+jwt-decode → parse JWT token on frontend
