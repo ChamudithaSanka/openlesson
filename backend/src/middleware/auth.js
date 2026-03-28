@@ -35,10 +35,12 @@ export const protect = async (req, res, next) => {
 // Role-based access control
 export const authorize = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    const userRole = req.user.userType;
+
+    if (!roles.includes(userRole)) {
       return res.status(403).json({
         success: false,
-        message: `User role ${req.user.role} is not authorized to access this route`,
+        message: `User role ${userRole} is not authorized to access this route`,
       });
     }
     next();

@@ -11,6 +11,13 @@ export const register = async (req, res) => {
   try {
     const { fullName, email, password, userType, phone, gradeId, qualification, companyName } = req.body;
 
+    if (userType === "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Admin cannot self-register",
+      });
+    }
+
     // Validate userType
     if (!["student", "teacher", "donor"].includes(userType)) {
       return res.status(400).json({ 
@@ -112,7 +119,7 @@ export const login = async (req, res) => {
     }
 
     // Validate userType
-    if (!["student", "teacher", "donor"].includes(userType)) {
+    if (!["student", "teacher", "donor", "admin"].includes(userType)) {
       return res.status(400).json({
         success: false,
         message: "Invalid user type",

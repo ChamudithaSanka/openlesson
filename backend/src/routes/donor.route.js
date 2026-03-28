@@ -15,8 +15,8 @@ router.get("/profile/:id", protect, getDonorProfile);
 router.put("/profile/:id", protect, updateDonorProfile);
 
 // Admin routes
-router.get("/", protect, getAllDonors);
-router.put("/:id/status", protect, updateDonorStatus);
-router.delete("/:id", protect, deleteDonor);
+router.get("/", protect, authorize("admin"), getAllDonors);
+router.put("/:id/status", protect, authorize("admin"), updateDonorStatus);
+router.delete("/:id", protect, authorize("admin"), deleteDonor);
 
 export default router;
