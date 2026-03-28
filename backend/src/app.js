@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.route.js";
 import studySessionRoutes from "./routes/studySession.route.js";
 import announcementRoutes from "./routes/announcement.route.js";
@@ -15,11 +17,14 @@ import feedbackRoutes from "./routes/feedbackRoute.js";
 import reportRoutes from "./routes/Complaintroute.js";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 // Auth routes
 app.use("/api/auth", authRoutes);

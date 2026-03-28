@@ -10,6 +10,7 @@ import { generateToken } from "../utils/jwt.js";
 export const register = async (req, res) => {
   try {
     const { fullName, email, password, userType, phone, gradeId, qualification, companyName } = req.body;
+    const cvUrl = req.file ? `/uploads/cv/${req.file.filename}` : null;
 
     if (userType === "admin") {
       return res.status(403).json({
@@ -55,12 +56,21 @@ export const register = async (req, res) => {
           status: "active",
         });
       } else if (userType === "teacher") {
+        if (!cvUrl) {
+          await User.findByIdAndDelete(user._id);
+          return res.status(400).json({
+            success: false,
+            message: "CV document is required for teacher registration",
+          });
+        }
+
         userProfile = await Teacher.create({
           userId: user._id,
           fullName,
           phone,
           qualification,
-          status: "Approved",
+          cvUrl,
+          status: "Pending",
         });
       } else if (userType === "donor") {
         userProfile = await Donor.create({
@@ -86,7 +96,10 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: `${userType.charAt(0).toUpperCase() + userType.slice(1)} registered successfully`,
+      message:
+        userType === "teacher"
+          ? "Teacher registered successfully. Account is pending admin approval."
+          : `${userType.charAt(0).toUpperCase() + userType.slice(1)} registered successfully`,
       token,
       user: {
         id: user._id,
@@ -108,21 +121,13 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
-    const { email, password, userType } = req.body;
+    const { email, password } = req.body;
 
     // Validate input
-    if (!email || !password || !userType) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email, password, and userType are required",
-      });
-    }
-
-    // Validate userType
-    if (!["student", "teacher", "donor", "admin"].includes(userType)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user type",
+        message: "Email and password are required",
       });
     }
 
@@ -132,14 +137,6 @@ export const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
-      });
-    }
-
-    // Check userType matches
-    if (user.userType !== userType) {
-      return res.status(401).json({
-        success: false,
-        message: `This email is not registered as a ${userType}`,
       });
     }
 
@@ -169,11 +166,21 @@ export const login = async (req, res) => {
 
     // Fetch user profile
     let userProfile;
-    if (userType === "student") {
+    if (user.userType === "student") {
       userProfile = await Student.findOne({ userId: user._id }).select("-password");
-    } else if (userType === "teacher") {
+    } else if (user.userType === "teacher") {
       userProfile = await Teacher.findOne({ userId: user._id }).select("-password");
-    } else if (userType === "donor") {
+      if (!userProfile) {
+        return res.status(404).json({ success: false, message: "Teacher profile not found" });
+      }
+
+      if (userProfile.status !== "Approved") {
+        return res.status(403).json({
+          success: false,
+          message: `Teacher account is ${userProfile.status}. Please wait for admin approval.`,
+        });
+      }
+    } else if (user.userType === "donor") {
       userProfile = await Donor.findOne({ userId: user._id }).select("-password");
     }
 

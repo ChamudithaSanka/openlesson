@@ -20,6 +20,10 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    cvUrl: {
+      type: String,
+      trim: true,
+    },
     gradesTheyTeach: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -35,7 +39,7 @@ const teacherSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Pending", "Approved", "Rejected"],
-      default: "Approved",
+      default: "Pending",
     },
   },
   { timestamps: true }

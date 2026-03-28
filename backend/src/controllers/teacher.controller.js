@@ -41,6 +41,53 @@ export const getAllTeachers = async (req, res) => {
   }
 };
 
+// @desc    Get pending teachers for verification
+// @route   GET /api/teachers/pending
+// @access  Private (admin)
+export const getPendingTeachers = async (req, res) => {
+  try {
+    const teachers = await Teacher.find({ status: "Pending" })
+      .populate("userId", "email")
+      .populate("gradesTheyTeach", "gradeName description")
+      .populate("subjectsTheyTeach", "subjectName description")
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, count: teachers.length, teachers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Approve or reject teacher
+// @route   PUT /api/teachers/:id/status
+// @access  Private (admin)
+export const updateTeacherStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!["Approved", "Rejected", "Pending"].includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status value" });
+    }
+
+    const teacher = await Teacher.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true }
+    )
+      .populate("userId", "email")
+      .populate("gradesTheyTeach", "gradeName description")
+      .populate("subjectsTheyTeach", "subjectName description");
+
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    res.json({ success: true, teacher });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Update teacher profile
 // @route   PUT /api/teachers/:id
 // @access  Private
