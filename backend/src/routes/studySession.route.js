@@ -8,6 +8,7 @@ import {
   updateStudySession,
   deleteStudySession,
 } from "../controllers/studySession.controller.js";
+import { protect, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -18,12 +19,12 @@ router.get("/", getAllStudySessions);
 router.get("/:id", getStudySessionById);
 
 // POST - create a new study session
-router.post("/", createStudySession);
+router.post("/", protect, authorize("teacher", "admin"), createStudySession);
 
 // PUT - update an existing study session by ID
-router.put("/:id", updateStudySession);
+router.put("/:id", protect, authorize("teacher", "admin"), updateStudySession);
 
 // DELETE - remove a study session by ID
-router.delete("/:id", deleteStudySession);
+router.delete("/:id", protect, authorize("teacher", "admin"), deleteStudySession);
 
 export default router;

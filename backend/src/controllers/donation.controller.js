@@ -6,10 +6,15 @@ import Donor from "../models/donor.model.js";
 // @access  Public
 export const createDonation = async (req, res) => {
   try {
-    const { donorId, amount, paymentMethod, message } = req.body;
+    const { amount, paymentMethod, message } = req.body;
+
+    const donor = await Donor.findOne({ userId: req.user.id });
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor profile not found" });
+    }
 
     const donation = await Donation.create({
-      donorId,
+      donorId: donor._id,
       amount,
       paymentMethod,
       message,
@@ -27,7 +32,12 @@ export const createDonation = async (req, res) => {
 // @access  Public
 export const getMyDonations = async (req, res) => {
   try {
-    const donations = await Donation.find({ donorId: req.params.donorId }).sort({ createdAt: -1 });
+    const donor = await Donor.findOne({ userId: req.user.id });
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor profile not found" });
+    }
+
+    const donations = await Donation.find({ donorId: donor._id }).sort({ createdAt: -1 });
     res.json({ success: true, count: donations.length, donations });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -6,13 +6,14 @@ import {
   updateAnnouncement,
   deleteAnnouncement,
 } from "../controllers/announcement.controller.js";
+import { protect, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
 router.get("/", getAllAnnouncements);
 router.get("/:id", getAnnouncementById);
-router.post("/", createAnnouncement);
-router.put("/:id", updateAnnouncement);
-router.delete("/:id", deleteAnnouncement);
+router.post("/", protect, authorize("admin"), createAnnouncement);
+router.put("/:id", protect, authorize("admin"), updateAnnouncement);
+router.delete("/:id", protect, authorize("admin"), deleteAnnouncement);
 
 export default router;

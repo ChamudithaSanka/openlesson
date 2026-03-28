@@ -1,62 +1,20 @@
 import Donor from "../models/donor.model.js";
 import Donation from "../models/donation.model.js";
-import { generateToken } from "../utils/jwt.js";
-
-// @desc    Register a new donor
-// @route   POST /api/donors/register
-// @access  Public
-export const registerDonor = async (req, res) => {
-  try {
-    const { fullName, email, password, phone } = req.body;
-
-    const existingDonor = await Donor.findOne({ email });
-    if (existingDonor) {
-      return res.status(400).json({ success: false, message: "Email already registered" });
-    }
-
-    const donor = await Donor.create({ fullName, email, password, phone });
-
-    const token = generateToken({ id: donor._id, email: donor.email, role: donor.role });
-
-    res.status(201).json({ success: true, token, donor });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// @desc    Login donor
-// @route   POST /api/donors/login
-// @access  Public
-export const loginDonor = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const donor = await Donor.findOne({ email });
-    if (!donor || donor.password !== password) {
-      return res.status(401).json({ success: false, message: "Invalid email or password" });
-    }
-
-    if (donor.status === "Inactive") {
-      return res.status(403).json({ success: false, message: "Account is inactive" });
-    }
-
-    const token = generateToken({ id: donor._id, email: donor.email, role: donor.role });
-
-    res.json({ success: true, token, donor });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
 // @desc    Get donor profile
 // @route   GET /api/donors/profile/:id
-// @access  Public
+// @access  Private
 export const getDonorProfile = async (req, res) => {
   try {
-    const donor = await Donor.findById(req.params.id).select("-password");
+    const donor = await Donor.findById(req.params.id).populate("userId", "email");
     if (!donor) {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
+
+    if (req.user.userType !== "admin" && donor.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to view this profile" });
+    }
+
     res.json({ success: true, donor });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -64,17 +22,29 @@ export const getDonorProfile = async (req, res) => {
 };
 
 // @desc    Update donor profile
-// @route   PUT /api/donors/profile
+// @route   PUT /api/donors/profile/:id
 // @access  Private (donor)
 export const updateDonorProfile = async (req, res) => {
   try {
-    const { fullName, phone, password } = req.body;
+    const updates = req.body;
+
+    const existingDonor = await Donor.findById(req.params.id);
+    if (!existingDonor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && existingDonor.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to update this profile" });
+    }
+
+    // Prevent updating userId through this endpoint
+    delete updates.userId;
 
     const donor = await Donor.findByIdAndUpdate(
       req.params.id,
-      { fullName, phone, password },
+      updates,
       { new: true, runValidators: true }
-    ).select("-password");
+    ).populate("userId", "email");
 
     res.json({ success: true, donor });
   } catch (error) {
@@ -87,7 +57,7 @@ export const updateDonorProfile = async (req, res) => {
 // @access  Private (admin)
 export const getAllDonors = async (req, res) => {
   try {
-    const donors = await Donor.find().select("-password");
+    const donors = await Donor.find().populate("userId", "email");
     res.json({ success: true, count: donors.length, donors });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -105,7 +75,7 @@ export const updateDonorStatus = async (req, res) => {
       req.params.id,
       { status },
       { new: true }
-    ).select("-password");
+    ).populate("userId", "email");
 
     if (!donor) {
       return res.status(404).json({ success: false, message: "Donor not found" });

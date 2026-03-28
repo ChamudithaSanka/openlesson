@@ -1,11 +1,22 @@
 import Feedback from "../models/feedbackModel.js";
+import Student from "../models/studentRegModel.js";
 
 // CREATE feedback
 export const createFeedback = async (req, res) => {
   try {
-    const { studentId, teacherId, rating, comment } = req.body;
+    const { teacherId, rating, comment } = req.body;
+    const student = await Student.findOne({ userId: req.user.id });
 
-    const feedback = new Feedback({ studentId, teacherId, rating, comment });
+    if (!student) {
+      return res.status(404).json({ message: "Student profile not found" });
+    }
+
+    const feedback = new Feedback({
+      studentId: student._id,
+      teacherId,
+      rating,
+      comment,
+    });
     await feedback.save();
 
     res.status(201).json({ message: "Feedback created successfully", feedback });
