@@ -8,11 +8,12 @@ import {
   updateQuiz,
   deleteQuiz,
 } from "../controllers/quiz.controller.js";
+import { protect, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // CREATE - POST /api/quizzes
-router.post("/", createQuiz);
+router.post("/", protect, authorize("teacher", "admin"), createQuiz);
 
 // READ - GET /api/quizzes
 router.get("/", getAllQuizzes);
@@ -21,9 +22,9 @@ router.get("/", getAllQuizzes);
 router.get("/:id", getQuizById);
 
 // UPDATE - PUT /api/quizzes/:id
-router.put("/:id", updateQuiz);
+router.put("/:id", protect, authorize("teacher", "admin"), updateQuiz);
 
 // DELETE - DELETE /api/quizzes/:id
-router.delete("/:id", deleteQuiz);
+router.delete("/:id", protect, authorize("teacher", "admin"), deleteQuiz);
 
 export default router;

@@ -10,6 +10,11 @@ export const getDonorProfile = async (req, res) => {
     if (!donor) {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
+
+    if (req.user.userType !== "admin" && donor.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to view this profile" });
+    }
+
     res.json({ success: true, donor });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -22,6 +27,15 @@ export const getDonorProfile = async (req, res) => {
 export const updateDonorProfile = async (req, res) => {
   try {
     const updates = req.body;
+
+    const existingDonor = await Donor.findById(req.params.id);
+    if (!existingDonor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && existingDonor.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to update this profile" });
+    }
 
     // Prevent updating userId through this endpoint
     delete updates.userId;

@@ -1,4 +1,5 @@
-import Complaint from "../models/ComplaintModel.js";
+import Complaint from "../models/Complaintmodel.js";
+import Student from "../models/studentRegModel.js";
 
 // 🔹 Create Complaint
 export const createComplaint = async (req, res) => {
@@ -11,8 +12,13 @@ export const createComplaint = async (req, res) => {
       });
     }
 
-const newComplaint = new Complaint({
-  studentId,
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can create complaints" });
+    }
+
+    const newComplaint = new Complaint({
+      studentId: student._id,
       subject,
       description,
       category: category || "Other",
@@ -35,9 +41,12 @@ const newComplaint = new Complaint({
 // 🔹 Get Logged-in Student's Complaints
 export const getMyComplaints = async (req, res) => {
   try {
-    const { studentId } = req.query;
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can view complaints" });
+    }
 
-  const complaints = await Complaint.find({ studentId }).sort({ createdAt: -1 });
+    const complaints = await Complaint.find({ studentId: student._id }).sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
   } catch (error) {
@@ -53,10 +62,18 @@ export const updateComplaint = async (req, res) => {
   try {
     const { subject, description, category } = req.body;
 
-    const complaint = await Complaint.findById(req.params.id);
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can update complaints" });
+    }
 
+    const complaint = await Complaint.findById(req.params.id);
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    if (complaint.studentId.toString() !== student._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized action" });
     }
 
 
@@ -88,13 +105,18 @@ export const updateComplaint = async (req, res) => {
 // 🔹 Delete Complaint
 export const deleteComplaint = async (req, res) => {
   try {
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can delete complaints" });
+    }
+
     const complaint = await Complaint.findById(req.params.id);
 
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
-    if (complaint.studentId.toString() !== req.user.id) {
+    if (complaint.studentId.toString() !== student._id.toString()) {
       return res.status(403).json({ message: "Unauthorized action" });
     }
 

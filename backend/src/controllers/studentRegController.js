@@ -13,6 +13,10 @@ export const getStudentProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Student not found' });
     }
 
+    if (req.user.userType !== 'admin' && student.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to view this profile' });
+    }
+
     res.json({
       success: true,
       student
@@ -29,6 +33,15 @@ export const updateProfile = async (req, res) => {
   try {
     const studentId = req.params.id;
     const updates = req.body;
+
+    const existingStudent = await Student.findById(studentId);
+    if (!existingStudent) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    if (req.user.userType !== 'admin' && existingStudent.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to update this profile' });
+    }
 
     // Prevent updating email/password through this endpoint
     delete updates.email;

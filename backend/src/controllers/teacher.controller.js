@@ -14,6 +14,10 @@ export const getTeacherProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
 
+    if (req.user.userType !== "admin" && teacher.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to view this profile" });
+    }
+
     res.json({ success: true, teacher });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -43,6 +47,15 @@ export const getAllTeachers = async (req, res) => {
 export const updateTeacher = async (req, res) => {
   try {
     const updates = req.body;
+
+    const existingTeacher = await Teacher.findById(req.params.id);
+    if (!existingTeacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    if (req.user.userType !== "admin" && existingTeacher.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to update this profile" });
+    }
 
     // Prevent updating userId through this endpoint
     delete updates.userId;

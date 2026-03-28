@@ -12,7 +12,7 @@ import { protect, authorize } from "../middleware/auth.js";
 const router = express.Router();
 
 // Get all feedback (for admin/testing)
-router.get("/", getAllFeedback);
+router.get("/", protect, authorize("admin"), getAllFeedback);
 
 // Get feedback by student
 router.get("/student/:studentId", getFeedbackByStudent);
@@ -24,7 +24,7 @@ router.get("/:id", getFeedbackById);
 router.put("/:id", updateFeedback);
 
 // Delete feedback
-router.delete("/:id", deleteFeedback);
+router.delete("/:id", protect, authorize("admin"), deleteFeedback);
 
 router.post("/", protect, authorize("student"), createFeedback);
 
