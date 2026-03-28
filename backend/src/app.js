@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import authRoutes from "./routes/auth.route.js";
 import studySessionRoutes from "./routes/studySession.route.js";
 import announcementRoutes from "./routes/announcement.route.js";
 import gradeRoutes from "./routes/grade.route.js";
@@ -20,12 +21,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes will be added here
+// Auth routes
+app.use("/api/auth", authRoutes);
+
+// Routes
 app.use("/api/students", studentRegRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/complaints", reportRoutes);
-
-// Routes
 app.use("/api/study-sessions", studySessionRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/grades", gradeRoutes);
