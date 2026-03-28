@@ -12,6 +12,14 @@ const studentSchema = new mongoose.Schema({
     ref: 'Grade',
     required: true
   },
+  schoolName: {
+    type: String,
+    trim: true,
+  },
+  district: {
+    type: String,
+    trim: true,
+  },
   phone: String,
   status: {
     type: String,

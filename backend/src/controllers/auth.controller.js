@@ -9,7 +9,7 @@ import { generateToken } from "../utils/jwt.js";
 // @access  Public
 export const register = async (req, res) => {
   try {
-    const { fullName, email, password, userType, phone, gradeId, qualification, companyName } = req.body;
+    const { fullName, email, password, userType, phone, gradeId, schoolName, district, qualification, companyName } = req.body;
     const cvUrl = req.file ? `/uploads/cv/${req.file.filename}` : null;
 
     if (userType === "admin") {
@@ -53,6 +53,8 @@ export const register = async (req, res) => {
           fullName,
           phone,
           gradeId,
+          schoolName,
+          district,
           status: "active",
         });
       } else if (userType === "teacher") {

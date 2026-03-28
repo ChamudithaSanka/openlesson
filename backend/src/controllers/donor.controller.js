@@ -39,6 +39,9 @@ export const updateDonorProfile = async (req, res) => {
 
     // Prevent updating userId through this endpoint
     delete updates.userId;
+    delete updates.recurringPlan;
+    delete updates.recurringAmount;
+    delete updates.isSubscriptionEnabled;
 
     const donor = await Donor.findByIdAndUpdate(
       req.params.id,
@@ -97,6 +100,84 @@ export const deleteDonor = async (req, res) => {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
     res.json({ success: true, message: "Donor deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Set donor subscription plan
+// @route   PUT /api/donors/subscription/:id
+// @access  Private (donor/admin)
+export const setDonorSubscription = async (req, res) => {
+  try {
+    const { recurringPlan, recurringAmount } = req.body;
+
+    if (!["none", "monthly", "yearly"].includes(recurringPlan)) {
+      return res.status(400).json({
+        success: false,
+        message: "recurringPlan must be one of: none, monthly, yearly",
+      });
+    }
+
+    const donor = await Donor.findById(req.params.id);
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && donor.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to update this subscription" });
+    }
+
+    if (recurringPlan !== "none" && (!recurringAmount || Number(recurringAmount) <= 0)) {
+      return res.status(400).json({
+        success: false,
+        message: "recurringAmount must be greater than 0 for monthly/yearly plans",
+      });
+    }
+
+    donor.recurringPlan = recurringPlan;
+    donor.recurringAmount = recurringPlan === "none" ? 0 : Number(recurringAmount);
+    donor.isSubscriptionEnabled = recurringPlan !== "none";
+
+    await donor.save();
+
+    res.json({ success: true, donor });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Enable/disable donor subscription
+// @route   PATCH /api/donors/subscription/:id/toggle
+// @access  Private (donor/admin)
+export const toggleDonorSubscription = async (req, res) => {
+  try {
+    const { enabled } = req.body;
+
+    if (typeof enabled !== "boolean") {
+      return res.status(400).json({ success: false, message: "enabled must be boolean" });
+    }
+
+    const donor = await Donor.findById(req.params.id);
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && donor.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to update this subscription" });
+    }
+
+    if (enabled && donor.recurringPlan === "none") {
+      return res.status(400).json({
+        success: false,
+        message: "Set recurring plan first before enabling subscription",
+      });
+    }
+
+    donor.isSubscriptionEnabled = enabled;
+    await donor.save();
+
+    res.json({ success: true, donor });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

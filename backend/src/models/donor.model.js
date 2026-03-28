@@ -21,6 +21,20 @@ const donorSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    recurringPlan: {
+      type: String,
+      enum: ["none", "monthly", "yearly"],
+      default: "none",
+    },
+    recurringAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    isSubscriptionEnabled: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: ["Active", "Inactive"],
