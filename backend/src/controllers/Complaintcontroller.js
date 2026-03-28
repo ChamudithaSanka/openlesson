@@ -4,7 +4,7 @@ import Student from "../models/studentRegModel.js";
 // 🔹 Create Complaint
 export const createComplaint = async (req, res) => {
   try {
-    const { subject, description, category } = req.body;
+    const { studentId,subject, description, category } = req.body;
 
     if (!subject || !description) {
       return res.status(400).json({
