@@ -1,15 +1,21 @@
 import Complaint from "../models/ComplaintModel.js";
-import { categorizeComplaint } from "../utils/aiCategoryService.js"; // 👈 import AI service
+import { categorizeComplaint } from "../utils/aiCategoryService.js"; // 👈 AI service
+import Student from "../models/studentRegModel.js";
 
 // 🔹 Create Complaint (with AI auto-categorization)
 export const createComplaint = async (req, res) => {
   try {
-    const { studentId, subject, description, category } = req.body;
+    const { subject, description, category } = req.body;
 
     if (!subject || !description) {
       return res.status(400).json({
         message: "Subject and description are required",
       });
+    }
+
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can create complaints" });
     }
 
     // 🤖 If the student didn't pick a category, let AI decide
@@ -19,7 +25,7 @@ export const createComplaint = async (req, res) => {
     }
 
     const newComplaint = new Complaint({
-      studentId,
+      studentId: student._id,
       subject,
       description,
       category: resolvedCategory,
@@ -29,7 +35,7 @@ export const createComplaint = async (req, res) => {
 
     res.status(201).json({
       message: "Complaint submitted successfully",
-      aiCategorized: !category || category === "Other", // tells frontend if AI was used
+      aiCategorized: !category || category === "Other",
       complaint: newComplaint,
     });
   } catch (error) {
@@ -43,9 +49,12 @@ export const createComplaint = async (req, res) => {
 // 🔹 Get Logged-in Student's Complaints
 export const getMyComplaints = async (req, res) => {
   try {
-    const { studentId } = req.params;
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can view complaints" });
+    }
 
-    const complaints = await Complaint.find({ studentId }).sort({ createdAt: -1 });
+    const complaints = await Complaint.find({ studentId: student._id }).sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
   } catch (error) {
@@ -61,10 +70,18 @@ export const updateComplaint = async (req, res) => {
   try {
     const { subject, description, category } = req.body;
 
-    const complaint = await Complaint.findById(req.params.id);
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can update complaints" });
+    }
 
+    const complaint = await Complaint.findById(req.params.id);
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    if (complaint.studentId.toString() !== student._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized action" });
     }
 
     // Only allow updates if complaint is still Open
@@ -104,10 +121,18 @@ export const updateComplaint = async (req, res) => {
 // 🔹 Delete Complaint
 export const deleteComplaint = async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.id);
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(403).json({ message: "Only students can delete complaints" });
+    }
 
+    const complaint = await Complaint.findById(req.params.id);
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    if (complaint.studentId.toString() !== student._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized action" });
     }
 
     await complaint.deleteOne();

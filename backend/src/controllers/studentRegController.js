@@ -1,91 +1,67 @@
 import Student from '../models/studentRegModel.js';
-import bcrypt from 'bcrypt';
 
-export const registerStudent = async (req, res) => {
+// @desc    Get student profile
+// @route   GET /api/students/profile/:id
+// @access  Private
+export const getStudentProfile = async (req, res) => {
   try {
-    const { fullName, email, password, gradeId, phone } = req.body;
-
-    const existingStudent = await Student.findOne({ email });
-    if (existingStudent) {
-      return res.status(400).json({ message: 'Email already registered.' });
+    const student = await Student.findById(req.params.id)
+      .populate('userId', 'email')
+      .populate('gradeId', 'gradeName');
+    
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
     }
 
-    const student = new Student({ fullName, email, password, gradeId, phone });
-    await student.save();
-
-    res.status(201).json({
-      message: 'Student registered successfully.',
-      studentId: student._id
-    });
-
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
-
-export const loginStudent = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const student = await Student.findOne({ email });
-    if (!student) return res.status(400).json({ message: 'Invalid credentials' });
-    if (student.status !== 'active') return res.status(403).json({ message: 'Account inactive' });
-
-    const isMatch = await student.comparePassword(password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-
-    console.log('JWT_SECRET:', process.env.JWT_SECRET);
-    
+    if (req.user.userType !== 'admin' && student.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to view this profile' });
+    }
 
     res.json({
-      studentId: student._id,
-      fullName: student.fullName
+      success: true,
+      student
     });
-
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };
 
+// @desc    Update student profile
+// @route   PUT /api/students/profile/:id
+// @access  Private
 export const updateProfile = async (req, res) => {
   try {
     const studentId = req.params.id;
     const updates = req.body;
 
-    if (updates.password) {
-      const salt = await bcrypt.genSalt(10);
-      updates.password = await bcrypt.hash(updates.password, salt);
+    const existingStudent = await Student.findById(studentId);
+    if (!existingStudent) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
     }
+
+    if (req.user.userType !== 'admin' && existingStudent.userId.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to update this profile' });
+    }
+
+    // Prevent updating email/password through this endpoint
+    delete updates.email;
+    delete updates.password;
+    delete updates.userId;
 
     const updatedStudent = await Student.findByIdAndUpdate(
       studentId,
       updates,
-      { new: true }
-    );
+      { new: true, runValidators: true }
+    ).populate('userId', 'email')
+      .populate('gradeId', 'gradeName');
 
     res.json({
+      success: true,
       message: 'Profile updated successfully',
       student: updatedStudent
     });
 
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
-
-export const deactivateStudent = async (req, res) => {
-  try {
-    const studentId = req.params.id;
-
-    const student = await Student.findByIdAndUpdate(
-      studentId,
-      { status: 'inactive' },
-      { new: true }
-    );
-
-    res.json({ message: 'Student deactivated', student });
-
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };

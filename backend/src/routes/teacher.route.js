@@ -1,19 +1,24 @@
 import express from "express";
 import {
-  createTeacher,
+  getTeacherProfile,
   getAllTeachers,
-  getTeacherById,
+  getPendingTeachers,
+  updateTeacherStatus,
   updateTeacher,
   deleteTeacher,
 } from "../controllers/teacher.controller.js";
+import { protect, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Simple CRUD routes - no authentication
-router.post("/", createTeacher);
+// Public routes
 router.get("/", getAllTeachers);
-router.get("/:id", getTeacherById);
-router.put("/:id", updateTeacher);
-router.delete("/:id", deleteTeacher);
+
+// Private routes
+router.get("/pending", protect, authorize("admin"), getPendingTeachers);
+router.put("/:id/status", protect, authorize("admin"), updateTeacherStatus);
+router.get("/profile/:id", protect, getTeacherProfile);
+router.put("/:id", protect, updateTeacher);
+router.delete("/:id", protect, authorize("admin"), deleteTeacher);
 
 export default router;

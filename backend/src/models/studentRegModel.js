@@ -1,14 +1,24 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
 
 const studentSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   fullName: { type: String, required: true, trim: true },
-  email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true },
   gradeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Grade',
     required: true
+  },
+  schoolName: {
+    type: String,
+    trim: true,
+  },
+  district: {
+    type: String,
+    trim: true,
   },
   phone: String,
   status: {
@@ -17,16 +27,5 @@ const studentSchema = new mongoose.Schema({
     default: 'active'
   }
 }, { timestamps: true });
-
-studentSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
-studentSchema.methods.comparePassword = async function(password) {
-  return bcrypt.compare(password, this.password);
-};
 
 export default mongoose.model('Student', studentSchema);

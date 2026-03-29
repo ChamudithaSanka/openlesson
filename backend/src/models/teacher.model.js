@@ -2,27 +2,25 @@ import mongoose from "mongoose";
 
 const teacherSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     fullName: {
       type: String,
       required: true,
       trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
     },
     phone: {
       type: String,
       trim: true,
     },
     qualification: {
+      type: String,
+      trim: true,
+    },
+    cvUrl: {
       type: String,
       trim: true,
     },
@@ -41,11 +39,7 @@ const teacherSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Pending", "Approved", "Rejected"],
-      default: "Approved",
-    },
-    role: {
-      type: String,
-      default: "teacher",
+      default: "Pending",
     },
   },
   { timestamps: true }

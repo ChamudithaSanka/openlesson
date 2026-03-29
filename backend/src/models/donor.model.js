@@ -2,29 +2,38 @@ import mongoose from "mongoose";
 
 const donorSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     fullName: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
       type: String,
       required: true,
     },
     phone: {
       type: String,
     },
+    companyName: {
+      type: String,
+    },
     totalDonated: {
       type: Number,
       default: 0,
     },
-    role: {
+    recurringPlan: {
       type: String,
-      default: "donor",
+      enum: ["none", "monthly", "yearly"],
+      default: "none",
+    },
+    recurringAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    isSubscriptionEnabled: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: String,
