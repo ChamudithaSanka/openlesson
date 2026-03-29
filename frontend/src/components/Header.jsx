@@ -6,7 +6,7 @@ const navLinks = [
   { label: "About Us", href: "/about" },
   { label: "Our Work", href: "/work" },
   { label: "Volunteer", href: "/volunteer" },
-  { label: "Donate", href: "/#donate" },
+  { label: "Donate", href: "/donate" },
 ];
 
 export default function Header() {

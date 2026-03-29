@@ -39,7 +39,7 @@ const audienceCards = [
     title: "Donor",
     description: "Support students with one-time giving or recurring monthly impact.",
     actionLabel: "Start Donating",
-    actionTo: "/register?role=donor",
+    actionTo: "/donate",
   },
 ];
 
@@ -290,7 +290,7 @@ export default function HomePage() {
               Join as Student/Teacher
             </Link>
             <Link
-              to="/register?role=donor"
+              to="/donate"
               className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
             >
               Donate Now
