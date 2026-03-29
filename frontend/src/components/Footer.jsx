@@ -1,7 +1,7 @@
 const quickLinks = [
   { label: "Homepage", href: "#homepage" },
-  { label: "About Us", href: "#about" },
-  { label: "Our Work", href: "#work" },
+  { label: "About Us", href: "/about" },
+  { label: "Our Work", href: "/work" },
   { label: "Volunteer", href: "#volunteer" },
   { label: "Donate", href: "#donate" },
 ];
