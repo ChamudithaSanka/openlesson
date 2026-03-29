@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 const roleOptions = ["student", "teacher", "donor"];
 
 export default function RegisterPage() {
+  const [searchParams] = useSearchParams();
   const [role, setRole] = useState("student");
   const [form, setForm] = useState({
     fullName: "",
@@ -19,6 +21,13 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const requestedRole = (searchParams.get("role") || "").toLowerCase();
+    if (roleOptions.includes(requestedRole)) {
+      setRole(requestedRole);
+    }
+  }, [searchParams]);
 
   const onChange = (e) => {
     const { name, value } = e.target;

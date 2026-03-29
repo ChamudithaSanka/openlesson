@@ -27,19 +27,19 @@ const audienceCards = [
     title: "Student",
     description: "Find study materials, join sessions, and access support when you need it.",
     actionLabel: "Explore Learning",
-    actionTo: "/register",
+    actionTo: "/register?role=student",
   },
   {
     title: "Teacher",
     description: "Teach, upload your CV, and get approved to mentor learners.",
     actionLabel: "Become A Teacher",
-    actionTo: "/register",
+    actionTo: "/register?role=teacher",
   },
   {
     title: "Donor",
     description: "Support students with one-time giving or recurring monthly impact.",
     actionLabel: "Start Donating",
-    actionTo: "/donate",
+    actionTo: "/register?role=donor",
   },
 ];
 
@@ -137,7 +137,7 @@ export default function HomePage() {
               <p className="mt-4 max-w-2xl text-base text-blue-100 sm:text-lg">{slide.subtext}</p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Link
-                  to="/register"
+                  to="/register?role=student"
                   className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
                 >
                   Get Started
@@ -290,7 +290,7 @@ export default function HomePage() {
               Join as Student/Teacher
             </Link>
             <Link
-              to="/donate"
+              to="/register?role=donor"
               className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
             >
               Donate Now
