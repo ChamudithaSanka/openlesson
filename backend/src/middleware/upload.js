@@ -1,9 +1,16 @@
 import multer from "multer";
+import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const cvUploadDir = path.resolve(__dirname, "../../uploads/cv");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/cv");
+    fs.mkdirSync(cvUploadDir, { recursive: true });
+    cb(null, cvUploadDir);
   },
   filename: (req, file, cb) => {
     const timestamp = Date.now();
