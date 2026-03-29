@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const navLinks = [
   { label: "Homepage", href: "/#homepage" },
@@ -11,6 +11,7 @@ const navLinks = [
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [authUser, setAuthUser] = useState(null);
 
   useEffect(() => {
@@ -36,7 +37,9 @@ export default function Header() {
       window.removeEventListener("storage", syncAuth);
       window.removeEventListener("focus", syncAuth);
     };
-  }, []);
+  }, [location.pathname, location.search]);
+
+  const displayName = authUser?.fullName || authUser?.name || authUser?.email || "User";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -68,7 +71,7 @@ export default function Header() {
           {authUser ? (
             <>
               <span className="hidden rounded-md bg-white/10 px-3 py-2 text-sm font-medium sm:inline">
-                {authUser.email}
+                {displayName}
               </span>
               <button
                 type="button"

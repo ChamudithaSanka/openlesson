@@ -7,6 +7,9 @@ const roleOptions = ["student", "teacher", "donor"];
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
   const [role, setRole] = useState("student");
+  const [grades, setGrades] = useState([]);
+  const [gradesLoading, setGradesLoading] = useState(false);
+  const [gradesError, setGradesError] = useState("");
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -29,6 +32,24 @@ export default function RegisterPage() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const fetchGrades = async () => {
+      try {
+        setGradesLoading(true);
+        setGradesError("");
+        const response = await axios.get("http://localhost:5000/api/grades");
+        setGrades(response.data?.data || []);
+      } catch (err) {
+        setGrades([]);
+        setGradesError(err.response?.data?.message || "Unable to load grades right now.");
+      } finally {
+        setGradesLoading(false);
+      }
+    };
+
+    fetchGrades();
+  }, []);
+
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -41,6 +62,11 @@ export default function RegisterPage() {
 
     if (role === "teacher" && !cvFile) {
       setError("CV file is required for teacher registration.");
+      return;
+    }
+
+    if (role === "student" && !form.gradeId) {
+      setError("Please select a grade.");
       return;
     }
 
@@ -118,7 +144,28 @@ export default function RegisterPage() {
 
           {role === "student" && (
             <>
-              <Input label="Grade ID" name="gradeId" value={form.gradeId} onChange={onChange} required />
+              <div>
+                <label htmlFor="gradeId" className="mb-1 block text-sm font-medium text-blue-900">
+                  Grade
+                </label>
+                <select
+                  id="gradeId"
+                  name="gradeId"
+                  value={form.gradeId}
+                  onChange={onChange}
+                  required
+                  disabled={gradesLoading || grades.length === 0}
+                  className="block w-full rounded-md border border-blue-200 bg-white px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2 disabled:cursor-not-allowed disabled:bg-blue-50"
+                >
+                  <option value="">{gradesLoading ? "Loading grades..." : "Select grade"}</option>
+                  {grades.map((grade) => (
+                    <option key={grade._id} value={grade._id}>
+                      {grade.gradeName || grade.name || "Unnamed Grade"}
+                    </option>
+                  ))}
+                </select>
+                {gradesError ? <p className="mt-1 text-xs text-red-600">{gradesError}</p> : null}
+              </div>
               <Input label="School Name" name="schoolName" value={form.schoolName} onChange={onChange} />
               <Input label="District" name="district" value={form.district} onChange={onChange} />
             </>
