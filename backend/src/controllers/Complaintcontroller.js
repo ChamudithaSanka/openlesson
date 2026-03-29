@@ -1,9 +1,10 @@
 import Complaint from "../models/ComplaintModel.js";
+import { categorizeComplaint } from "../utils/aiCategoryService.js"; // 👈 import AI service
 
-// 🔹 Create Complaint
+// 🔹 Create Complaint (with AI auto-categorization)
 export const createComplaint = async (req, res) => {
   try {
-    const { studentId,subject, description, category } = req.body;
+    const { studentId, subject, description, category } = req.body;
 
     if (!subject || !description) {
       return res.status(400).json({
@@ -11,17 +12,24 @@ export const createComplaint = async (req, res) => {
       });
     }
 
-const newComplaint = new Complaint({
-  studentId,
+    // 🤖 If the student didn't pick a category, let AI decide
+    let resolvedCategory = category;
+    if (!category || category === "Other") {
+      resolvedCategory = await categorizeComplaint(subject, description);
+    }
+
+    const newComplaint = new Complaint({
+      studentId,
       subject,
       description,
-      category: category || "Other",
+      category: resolvedCategory,
     });
 
     await newComplaint.save();
 
     res.status(201).json({
       message: "Complaint submitted successfully",
+      aiCategorized: !category || category === "Other", // tells frontend if AI was used
       complaint: newComplaint,
     });
   } catch (error) {
@@ -37,7 +45,7 @@ export const getMyComplaints = async (req, res) => {
   try {
     const { studentId } = req.params;
 
-  const complaints = await Complaint.find({ studentId }).sort({ createdAt: -1 });
+    const complaints = await Complaint.find({ studentId }).sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
   } catch (error) {
@@ -59,7 +67,6 @@ export const updateComplaint = async (req, res) => {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
-
     // Only allow updates if complaint is still Open
     if (complaint.status !== "Open") {
       return res.status(400).json({
@@ -69,7 +76,16 @@ export const updateComplaint = async (req, res) => {
 
     if (subject) complaint.subject = subject;
     if (description) complaint.description = description;
-    if (category) complaint.category = category;
+
+    // 🤖 If description changed and no new category given, re-run AI categorization
+    if (description && !category) {
+      complaint.category = await categorizeComplaint(
+        subject || complaint.subject,
+        description
+      );
+    } else if (category) {
+      complaint.category = category;
+    }
 
     await complaint.save();
 
