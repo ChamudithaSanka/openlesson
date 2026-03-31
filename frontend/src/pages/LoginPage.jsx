@@ -34,9 +34,17 @@ export default function LoginPage() {
       const { token, user } = response.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userType", user.userType);
+      localStorage.setItem("userId", user._id);
 
       setMessage("Login successful. Redirecting...");
-      setTimeout(() => navigate("/"), 600);
+      
+      // Redirect to admin if user is admin
+      if (user.userType === "admin") {
+        setTimeout(() => navigate("/admin/complaints"), 600);
+      } else {
+        setTimeout(() => navigate("/"), 600);
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {

@@ -13,19 +13,24 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [authUser, setAuthUser] = useState(null);
+  const [userType, setUserType] = useState(null);
 
   useEffect(() => {
     const syncAuth = () => {
       const storedUser = localStorage.getItem("user");
+      const storedUserType = localStorage.getItem("userType");
       if (!storedUser) {
         setAuthUser(null);
+        setUserType(null);
         return;
       }
 
       try {
         setAuthUser(JSON.parse(storedUser));
+        setUserType(storedUserType);
       } catch {
         setAuthUser(null);
+        setUserType(null);
       }
     };
 
@@ -44,7 +49,10 @@ export default function Header() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("userId");
     setAuthUser(null);
+    setUserType(null);
     navigate("/login");
   };
 
@@ -56,7 +64,7 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {navLinks.map((link) => (
+          {userType !== "admin" && navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
@@ -101,7 +109,7 @@ export default function Header() {
       </div>
 
       <nav className="flex flex-wrap gap-3 border-t border-blue-600 px-4 py-3 md:hidden">
-        {navLinks.map((link) => (
+        {userType !== "admin" && navLinks.map((link) => (
           <a
             key={link.label}
             href={link.href}

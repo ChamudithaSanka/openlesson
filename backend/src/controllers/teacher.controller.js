@@ -1,4 +1,5 @@
 import Teacher from "../models/teacher.model.js";
+import User from "../models/user.model.js";
 
 // @desc    Get teacher profile
 // @route   GET /api/teachers/profile/:id
@@ -54,6 +55,64 @@ export const getPendingTeachers = async (req, res) => {
 
     res.json({ success: true, count: teachers.length, teachers });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Create new teacher (Admin only)
+// @route   POST /api/teachers
+// @access  Private (admin)
+export const createTeacher = async (req, res) => {
+  try {
+    const { fullName, email, password, phone, qualification, status } = req.body;
+
+    // Validate required fields
+    if (!fullName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Full Name, Email, and Password are required",
+      });
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already registered",
+      });
+    }
+
+    // Create user account with teacher type
+    const user = await User.create({
+      email,
+      password,
+      userType: "teacher",
+      status: "active",
+    });
+
+    // Create teacher profile
+    const teacher = await Teacher.create({
+      userId: user._id,
+      fullName,
+      phone: phone || "",
+      qualification: qualification || "",
+      status: status || "Pending",
+    });
+
+    // Populate user details
+    const populatedTeacher = await teacher.populate("userId", "email");
+
+    res.status(201).json({
+      success: true,
+      message: "Teacher created successfully",
+      teacher: populatedTeacher,
+    });
+  } catch (error) {
+    // If teacher creation fails, delete the user that was created
+    if (error.message.includes("Teacher")) {
+      await User.findByIdAndDelete(user._id);
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -127,15 +186,134 @@ export const updateTeacher = async (req, res) => {
 // @access  Private (admin)
 export const deleteTeacher = async (req, res) => {
   try {
-    const teacher = await Teacher.findByIdAndDelete(req.params.id);
+    const teacher = await Teacher.findById(req.params.id);
 
     if (!teacher) {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
 
+    // Delete the related user account
+    if (teacher.userId) {
+      await User.findByIdAndDelete(teacher.userId);
+    }
+
+    // Delete the teacher profile
+    await Teacher.findByIdAndDelete(req.params.id);
+
     res.json({ success: true, message: "Teacher deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ============ ADMIN ENDPOINTS ============
+
+// 🔹 Get All Teachers (Admin Only)
+export const getAllTeachersAdmin = async (req, res) => {
+  try {
+    const teachers = await Teacher.find()
+      .populate({
+        path: "userId",
+        select: "email"
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: teachers.length,
+      teachers
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
+// 🔹 Get Single Teacher (Admin Only)
+export const getTeacherDetailAdmin = async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.params.id)
+      .populate({
+        path: "userId",
+        select: "email"
+      });
+
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    res.status(200).json({ success: true, teacher });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
+// 🔹 Approve Teacher (Admin Only)
+export const approveTeacher = async (req, res) => {
+  try {
+    const teacher = await Teacher.findByIdAndUpdate(
+      req.params.id,
+      { status: "Approved" },
+      { new: true }
+    )
+      .populate({
+        path: "userId",
+        select: "email"
+      });
+
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Teacher approved successfully",
+      teacher
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
+// 🔹 Reject Teacher (Admin Only)
+export const rejectTeacher = async (req, res) => {
+  try {
+    const teacher = await Teacher.findByIdAndUpdate(
+      req.params.id,
+      { status: "Rejected" },
+      { new: true }
+    )
+      .populate({
+        path: "userId",
+        select: "email"
+      });
+
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Teacher rejected",
+      teacher
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 
