@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const donorLinks = [
   { to: "/donor/dashboard", label: "Dashboard Overview", icon: LayoutDashboard, ready: true },
-  { to: "/donor/history", label: "Donation History", icon: Heart, ready: false },
+  { to: "/donor/history", label: "Donation History", icon: Heart, ready: true },
   { to: "/donor/payments", label: "Payment Methods", icon: CreditCard, ready: false },
   { to: "/donor/settings", label: "Profile & Settings", icon: UserCog, ready: false },
 ];

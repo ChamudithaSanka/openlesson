@@ -12,6 +12,7 @@ import DonatePage from "./pages/DonatePage";
 import ComplaintManagement from "./pages/ComplaintManagement";
 import TeachersManagement from "./pages/TeachersManagement";
 import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
+import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -43,6 +44,14 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["donor"]}>
               <DonorDashboardOverview />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/history"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <DonationHistoryPage />
             </ProtectedRoute>
           }
         />
