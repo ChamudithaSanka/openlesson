@@ -11,6 +11,9 @@ import VolunteerPage from "./pages/VolunteerPage";
 import DonatePage from "./pages/DonatePage";
 import ComplaintManagement from "./pages/ComplaintManagement";
 import TeachersManagement from "./pages/TeachersManagement";
+import StudentManagement from "./pages/StudentManagement";
+import DonorManagement from "./pages/DonorManagement";
+import DonationManagement from "./pages/DonationManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -47,6 +50,30 @@ export default function App() {
           element={
             <ProtectedRoute>
               <TeachersManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-users/students"
+          element={
+            <ProtectedRoute>
+              <StudentManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-users/donors"
+          element={
+            <ProtectedRoute>
+              <DonorManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-donations"
+          element={
+            <ProtectedRoute>
+              <DonationManagement />
             </ProtectedRoute>
           }
         />
