@@ -7,7 +7,6 @@ import {
   getAllDonors,
   getDonorForAdmin,
   updateDonorForAdmin,
-  updateDonorStatus,
   deleteDonor,
 } from "../controllers/donor.controller.js";
 import { protect, authorize } from "../middleware/auth.js";
@@ -24,7 +23,6 @@ router.patch("/subscription/:id/toggle", protect, authorize("donor", "admin"), t
 router.get("/", protect, authorize("admin"), getAllDonors);
 router.get("/admin/:id", protect, authorize("admin"), getDonorForAdmin);
 router.put("/admin/:id", protect, authorize("admin"), updateDonorForAdmin);
-router.put("/:id/status", protect, authorize("admin"), updateDonorStatus);
 router.delete("/:id", protect, authorize("admin"), deleteDonor);
 
 export default router;

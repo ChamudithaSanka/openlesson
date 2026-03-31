@@ -105,29 +105,6 @@ export const updateDonorForAdmin = async (req, res) => {
   }
 };
 
-// @desc    Update donor status
-// @route   PUT /api/donors/:id/status
-// @access  Private (admin)
-export const updateDonorStatus = async (req, res) => {
-  try {
-    const { status } = req.body;
-
-    const donor = await Donor.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    ).populate("userId", "email");
-
-    if (!donor) {
-      return res.status(404).json({ success: false, message: "Donor not found" });
-    }
-
-    res.json({ success: true, donor });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
 // @desc    Delete donor
 // @route   DELETE /api/donors/:id
 // @access  Private (admin)
