@@ -13,6 +13,7 @@ import ComplaintManagement from "./pages/ComplaintManagement";
 import TeachersManagement from "./pages/TeachersManagement";
 import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
 import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
+import PaymentMethodsPage from "./pages/donor/PaymentMethodsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -52,6 +53,14 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["donor"]}>
               <DonationHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/payments"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <PaymentMethodsPage />
             </ProtectedRoute>
           }
         />

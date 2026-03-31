@@ -192,3 +192,175 @@ export const toggleDonorSubscription = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get donor payment methods
+// @route   GET /api/donors/payment-methods/:id
+// @access  Private (donor/admin)
+export const getDonorPaymentMethods = async (req, res) => {
+  try {
+    const donor = await Donor.findById(req.params.id);
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
+      return res.status(403).json({ success: false, message: "Not authorized to view payment methods" });
+    }
+
+    res.json({ success: true, paymentMethods: donor.paymentMethods || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Add donor payment method
+// @route   POST /api/donors/payment-methods/:id
+// @access  Private (donor/admin)
+export const addDonorPaymentMethod = async (req, res) => {
+  try {
+    const { label, methodType, provider, brand, last4, expMonth, expYear } = req.body;
+
+    if (!last4 || !/^\d{4}$/.test(String(last4))) {
+      return res.status(400).json({ success: false, message: "last4 must be 4 digits" });
+    }
+
+    const donor = await Donor.findById(req.params.id);
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
+      return res.status(403).json({ success: false, message: "Not authorized to add payment method" });
+    }
+
+    const newMethod = {
+      label: label || "",
+      methodType: methodType || "card",
+      provider: provider || "",
+      brand: brand || "",
+      last4: String(last4),
+      expMonth: expMonth ? Number(expMonth) : undefined,
+      expYear: expYear ? Number(expYear) : undefined,
+      status: "active",
+      isDefault: donor.paymentMethods.length === 0,
+    };
+
+    donor.paymentMethods.push(newMethod);
+    await donor.save();
+
+    res.status(201).json({
+      success: true,
+      paymentMethods: donor.paymentMethods,
+      message: "Payment method added",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Update donor payment method
+// @route   PUT /api/donors/payment-methods/:id/:methodId
+// @access  Private (donor/admin)
+export const updateDonorPaymentMethod = async (req, res) => {
+  try {
+    const donor = await Donor.findById(req.params.id);
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
+      return res.status(403).json({ success: false, message: "Not authorized to update payment method" });
+    }
+
+    const method = donor.paymentMethods.id(req.params.methodId);
+    if (!method) {
+      return res.status(404).json({ success: false, message: "Payment method not found" });
+    }
+
+    const allowedFields = ["label", "provider", "brand", "expMonth", "expYear", "status"];
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        method[field] = req.body[field];
+      }
+    });
+
+    await donor.save();
+
+    res.json({ success: true, paymentMethods: donor.paymentMethods, message: "Payment method updated" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Set default donor payment method
+// @route   PATCH /api/donors/payment-methods/:id/:methodId/default
+// @access  Private (donor/admin)
+export const setDefaultDonorPaymentMethod = async (req, res) => {
+  try {
+    const donor = await Donor.findById(req.params.id);
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
+      return res.status(403).json({ success: false, message: "Not authorized to change default payment method" });
+    }
+
+    const method = donor.paymentMethods.id(req.params.methodId);
+    if (!method) {
+      return res.status(404).json({ success: false, message: "Payment method not found" });
+    }
+
+    donor.paymentMethods.forEach((item) => {
+      item.isDefault = String(item._id) === String(req.params.methodId);
+    });
+
+    await donor.save();
+
+    res.json({ success: true, paymentMethods: donor.paymentMethods, message: "Default payment method updated" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Delete donor payment method
+// @route   DELETE /api/donors/payment-methods/:id/:methodId
+// @access  Private (donor/admin)
+export const deleteDonorPaymentMethod = async (req, res) => {
+  try {
+    const donor = await Donor.findById(req.params.id);
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
+      return res.status(403).json({ success: false, message: "Not authorized to delete payment method" });
+    }
+
+    const method = donor.paymentMethods.id(req.params.methodId);
+    if (!method) {
+      return res.status(404).json({ success: false, message: "Payment method not found" });
+    }
+
+    const hasActiveRecurring = donor.isSubscriptionEnabled && donor.recurringPlan !== "none";
+    if (hasActiveRecurring && donor.paymentMethods.length <= 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot delete the last payment method while recurring subscription is active",
+      });
+    }
+
+    const wasDefault = method.isDefault;
+    method.deleteOne();
+
+    if (wasDefault && donor.paymentMethods.length > 0) {
+      donor.paymentMethods[0].isDefault = true;
+    }
+
+    await donor.save();
+
+    res.json({ success: true, paymentMethods: donor.paymentMethods, message: "Payment method deleted" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
