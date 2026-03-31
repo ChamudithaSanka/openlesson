@@ -1,6 +1,6 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
@@ -11,15 +11,19 @@ import VolunteerPage from "./pages/VolunteerPage";
 import DonatePage from "./pages/DonatePage";
 import ComplaintManagement from "./pages/ComplaintManagement";
 import TeachersManagement from "./pages/TeachersManagement";
+import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
+  const location = useLocation();
   const [userType, setUserType] = useState(null);
 
   useEffect(() => {
     const type = localStorage.getItem("userType");
     setUserType(type);
-  }, []);
+  }, [location.pathname]);
+
+  const hideFooter = userType === "admin" || location.pathname.startsWith("/donor");
 
   return (
     <div className="min-h-screen bg-white">
@@ -33,11 +37,21 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
 
+        {/* Donor Routes */}
+        <Route
+          path="/donor/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <DonorDashboardOverview />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Admin Routes */}
         <Route
           path="/admin/complaints"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <ComplaintManagement />
             </ProtectedRoute>
           }
@@ -45,13 +59,13 @@ export default function App() {
         <Route
           path="/admin/manage-users/teachers"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <TeachersManagement />
             </ProtectedRoute>
           }
         />
       </Routes>
-      {userType !== "admin" && <Footer />}
+      {!hideFooter && <Footer />}
     </div>
   );
 }

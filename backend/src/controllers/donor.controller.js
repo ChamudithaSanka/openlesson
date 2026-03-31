@@ -1,6 +1,16 @@
 import Donor from "../models/donor.model.js";
 import Donation from "../models/donation.model.js";
 
+const getOwnerUserId = (donor) => {
+  if (!donor || !donor.userId) return "";
+
+  if (typeof donor.userId === "object") {
+    return String(donor.userId._id || donor.userId.id || donor.userId);
+  }
+
+  return String(donor.userId);
+};
+
 // @desc    Get donor profile
 // @route   GET /api/donors/profile/:id
 // @access  Private
@@ -11,7 +21,7 @@ export const getDonorProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
 
-    if (req.user.userType !== "admin" && donor.userId.toString() !== req.user.id) {
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
       return res.status(403).json({ success: false, message: "Not authorized to view this profile" });
     }
 
@@ -33,7 +43,7 @@ export const updateDonorProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
 
-    if (req.user.userType !== "admin" && existingDonor.userId.toString() !== req.user.id) {
+    if (req.user.userType !== "admin" && getOwnerUserId(existingDonor) !== String(req.user.id)) {
       return res.status(403).json({ success: false, message: "Not authorized to update this profile" });
     }
 
@@ -124,7 +134,7 @@ export const setDonorSubscription = async (req, res) => {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
 
-    if (req.user.userType !== "admin" && donor.userId.toString() !== req.user.id) {
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
       return res.status(403).json({ success: false, message: "Not authorized to update this subscription" });
     }
 
@@ -163,7 +173,7 @@ export const toggleDonorSubscription = async (req, res) => {
       return res.status(404).json({ success: false, message: "Donor not found" });
     }
 
-    if (req.user.userType !== "admin" && donor.userId.toString() !== req.user.id) {
+    if (req.user.userType !== "admin" && getOwnerUserId(donor) !== String(req.user.id)) {
       return res.status(403).json({ success: false, message: "Not authorized to update this subscription" });
     }
 
