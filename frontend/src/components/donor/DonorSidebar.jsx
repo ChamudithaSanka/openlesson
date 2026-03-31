@@ -5,7 +5,7 @@ const donorLinks = [
   { to: "/donor/dashboard", label: "Dashboard Overview", icon: LayoutDashboard, ready: true },
   { to: "/donor/history", label: "Donation History", icon: Heart, ready: true },
   { to: "/donor/payments", label: "Payment Methods", icon: CreditCard, ready: true },
-  { to: "/donor/settings", label: "Profile & Settings", icon: UserCog, ready: false },
+  { to: "/donor/settings", label: "Profile & Settings", icon: UserCog, ready: true },
 ];
 
 export default function DonorSidebar() {

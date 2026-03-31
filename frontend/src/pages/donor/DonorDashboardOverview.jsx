@@ -260,12 +260,12 @@ export default function DonorDashboardOverview() {
                   <p>Email: {donorProfile?.userId?.email || "-"}</p>
                   <p>Phone: {donorProfile?.phone || "-"}</p>
                 </div>
-                <button
-                  type="button"
-                  className="mt-4 rounded-md bg-blue-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-800"
+                <Link
+                  to="/donor/settings"
+                  className="mt-4 inline-block rounded-md bg-blue-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-800"
                 >
                   Edit Profile
-                </button>
+                </Link>
               </article>
 
               <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
@@ -283,12 +283,12 @@ export default function DonorDashboardOverview() {
                   >
                     Manage Payments ({donations[0]?.paymentMethod || "No method yet"})
                   </Link>
-                  <button
-                    type="button"
-                    className="w-full rounded-md border border-blue-200 px-3 py-2 text-left font-medium hover:border-blue-400"
+                  <Link
+                    to="/donor/settings"
+                    className="block w-full rounded-md border border-blue-200 px-3 py-2 text-left font-medium hover:border-blue-400"
                   >
                     Edit Profile ({donorProfile?.fullName || "Profile"})
-                  </button>
+                  </Link>
                 </div>
               </article>
             </section>

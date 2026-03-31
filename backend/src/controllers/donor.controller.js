@@ -1,5 +1,6 @@
 import Donor from "../models/donor.model.js";
 import Donation from "../models/donation.model.js";
+import User from "../models/user.model.js";
 
 const getOwnerUserId = (donor) => {
   if (!donor || !donor.userId) return "";
@@ -36,7 +37,8 @@ export const getDonorProfile = async (req, res) => {
 // @access  Private (donor)
 export const updateDonorProfile = async (req, res) => {
   try {
-    const updates = req.body;
+    const updates = { ...req.body };
+    const nextEmail = typeof updates.email === "string" ? updates.email.trim().toLowerCase() : undefined;
 
     const existingDonor = await Donor.findById(req.params.id);
     if (!existingDonor) {
@@ -52,6 +54,24 @@ export const updateDonorProfile = async (req, res) => {
     delete updates.recurringPlan;
     delete updates.recurringAmount;
     delete updates.isSubscriptionEnabled;
+    delete updates.email;
+
+    if (nextEmail !== undefined) {
+      if (!nextEmail) {
+        return res.status(400).json({ success: false, message: "Email is required" });
+      }
+
+      const duplicate = await User.findOne({
+        email: nextEmail,
+        _id: { $ne: existingDonor.userId },
+      });
+
+      if (duplicate) {
+        return res.status(400).json({ success: false, message: "Email already registered" });
+      }
+
+      await User.findByIdAndUpdate(existingDonor.userId, { email: nextEmail });
+    }
 
     const donor = await Donor.findByIdAndUpdate(
       req.params.id,

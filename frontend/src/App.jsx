@@ -14,6 +14,7 @@ import TeachersManagement from "./pages/TeachersManagement";
 import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
 import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
 import PaymentMethodsPage from "./pages/donor/PaymentMethodsPage";
+import ProfileSettingsPage from "./pages/donor/ProfileSettingsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -61,6 +62,14 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["donor"]}>
               <PaymentMethodsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/settings"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <ProfileSettingsPage />
             </ProtectedRoute>
           }
         />
