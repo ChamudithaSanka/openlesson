@@ -183,7 +183,7 @@ export default function DonorManagement() {
                     <td className="px-6 py-4 text-gray-600">{donor.userId?.email}</td>
                     <td className="px-6 py-4 text-gray-600">{donor.phone || "N/A"}</td>
                     <td className="px-6 py-4 text-gray-600">{donor.companyName || "N/A"}</td>
-                    <td className="px-6 py-4 text-gray-600">${donor.totalDonated}</td>
+                    <td className="px-6 py-4 text-gray-600">LKR {donor.totalDonated}</td>
                     <td className="px-6 py-4 text-gray-600 capitalize">{donor.recurringPlan}</td>
                     <td className="px-6 py-4">
                       <span
@@ -257,13 +257,13 @@ export default function DonorManagement() {
                   <strong>Company:</strong> {selectedDonor.companyName || "N/A"}
                 </p>
                 <p>
-                  <strong>Total Donated:</strong> ${selectedDonor.totalDonated}
+                  <strong>Total Donated:</strong> LKR {selectedDonor.totalDonated}
                 </p>
                 <p>
                   <strong>Recurring Plan:</strong> {selectedDonor.recurringPlan.charAt(0).toUpperCase() + selectedDonor.recurringPlan.slice(1)}
                 </p>
                 <p>
-                  <strong>Recurring Amount:</strong> ${selectedDonor.recurringAmount}
+                  <strong>Recurring Amount:</strong> LKR {selectedDonor.recurringAmount}
                 </p>
                 <p>
                   <strong>Status:</strong>{" "}

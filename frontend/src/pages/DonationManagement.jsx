@@ -145,7 +145,7 @@ export default function DonationManagement() {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-blue-100 p-4 rounded-lg">
             <p className="text-blue-700 font-semibold">Total Donations</p>
-            <p className="text-2xl font-bold text-blue-900">${getTotalDonations()}</p>
+            <p className="text-2xl font-bold text-blue-900">LKR {getTotalDonations()}</p>
           </div>
           <div className="bg-green-100 p-4 rounded-lg">
             <p className="text-green-700 font-semibold">Completed</p>
@@ -199,7 +199,7 @@ export default function DonationManagement() {
                   <tr key={donation._id} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-4 text-gray-800">{donation.donorId?.fullName}</td>
                     <td className="px-6 py-4 text-gray-600">{donation.donorId?.email}</td>
-                    <td className="px-6 py-4 text-gray-800 font-semibold">${donation.amount}</td>
+                    <td className="px-6 py-4 text-gray-800 font-semibold">LKR {donation.amount}</td>
                     <td className="px-6 py-4 text-gray-600">{donation.paymentMethod}</td>
                     <td className="px-6 py-4 text-gray-600">
                       {new Date(donation.createdAt).toLocaleDateString()}
@@ -272,7 +272,7 @@ export default function DonationManagement() {
                   <strong>Email:</strong> {selectedDonation.donorId?.email}
                 </p>
                 <p>
-                  <strong>Amount:</strong> ${selectedDonation.amount}
+                  <strong>Amount:</strong> LKR {selectedDonation.amount}
                 </p>
                 <p>
                   <strong>Payment Method:</strong> {selectedDonation.paymentMethod}
@@ -344,7 +344,7 @@ export default function DonationManagement() {
                     <strong>Donor:</strong> {selectedDonation.donorId?.fullName}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <strong>Amount:</strong> ${selectedDonation.amount}
+                    <strong>Amount:</strong> LKR {selectedDonation.amount}
                   </p>
                 </div>
 
