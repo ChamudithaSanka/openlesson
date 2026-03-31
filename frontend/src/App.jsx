@@ -15,6 +15,9 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherQuizzes from "./pages/TeacherQuizzes";
 import TeacherStudyMaterials from "./pages/TeacherStudyMaterials";
 import TeacherStudySessions from "./pages/TeacherStudySessions";
+import StudentManagement from "./pages/StudentManagement";
+import DonorManagement from "./pages/DonorManagement";
+import DonationManagement from "./pages/DonationManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 
@@ -86,6 +89,30 @@ export default function App() {
           element={
             <ProtectedRoute>
               <TeacherStudySessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-users/students"
+          element={
+            <ProtectedRoute>
+              <StudentManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-users/donors"
+          element={
+            <ProtectedRoute>
+              <DonorManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-donations"
+          element={
+            <ProtectedRoute>
+              <DonationManagement />
             </ProtectedRoute>
           }
         />

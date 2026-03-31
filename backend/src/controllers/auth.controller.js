@@ -170,6 +170,17 @@ export const login = async (req, res) => {
     let userProfile;
     if (user.userType === "student") {
       userProfile = await Student.findOne({ userId: user._id }).select("-password");
+      if (!userProfile) {
+        return res.status(404).json({ success: false, message: "Student profile not found" });
+      }
+      
+      // Check if student is active
+      if (userProfile.status !== "active") {
+        return res.status(403).json({
+          success: false,
+          message: "Student account is inactive. Please contact administrator.",
+        });
+      }
     } else if (user.userType === "teacher") {
       userProfile = await Teacher.findOne({ userId: user._id }).select("-password");
       if (!userProfile) {
@@ -184,6 +195,17 @@ export const login = async (req, res) => {
       }
     } else if (user.userType === "donor") {
       userProfile = await Donor.findOne({ userId: user._id }).select("-password");
+      if (!userProfile) {
+        return res.status(404).json({ success: false, message: "Donor profile not found" });
+      }
+
+      // Check if donor is active
+      if (userProfile.status !== "Active") {
+        return res.status(403).json({
+          success: false,
+          message: "Donor account is inactive. Please contact administrator.",
+        });
+      }
     }
 
     res.json({
