@@ -1,6 +1,6 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
@@ -11,6 +11,10 @@ import VolunteerPage from "./pages/VolunteerPage";
 import DonatePage from "./pages/DonatePage";
 import ComplaintManagement from "./pages/ComplaintManagement";
 import TeachersManagement from "./pages/TeachersManagement";
+import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
+import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
+import PaymentMethodsPage from "./pages/donor/PaymentMethodsPage";
+import ProfileSettingsPage from "./pages/donor/ProfileSettingsPage";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherQuizzes from "./pages/TeacherQuizzes";
 import TeacherStudyMaterials from "./pages/TeacherStudyMaterials";
@@ -21,15 +25,17 @@ import DonationManagement from "./pages/DonationManagement";
 import GradeManagement from "./pages/GradeManagement";
 import SubjectManagement from "./pages/SubjectManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
+  const location = useLocation();
   const [userType, setUserType] = useState(null);
 
   useEffect(() => {
     const type = localStorage.getItem("userType");
     setUserType(type);
-  }, []);
+  }, [location.pathname]);
+
+  const hideFooter = userType === "admin" || location.pathname.startsWith("/donor");
 
   return (
     <div className="min-h-screen bg-white">
@@ -43,21 +49,55 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
 
+        {/* Donor Routes */}
+        <Route
+          path="/donor/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <DonorDashboardOverview />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/history"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <DonationHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/payments"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <PaymentMethodsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/settings"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <ProfileSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Admin Routes */}
         <Route
           path="/admin/complaints"
           element={
-            <AdminRoute>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <ComplaintManagement />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/manage-users/teachers"
           element={
-            <AdminRoute>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <TeachersManagement />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
 
@@ -135,7 +175,7 @@ export default function App() {
           }
         />
       </Routes>
-      {userType !== "admin" && userType !== "teacher" && <Footer />}
+      {!hideFooter && <Footer />}
     </div>
   );
 }

@@ -35,13 +35,15 @@ export default function LoginPage() {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("userType", user.userType);
-      localStorage.setItem("userId", user._id);
+      localStorage.setItem("userId", user.id);
 
       setMessage("Login successful. Redirecting...");
       
-      // Redirect based on user type
+      // Redirect by role.
       if (user.userType === "admin") {
         setTimeout(() => navigate("/admin/complaints"), 600);
+      } else if (user.userType === "donor") {
+        setTimeout(() => navigate("/donor/dashboard"), 600);
       } else if (user.userType === "teacher") {
         setTimeout(() => navigate("/teacher/dashboard"), 600);
       } else {
