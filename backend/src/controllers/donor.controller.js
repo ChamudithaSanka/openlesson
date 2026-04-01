@@ -67,17 +67,32 @@ export const getAllDonors = async (req, res) => {
   }
 };
 
-// @desc    Update donor status
-// @route   PUT /api/donors/:id/status
+// @desc    Get single donor for admin
+// @route   GET /api/donors/admin/:id
 // @access  Private (admin)
-export const updateDonorStatus = async (req, res) => {
+export const getDonorForAdmin = async (req, res) => {
   try {
-    const { status } = req.body;
+    const donor = await Donor.findById(req.params.id).populate("userId", "email");
+    if (!donor) {
+      return res.status(404).json({ success: false, message: "Donor not found" });
+    }
+    res.json({ success: true, donor });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
+// @desc    Update donor for admin
+// @route   PUT /api/donors/admin/:id
+// @access  Private (admin)
+export const updateDonorForAdmin = async (req, res) => {
+  try {
+    const { fullName, phone, companyName, status } = req.body;
+    
     const donor = await Donor.findByIdAndUpdate(
       req.params.id,
-      { status },
-      { new: true }
+      { fullName, phone, companyName, status },
+      { new: true, runValidators: true }
     ).populate("userId", "email");
 
     if (!donor) {

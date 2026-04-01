@@ -1,6 +1,26 @@
 import Teacher from "../models/teacher.model.js";
 import User from "../models/user.model.js";
 
+// @desc    Get current teacher's profile (for logged-in teacher)
+// @route   GET /api/teachers/my-profile
+// @access  Private
+export const getMyTeacherProfile = async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({ userId: req.user.id })
+      .populate("userId", "email")
+      .populate("gradesTheyTeach", "gradeName description")
+      .populate("subjectsTheyTeach", "subjectName description");
+
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher profile not found" });
+    }
+
+    res.json({ success: true, teacher });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Get teacher profile
 // @route   GET /api/teachers/profile/:id
 // @access  Private

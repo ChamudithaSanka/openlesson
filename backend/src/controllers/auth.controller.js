@@ -9,7 +9,19 @@ import { generateToken } from "../utils/jwt.js";
 // @access  Public
 export const register = async (req, res) => {
   try {
-    const { fullName, email, password, userType, phone, gradeId, schoolName, district, qualification, companyName } = req.body;
+    const { 
+      fullName, 
+      email, 
+      password, 
+      userType, 
+      phone, 
+      gradeId, 
+      schoolName, 
+      district, 
+      companyName,
+      subjectsTheyTeach,
+      gradesTheyTeach
+    } = req.body;
     const cvUrl = req.file ? `/uploads/cv/${req.file.filename}` : null;
 
     if (userType === "admin") {
@@ -66,12 +78,24 @@ export const register = async (req, res) => {
           });
         }
 
+        // Parse subjects and grades if they come as JSON strings
+        let subjects = [];
+        let grades = [];
+        try {
+          subjects = typeof subjectsTheyTeach === "string" ? JSON.parse(subjectsTheyTeach) : (subjectsTheyTeach || []);
+          grades = typeof gradesTheyTeach === "string" ? JSON.parse(gradesTheyTeach) : (gradesTheyTeach || []);
+        } catch (parseError) {
+          subjects = [];
+          grades = [];
+        }
+
         userProfile = await Teacher.create({
           userId: user._id,
           fullName,
           phone,
-          qualification,
           cvUrl,
+          subjectsTheyTeach: subjects,
+          gradesTheyTeach: grades,
           status: "Pending",
         });
       } else if (userType === "donor") {
@@ -170,6 +194,17 @@ export const login = async (req, res) => {
     let userProfile;
     if (user.userType === "student") {
       userProfile = await Student.findOne({ userId: user._id }).select("-password");
+      if (!userProfile) {
+        return res.status(404).json({ success: false, message: "Student profile not found" });
+      }
+      
+      // Check if student is active
+      if (userProfile.status !== "active") {
+        return res.status(403).json({
+          success: false,
+          message: "Student account is inactive. Please contact administrator.",
+        });
+      }
     } else if (user.userType === "teacher") {
       userProfile = await Teacher.findOne({ userId: user._id }).select("-password");
       if (!userProfile) {
@@ -184,6 +219,17 @@ export const login = async (req, res) => {
       }
     } else if (user.userType === "donor") {
       userProfile = await Donor.findOne({ userId: user._id }).select("-password");
+      if (!userProfile) {
+        return res.status(404).json({ success: false, message: "Donor profile not found" });
+      }
+
+      // Check if donor is active
+      if (userProfile.status !== "Active") {
+        return res.status(403).json({
+          success: false,
+          message: "Donor account is inactive. Please contact administrator.",
+        });
+      }
     }
 
     res.json({

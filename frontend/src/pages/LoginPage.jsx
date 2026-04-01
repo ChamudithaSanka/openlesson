@@ -39,9 +39,11 @@ export default function LoginPage() {
 
       setMessage("Login successful. Redirecting...");
       
-      // Redirect to admin if user is admin
+      // Redirect based on user type
       if (user.userType === "admin") {
         setTimeout(() => navigate("/admin/complaints"), 600);
+      } else if (user.userType === "teacher") {
+        setTimeout(() => navigate("/teacher/dashboard"), 600);
       } else {
         setTimeout(() => navigate("/"), 600);
       }

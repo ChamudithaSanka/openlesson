@@ -1,4 +1,7 @@
 import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
+import Student from "../models/studentRegModel.js";
+import Donor from "../models/donor.model.js";
 
 // Protect routes - verify JWT token
 export const protect = async (req, res, next) => {
@@ -22,6 +25,44 @@ export const protect = async (req, res, next) => {
     
     // Attach user info to request
     req.user = decoded;
+    
+    // Check if user account is still active and exists
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.status !== "active") {
+      return res.status(403).json({
+        success: false,
+        message: "Account is inactive",
+      });
+    }
+
+    // For students, check if student profile is also active
+    if (decoded.userType === "student") {
+      const student = await Student.findOne({ userId: decoded.id });
+      if (!student || student.status !== "active") {
+        return res.status(403).json({
+          success: false,
+          message: "Student account is inactive. Access denied.",
+        });
+      }
+    }
+
+    // For donors, check if donor profile is also active
+    if (decoded.userType === "donor") {
+      const donor = await Donor.findOne({ userId: decoded.id });
+      if (!donor || donor.status !== "Active") {
+        return res.status(403).json({
+          success: false,
+          message: "Donor account is inactive. Access denied.",
+        });
+      }
+    }
     
     next();
   } catch (error) {

@@ -56,6 +56,20 @@ export const getAllDonations = async (req, res) => {
   }
 };
 
+// @desc    Get donations by donor
+// @route   GET /api/donations/donor/:donorId
+// @access  Private (admin)
+export const getDonationsByDonor = async (req, res) => {
+  try {
+    const donations = await Donation.find({ donorId: req.params.donorId })
+      .populate("donorId", "fullName email")
+      .sort({ createdAt: -1 });
+    res.json({ success: true, count: donations.length, donations });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Get single donation
 // @route   GET /api/donations/:id
 // @access  Private (admin)

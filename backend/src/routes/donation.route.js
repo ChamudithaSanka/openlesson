@@ -3,6 +3,7 @@ import {
   createDonation,
   getMyDonations,
   getAllDonations,
+  getDonationsByDonor,
   getDonationById,
   updateDonationStatus,
   deleteDonation,
@@ -17,6 +18,7 @@ router.get("/my/:donorId", protect, authorize("donor"), getMyDonations);
 
 // Admin routes
 router.get("/", protect, authorize("admin"), getAllDonations);
+router.get("/donor/:donorId", protect, authorize("admin"), getDonationsByDonor);
 router.get("/:id", protect, authorize("admin"), getDonationById);
 router.put("/:id", protect, authorize("admin"), updateDonationStatus);
 router.delete("/:id", protect, authorize("admin"), deleteDonation);
