@@ -9,7 +9,19 @@ import { generateToken } from "../utils/jwt.js";
 // @access  Public
 export const register = async (req, res) => {
   try {
-    const { fullName, email, password, userType, phone, gradeId, schoolName, district, qualification, companyName } = req.body;
+    const { 
+      fullName, 
+      email, 
+      password, 
+      userType, 
+      phone, 
+      gradeId, 
+      schoolName, 
+      district, 
+      companyName,
+      subjectsTheyTeach,
+      gradesTheyTeach
+    } = req.body;
     const cvUrl = req.file ? `/uploads/cv/${req.file.filename}` : null;
 
     if (userType === "admin") {
@@ -66,12 +78,24 @@ export const register = async (req, res) => {
           });
         }
 
+        // Parse subjects and grades if they come as JSON strings
+        let subjects = [];
+        let grades = [];
+        try {
+          subjects = typeof subjectsTheyTeach === "string" ? JSON.parse(subjectsTheyTeach) : (subjectsTheyTeach || []);
+          grades = typeof gradesTheyTeach === "string" ? JSON.parse(gradesTheyTeach) : (gradesTheyTeach || []);
+        } catch (parseError) {
+          subjects = [];
+          grades = [];
+        }
+
         userProfile = await Teacher.create({
           userId: user._id,
           fullName,
           phone,
-          qualification,
           cvUrl,
+          subjectsTheyTeach: subjects,
+          gradesTheyTeach: grades,
           status: "Pending",
         });
       } else if (userType === "donor") {

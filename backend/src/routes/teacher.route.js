@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getMyTeacherProfile,
   getTeacherProfile,
   getAllTeachers,
   getPendingTeachers,
@@ -19,11 +20,14 @@ const router = express.Router();
 // Public routes
 router.get("/", getAllTeachers);
 
+// Private routes (teacher and admin)
+router.get("/my-profile", protect, getMyTeacherProfile);
+router.get("/profile/:id", protect, getTeacherProfile);
+
 // Private routes (admin only)
 router.post("/", protect, authorize("admin"), createTeacher);
 router.get("/pending", protect, authorize("admin"), getPendingTeachers);
 router.put("/:id/status", protect, authorize("admin"), updateTeacherStatus);
-router.get("/profile/:id", protect, getTeacherProfile);
 router.put("/:id", protect, updateTeacher);
 router.delete("/:id", protect, authorize("admin"), deleteTeacher);
 
