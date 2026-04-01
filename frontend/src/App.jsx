@@ -15,6 +15,15 @@ import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
 import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
 import PaymentMethodsPage from "./pages/donor/PaymentMethodsPage";
 import ProfileSettingsPage from "./pages/donor/ProfileSettingsPage";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import TeacherQuizzes from "./pages/TeacherQuizzes";
+import TeacherStudyMaterials from "./pages/TeacherStudyMaterials";
+import TeacherStudySessions from "./pages/TeacherStudySessions";
+import StudentManagement from "./pages/StudentManagement";
+import DonorManagement from "./pages/DonorManagement";
+import DonationManagement from "./pages/DonationManagement";
+import GradeManagement from "./pages/GradeManagement";
+import SubjectManagement from "./pages/SubjectManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -88,6 +97,80 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <TeachersManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Teacher Routes */}
+        <Route
+          path="/teacher/dashboard"
+          element={
+            <ProtectedRoute>
+              <TeacherDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/quizzes"
+          element={
+            <ProtectedRoute>
+              <TeacherQuizzes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/study-materials"
+          element={
+            <ProtectedRoute>
+              <TeacherStudyMaterials />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/study-sessions"
+          element={
+            <ProtectedRoute>
+              <TeacherStudySessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-users/students"
+          element={
+            <ProtectedRoute>
+              <StudentManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-users/donors"
+          element={
+            <ProtectedRoute>
+              <DonorManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-donations"
+          element={
+            <ProtectedRoute>
+              <DonationManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/grades"
+          element={
+            <ProtectedRoute>
+              <GradeManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/subjects"
+          element={
+            <ProtectedRoute>
+              <SubjectManagement />
             </ProtectedRoute>
           }
         />
