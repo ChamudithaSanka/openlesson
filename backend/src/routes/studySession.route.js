@@ -13,7 +13,7 @@ import { protect, authorize } from "../middleware/auth.js";
 const router = express.Router();
 
 // GET all study sessions
-router.get("/", getAllStudySessions);
+router.get("/", protect, authorize("teacher", "admin"), getAllStudySessions);
 
 // GET a single study session by ID
 router.get("/:id", getStudySessionById);
