@@ -14,6 +14,8 @@ import TeachersManagement from "./pages/TeachersManagement";
 import StudentManagement from "./pages/StudentManagement";
 import DonorManagement from "./pages/DonorManagement";
 import DonationManagement from "./pages/DonationManagement";
+import GradeManagement from "./pages/GradeManagement";
+import SubjectManagement from "./pages/SubjectManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -74,6 +76,22 @@ export default function App() {
           element={
             <ProtectedRoute>
               <DonationManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/grades"
+          element={
+            <ProtectedRoute>
+              <GradeManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/subjects"
+          element={
+            <ProtectedRoute>
+              <SubjectManagement />
             </ProtectedRoute>
           }
         />

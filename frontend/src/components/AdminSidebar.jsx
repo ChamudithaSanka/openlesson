@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AlertCircle, Users, Wallet, ChevronDown } from 'lucide-react';
+import { AlertCircle, Users, Wallet, ChevronDown, BookOpen, BookMarked } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -89,6 +89,32 @@ const AdminSidebar = () => {
         >
           <Wallet size={20} />
           <span>Manage Donations</span>
+        </Link>
+
+        {/* Grade Management Section */}
+        <Link
+          to="/admin/grades"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/admin/grades')
+              ? 'bg-blue-600'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <BookOpen size={20} />
+          <span>Manage Grades</span>
+        </Link>
+
+        {/* Subject Management Section */}
+        <Link
+          to="/admin/subjects"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/admin/subjects')
+              ? 'bg-blue-600'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <BookMarked size={20} />
+          <span>Manage Subjects</span>
         </Link>
       </nav>
     </div>
