@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import TeacherLayout from '../components/TeacherLayout';
 
 const TeacherDashboard = () => {
-  const [teacher, setTeacher] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [grades, setGrades] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,11 +14,7 @@ const TeacherDashboard = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchTeacherData();
-  }, []);
-
-  const fetchTeacherData = async () => {
+  const fetchTeacherData = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -45,7 +40,6 @@ const TeacherDashboard = () => {
 
       const data = await response.json();
       if (data.success && data.teacher) {
-        setTeacher(data.teacher);
         setSubjects(data.teacher.subjectsTheyTeach || []);
         setGrades(data.teacher.gradesTheyTeach || []);
       }
@@ -55,7 +49,11 @@ const TeacherDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchTeacherData();
+  }, [fetchTeacherData]);
 
   if (loading) {
     return (
