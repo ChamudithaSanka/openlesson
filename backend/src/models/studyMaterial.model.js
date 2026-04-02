@@ -7,7 +7,7 @@ const studyMaterialSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    description: {
+    lesson: {
       type: String,
       trim: true,
     },
