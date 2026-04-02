@@ -15,11 +15,6 @@ const TeacherStudySessions = () => {
   const [deleting, setDeleting] = useState(false);
 
   const token = localStorage.getItem('token');
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
 
   // Fetch teacher profile and sessions on mount
   useEffect(() => {
@@ -28,6 +23,12 @@ const TeacherStudySessions = () => {
       window.location.href = '/login';
       return;
     }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
     const fetchTeacherAndSessions = async () => {
       try {
@@ -55,7 +56,7 @@ const TeacherStudySessions = () => {
     };
 
     fetchTeacherAndSessions();
-  }, []);
+  }, [token]);
 
   // Clear success message after 5 seconds
   useEffect(() => {
@@ -83,6 +84,11 @@ const TeacherStudySessions = () => {
   const handleSessionSave = async () => {
     // Refresh sessions list
     try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
       const sessionsRes = await axios.get(
         'http://localhost:5000/api/study-sessions',
         config
@@ -108,6 +114,11 @@ const TeacherStudySessions = () => {
 
     try {
       setDeleting(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
       await axios.delete(
         `http://localhost:5000/api/study-sessions/${deleteConfirm._id}`,
         config
