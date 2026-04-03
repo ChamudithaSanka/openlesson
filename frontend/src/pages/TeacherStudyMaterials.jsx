@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Edit2, Trash2, Plus, X, Search } from 'lucide-react';
 import TeacherLayout from '../components/TeacherLayout';
 
@@ -25,15 +25,30 @@ const TeacherStudyMaterials = () => {
   const token = localStorage.getItem('token');
   const API_URL = 'http://localhost:5000';
 
-  useEffect(() => {
-    const userType = localStorage.getItem('userType');
-    if (userType !== 'teacher') {
-      window.location.href = '/login';
-    }
-    fetchTeacherData();
-  }, []);
+  const fetchStudyMaterials = useCallback(async (teacherId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/study-materials`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-  const fetchTeacherData = async () => {
+      if (!response.ok) throw new Error('Failed to fetch study materials');
+
+      const data = await response.json();
+      // Filter materials for the logged-in teacher
+      const teacherMaterials = data.studyMaterials.filter(m => {
+        const materialTeacherId = typeof m.teacherId === 'object' ? m.teacherId._id : m.teacherId;
+        return materialTeacherId === teacherId;
+      });
+      setMaterials(teacherMaterials);
+    } catch (error) {
+      console.error('Error fetching study materials:', error);
+    }
+  }, [API_URL]);
+
+  const fetchTeacherData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/api/teachers/my-profile`, {
@@ -58,30 +73,15 @@ const TeacherStudyMaterials = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL, token, fetchStudyMaterials]);
 
-  const fetchStudyMaterials = async (teacherId) => {
-    try {
-      const response = await fetch(`${API_URL}/api/study-materials`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch study materials');
-
-      const data = await response.json();
-      // Filter materials for the logged-in teacher
-      const teacherMaterials = data.studyMaterials.filter(m => {
-        const materialTeacherId = typeof m.teacherId === 'object' ? m.teacherId._id : m.teacherId;
-        return materialTeacherId === teacherId;
-      });
-      setMaterials(teacherMaterials);
-    } catch (error) {
-      console.error('Error fetching study materials:', error);
+  useEffect(() => {
+    const userType = localStorage.getItem('userType');
+    if (userType !== 'teacher') {
+      window.location.href = '/login';
     }
-  };
+    fetchTeacherData();
+  }, [fetchTeacherData]);
 
   const handleCreateClick = () => {
     setModalType('create');
