@@ -25,6 +25,7 @@ import DonorManagement from "./pages/admin/DonorManagement";
 import DonationManagement from "./pages/admin/DonationManagement";
 import GradeManagement from "./pages/admin/GradeManagement";
 import SubjectManagement from "./pages/admin/SubjectManagement";
+import FeedbackManagement from "./pages/admin/FeedbackManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -183,6 +184,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <SubjectManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/feedback"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <FeedbackManagement />
             </ProtectedRoute>
           }
         />
