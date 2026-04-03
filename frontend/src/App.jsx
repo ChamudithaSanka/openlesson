@@ -105,7 +105,7 @@ export default function App() {
         <Route
           path="/teacher/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherDashboard />
             </ProtectedRoute>
           }
@@ -113,7 +113,7 @@ export default function App() {
         <Route
           path="/teacher/quizzes"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherQuizzes />
             </ProtectedRoute>
           }
@@ -121,7 +121,7 @@ export default function App() {
         <Route
           path="/teacher/study-materials"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherStudyMaterials />
             </ProtectedRoute>
           }
@@ -129,7 +129,7 @@ export default function App() {
         <Route
           path="/teacher/study-sessions"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherStudySessions />
             </ProtectedRoute>
           }
