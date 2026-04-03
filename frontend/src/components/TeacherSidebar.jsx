@@ -15,7 +15,7 @@ const TeacherSidebar = () => {
           to="/teacher/dashboard"
           className={`flex items-center gap-3 p-3 rounded-lg transition ${
             isActive('/teacher/dashboard')
-              ? 'bg-blue-600'
+              ? 'bg-indigo-600'
               : 'hover:bg-slate-700'
           }`}
         >
