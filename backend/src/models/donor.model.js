@@ -1,5 +1,50 @@
 import mongoose from "mongoose";
 
+const paymentMethodSchema = new mongoose.Schema(
+  {
+    label: {
+      type: String,
+      trim: true,
+    },
+    methodType: {
+      type: String,
+      enum: ["card", "bank", "wallet"],
+      default: "card",
+    },
+    provider: {
+      type: String,
+      trim: true,
+    },
+    brand: {
+      type: String,
+      trim: true,
+    },
+    last4: {
+      type: String,
+      match: /^\d{4}$/,
+    },
+    expMonth: {
+      type: Number,
+      min: 1,
+      max: 12,
+    },
+    expYear: {
+      type: Number,
+      min: 2020,
+    },
+    status: {
+      type: String,
+      enum: ["active", "expired"],
+      default: "active",
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
 const donorSchema = new mongoose.Schema(
   {
     userId: {
@@ -34,6 +79,10 @@ const donorSchema = new mongoose.Schema(
     isSubscriptionEnabled: {
       type: Boolean,
       default: false,
+    },
+    paymentMethods: {
+      type: [paymentMethodSchema],
+      default: [],
     },
     status: {
       type: String,
