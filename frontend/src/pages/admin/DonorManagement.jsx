@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Eye, Edit, Trash2, X } from "lucide-react";
-import AdminLayout from "../components/AdminLayout";
+import AdminLayout from "../../components/admin/AdminLayout";
 
 export default function DonorManagement() {
   const API_URL = "http://localhost:5000/api";

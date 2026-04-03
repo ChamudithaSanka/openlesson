@@ -9,8 +9,9 @@ import AboutPage from "./pages/AboutPage";
 import WorkPage from "./pages/WorkPage";
 import VolunteerPage from "./pages/VolunteerPage";
 import DonatePage from "./pages/DonatePage";
-import ComplaintManagement from "./pages/ComplaintManagement";
-import TeachersManagement from "./pages/TeachersManagement";
+import ComplaintManagement from "./pages/admin/ComplaintManagement";
+import AnnouncementManagement from "./pages/admin/AnnouncementManagement";
+import TeachersManagement from "./pages/admin/TeachersManagement";
 import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
 import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
 import PaymentMethodsPage from "./pages/donor/PaymentMethodsPage";
@@ -19,11 +20,11 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherQuizzes from "./pages/TeacherQuizzes";
 import TeacherStudyMaterials from "./pages/TeacherStudyMaterials";
 import TeacherStudySessions from "./pages/TeacherStudySessions";
-import StudentManagement from "./pages/StudentManagement";
-import DonorManagement from "./pages/DonorManagement";
-import DonationManagement from "./pages/DonationManagement";
-import GradeManagement from "./pages/GradeManagement";
-import SubjectManagement from "./pages/SubjectManagement";
+import StudentManagement from "./pages/admin/StudentManagement";
+import DonorManagement from "./pages/admin/DonorManagement";
+import DonationManagement from "./pages/admin/DonationManagement";
+import GradeManagement from "./pages/admin/GradeManagement";
+import SubjectManagement from "./pages/admin/SubjectManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -92,6 +93,14 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <ComplaintManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/announcements"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AnnouncementManagement />
             </ProtectedRoute>
           }
         />

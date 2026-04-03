@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AlertCircle, Users, Wallet, ChevronDown, BookOpen, BookMarked } from 'lucide-react';
+import { AlertCircle, Users, Wallet, ChevronDown, BookOpen, BookMarked, Bell } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -24,6 +24,19 @@ const AdminSidebar = () => {
         >
           <AlertCircle size={20} />
           <span>Manage Complaints</span>
+        </Link>
+
+        {/* Manage Announcements Section */}
+        <Link
+          to="/admin/announcements"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/admin/announcements')
+              ? 'bg-blue-600'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <Bell size={20} />
+          <span>Manage Announcements</span>
         </Link>
 
         {/* Manage Users Section */}
