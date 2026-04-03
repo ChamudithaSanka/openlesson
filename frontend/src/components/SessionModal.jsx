@@ -15,6 +15,8 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -42,6 +44,7 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
     }
     setErrors({});
     setSubmitError('');
+    setHasTriedSubmit(false);
   }, [session, isOpen]);
 
   const validateForm = () => {
@@ -89,7 +92,9 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    setIsFormValid(isValid);
+    return isValid;
   };
 
   const handleChange = (e) => {
@@ -98,8 +103,8 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
       ...prev,
       [name]: value,
     }));
-    // Clear error for this field when user starts typing
-    if (errors[name]) {
+    // Only clear error for this field if user has tried to submit
+    if (hasTriedSubmit && errors[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: '',
@@ -109,6 +114,7 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setHasTriedSubmit(true);
 
     if (!validateForm()) {
       return;
@@ -163,21 +169,21 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">
+      <div className="bg-white rounded-lg shadow-lg p-5 w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-3 text-gray-800">
           {session ? 'Edit Study Session' : 'Create Study Session'}
         </h2>
 
         {submitError && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+          <div className="mb-3 p-2 bg-red-100 text-red-700 rounded-md text-xs">
             {submitError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {/* Lesson Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               Lesson Title *
             </label>
             <input
@@ -185,27 +191,27 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
               name="lesson"
               value={formData.lesson}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.lesson ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm ${
+                hasTriedSubmit && errors.lesson ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="e.g., Algebra Basics"
             />
-            {errors.lesson && (
+            {hasTriedSubmit && errors.lesson && (
               <p className="text-red-500 text-xs mt-1">{errors.lesson}</p>
             )}
           </div>
 
           {/* Subject Dropdown */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               Subject *
             </label>
             <select
               name="subjectId"
               value={formData.subjectId}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.subjectId ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm ${
+                hasTriedSubmit && errors.subjectId ? 'border-red-500' : 'border-gray-300'
               }`}
             >
               <option value="">Select a subject</option>
@@ -215,11 +221,11 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
                 </option>
               ))}
             </select>
-            {errors.subjectId && (
+            {hasTriedSubmit && errors.subjectId && (
               <p className="text-red-500 text-xs mt-1">{errors.subjectId}</p>
             )}
-            {availableSubjects.length === 0 && (
-              <p className="text-yellow-600 text-xs mt-1">
+            {hasTriedSubmit && availableSubjects.length === 0 && !errors.subjectId && (
+              <p className="text-orange-600 text-xs mt-1">
                 No subjects assigned. Contact administrator.
               </p>
             )}
@@ -227,15 +233,15 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
 
           {/* Grade Dropdown */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               Grade *
             </label>
             <select
               name="gradeId"
               value={formData.gradeId}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.gradeId ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm ${
+                hasTriedSubmit && errors.gradeId ? 'border-red-500' : 'border-gray-300'
               }`}
             >
               <option value="">Select a grade</option>
@@ -245,11 +251,11 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
                 </option>
               ))}
             </select>
-            {errors.gradeId && (
+            {hasTriedSubmit && errors.gradeId && (
               <p className="text-red-500 text-xs mt-1">{errors.gradeId}</p>
             )}
-            {availableGrades.length === 0 && (
-              <p className="text-yellow-600 text-xs mt-1">
+            {hasTriedSubmit && availableGrades.length === 0 && !errors.gradeId && (
+              <p className="text-orange-600 text-xs mt-1">
                 No grades assigned. Contact administrator.
               </p>
             )}
@@ -257,7 +263,7 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
 
           {/* Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               Date *
             </label>
             <input
@@ -266,18 +272,18 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
               value={formData.date}
               onChange={handleChange}
               min={today}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.date ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm ${
+                hasTriedSubmit && errors.date ? 'border-red-500' : 'border-gray-300'
               }`}
             />
-            {errors.date && (
+            {hasTriedSubmit && errors.date && (
               <p className="text-red-500 text-xs mt-1">{errors.date}</p>
             )}
           </div>
 
           {/* Start Time */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               Start Time *
             </label>
             <input
@@ -285,18 +291,18 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
               name="startTime"
               value={formData.startTime}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.startTime ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm ${
+                hasTriedSubmit && errors.startTime ? 'border-red-500' : 'border-gray-300'
               }`}
             />
-            {errors.startTime && (
+            {hasTriedSubmit && errors.startTime && (
               <p className="text-red-500 text-xs mt-1">{errors.startTime}</p>
             )}
           </div>
 
           {/* End Time */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               End Time *
             </label>
             <input
@@ -304,44 +310,42 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
               name="endTime"
               value={formData.endTime}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.endTime ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm ${
+                hasTriedSubmit && errors.endTime ? 'border-red-500' : 'border-gray-300'
               }`}
             />
-            {errors.endTime && (
+            {hasTriedSubmit && errors.endTime && (
               <p className="text-red-500 text-xs mt-1">{errors.endTime}</p>
             )}
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
               Notes
             </label>
             <textarea
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
               placeholder="Add any additional notes..."
-              rows="3"
+              rows="2"
             />
           </div>
 
           {/* Meeting Info (Read-only in edit mode) */}
           {session && session.meetingLink && (
-            <div className="bg-blue-50 p-3 rounded-md">
-              <p className="text-xs text-gray-600 mb-2">
-                <strong>Meeting Information:</strong>
-              </p>
-              <p className="text-xs text-gray-700 break-all">
+            <div className="bg-blue-50 p-2 rounded-md text-xs">
+              <p className="text-gray-600 font-medium mb-1">Meeting Information:</p>
+              <p className="text-gray-700 break-all">
                 <strong>Meeting ID:</strong> {session.meetingId}
               </p>
               <a
                 href={session.meetingLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:text-blue-800 underline mt-1 block"
+                className="text-blue-600 hover:text-blue-800 underline mt-1 block"
               >
                 Open Meeting Link
               </a>
@@ -349,19 +353,19 @@ const SessionModal = ({ isOpen, onClose, onSave, session, teacherData }) => {
           )}
 
           {/* Buttons */}
-          <div className="flex gap-3 mt-6 pt-4 border-t">
+          <div className="flex gap-3 mt-5 pt-3 border-t">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition"
+              className="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition text-sm font-medium"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-blue-400"
-              disabled={loading || availableSubjects.length === 0 || availableGrades.length === 0}
+              className="flex-1 px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition disabled:bg-cyan-500 text-sm font-medium"
+              disabled={loading}
             >
               {loading ? 'Saving...' : session ? 'Update' : 'Create'}
             </button>
