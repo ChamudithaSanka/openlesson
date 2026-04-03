@@ -37,14 +37,19 @@ const TeacherStudyMaterials = () => {
       if (!response.ok) throw new Error('Failed to fetch study materials');
 
       const data = await response.json();
-      // Filter materials for the logged-in teacher
-      const teacherMaterials = data.studyMaterials.filter(m => {
+      const allMaterials = data.studyMaterials || data.data || [];
+      
+      // Filter materials for the logged-in teacher with null safety checks
+      const teacherMaterials = allMaterials.filter(m => {
+        if (!m.teacherId) return false;
         const materialTeacherId = typeof m.teacherId === 'object' ? m.teacherId._id : m.teacherId;
         return materialTeacherId === teacherId;
       });
+      console.log(`Fetched ${allMaterials.length} total materials, ${teacherMaterials.length} for teacher ${teacherId}`);
       setMaterials(teacherMaterials);
     } catch (error) {
       console.error('Error fetching study materials:', error);
+      setMaterials([]);
     }
   }, [API_URL]);
 
@@ -168,6 +173,9 @@ const TeacherStudyMaterials = () => {
 
       alert(`Study material ${isEdit ? 'updated' : 'created'} successfully`);
       
+      // Small delay to ensure backend has fully processed the material
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       // Refetch materials to ensure proper data with populated references
       await fetchStudyMaterials(teacher._id);
 
@@ -180,6 +188,7 @@ const TeacherStudyMaterials = () => {
         materialType: 'PDF',
         fileUrl: '',
       });
+      setErrors({});
     } catch (error) {
       console.error('Error:', error);
       alert(`Error ${modalType === 'edit' ? 'updating' : 'creating'} study material`);
@@ -211,13 +220,13 @@ const TeacherStudyMaterials = () => {
   // Filter materials based on search term
   const filteredMaterials = materials.filter(material => {
     const searchLower = searchTerm.toLowerCase();
-    const title = material.title.toLowerCase();
-    const subject = typeof material.subjectId === 'object' 
+    const title = material.title ? material.title.toLowerCase() : '';
+    const subject = typeof material.subjectId === 'object' && material.subjectId?.subjectName
       ? material.subjectId.subjectName.toLowerCase() 
-      : material.subjectId.toLowerCase();
-    const grade = typeof material.gradeId === 'object' 
+      : '';
+    const grade = typeof material.gradeId === 'object' && material.gradeId?.gradeName
       ? material.gradeId.gradeName.toLowerCase() 
-      : material.gradeId.toLowerCase();
+      : '';
     
     return (
       title.includes(searchLower) || 
@@ -303,17 +312,17 @@ const TeacherStudyMaterials = () => {
                   <div className="text-sm">
                     <p className="text-gray-600">
                       <span className="font-medium text-gray-700">Subject: </span>
-                      {typeof material.subjectId === 'object' 
+                      {material.subjectId && typeof material.subjectId === 'object' 
                         ? material.subjectId.subjectName 
-                        : material.subjectId}
+                        : material.subjectId || 'N/A'}
                     </p>
                   </div>
                   <div className="text-sm">
                     <p className="text-gray-600">
                       <span className="font-medium text-gray-700">Grade: </span>
-                      {typeof material.gradeId === 'object' 
+                      {material.gradeId && typeof material.gradeId === 'object' 
                         ? material.gradeId.gradeName 
-                        : material.gradeId}
+                        : material.gradeId || 'N/A'}
                     </p>
                   </div>
                 </div>
