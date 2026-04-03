@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Clock, Calendar, Users, Trash2, Edit2 } from 'lucide-react';
 import TeacherLayout from '../components/TeacherLayout';
 import SessionModal from '../components/SessionModal';
 
@@ -167,10 +168,10 @@ const TeacherStudySessions = () => {
   if (loading) {
     return (
       <TeacherLayout>
-        <div className="p-6 bg-gray-50 min-h-screen">
-          <h1 className="text-3xl font-bold text-gray-800">Study Sessions</h1>
-          <div className="mt-8 flex justify-center items-center h-64">
-            <p className="text-gray-600">Loading sessions...</p>
+        <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading study sessions...</p>
           </div>
         </div>
       </TeacherLayout>
@@ -182,20 +183,19 @@ const TeacherStudySessions = () => {
 
   return (
     <TeacherLayout>
-      <div className="p-6 bg-gray-50 min-h-screen">
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Study Sessions</h1>
-            <p className="text-gray-600 mt-2">
-              Schedule and manage study sessions for your students
-            </p>
+            <h1 className="text-4xl font-bold text-gray-900">Study Sessions</h1>
+            <p className="text-gray-600 mt-2 text-lg">Schedule and manage study sessions for your students</p>
           </div>
           <button
             onClick={handleCreateClick}
             disabled={!canCreateSession}
-            className={`px-6 py-2 rounded-lg font-medium transition ${
+            className={`px-6 py-3 rounded-lg font-semibold transition transform hover:scale-105 ${
               canCreateSession
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                ? 'bg-cyan-600 text-white hover:bg-cyan-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
@@ -204,104 +204,95 @@ const TeacherStudySessions = () => {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
             {error}
           </div>
         )}
 
         {successMessage && (
-          <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg">
+          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded">
             {successMessage}
           </div>
         )}
 
         {!canCreateSession && (
-          <div className="mb-6 p-4 bg-yellow-100 text-yellow-700 rounded-lg">
+          <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 rounded">
             You need to have subjects and grades assigned to create study sessions.
             Please contact your administrator.
           </div>
         )}
 
-        {/* Sessions List */}
+        {/* Sessions Grid */}
         {sessions.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600 text-lg">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <Clock className="mx-auto text-gray-400 mb-4" size={48} />
+            <p className="text-gray-500 text-lg font-medium">
               No study sessions yet. Create one to get started!
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {sessions.map((session) => (
               <div
                 key={session._id}
-                className="bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition"
+                className="bg-white rounded-lg shadow-sm border-l-4 border-cyan-600 p-6 hover:shadow-md transition-all duration-300 transform hover:scale-105"
               >
-                {/* Session Header */}
-                <div className="mb-3">
-                  <h3 className="text-lg font-bold text-gray-800 break-words">
-                    {session.lesson}
-                  </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {session.subjectId?.subjectName || 'Subject'} •{' '}
-                    {session.gradeId?.gradeName || 'Grade'}
-                  </p>
-                </div>
-
-                {/* Status Badge */}
-                <div className="mb-3">
-                  <span
-                    className={`inline-block px-2 py-1 rounded text-xs font-semibold ${getStatusBadgeColor(
-                      session.status
-                    )}`}
-                  >
+                {/* Session Title and Status */}
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900 flex-1 line-clamp-2">{session.lesson}</h3>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ml-2 flex-shrink-0 ${getStatusBadgeColor(session.status)}`}>
                     {session.status}
                   </span>
                 </div>
 
+                {/* Subject and Grade */}
+                <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+                  <Users size={16} className="text-cyan-600" />
+                  <span>{session.subjectId?.subjectName || 'Subject'} • {session.gradeId?.gradeName || 'Grade'}</span>
+                </div>
+
                 {/* Session Details */}
-                <div className="space-y-2 mb-4 pb-4 border-b border-gray-200">
-                  <p className="text-sm text-gray-700">
-                    <strong>Date & Time:</strong> {formatDateTime(session.date, session.startTime)} -{' '}
-                    {session.endTime}
-                  </p>
+                <div className="space-y-2 mb-4 pb-4 border-t border-gray-200 pt-4">
+                  <div className="flex items-start gap-2 text-sm text-gray-700">
+                    <Calendar size={16} className="text-cyan-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Date & Time</p>
+                      <p className="text-gray-600">{formatDateTime(session.date, session.startTime)} - {session.endTime}</p>
+                    </div>
+                  </div>
                   {session.notes && (
-                    <p className="text-sm text-gray-700">
-                      <strong>Notes:</strong> {session.notes}
-                    </p>
-                  )}
-                  {session.meetingId && (
-                    <p className="text-sm text-gray-700">
-                      <strong>Meeting ID:</strong> {session.meetingId}
-                    </p>
+                    <div className="flex items-start gap-2 text-sm text-gray-700">
+                      <p><span className="font-medium">Notes:</span> {session.notes}</p>
+                    </div>
                   )}
                 </div>
 
                 {/* Meeting Link */}
                 {session.meetingLink && (
-                  <div className="mb-4">
-                    <a
-                      href={session.meetingLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full text-center px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded hover:bg-green-200 transition"
-                    >
-                      Join Zoom Meeting
-                    </a>
-                  </div>
+                  <a
+                    href={session.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full text-center mb-4 px-3 py-2 bg-green-50 text-green-700 text-sm font-medium rounded-md hover:bg-green-100 transition border border-green-200"
+                  >
+                    Join Zoom Meeting
+                  </a>
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-2 pt-3 border-t border-gray-200">
+                <div className="flex gap-2 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => handleEditClick(session)}
-                    className="flex-1 px-3 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded hover:bg-blue-200 transition"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition"
                   >
+                    <Edit2 size={16} />
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteClick(session)}
-                    className="flex-1 px-3 py-2 bg-red-100 text-red-700 text-sm font-medium rounded hover:bg-red-200 transition"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition"
                   >
+                    <Trash2 size={16} />
                     Delete
                   </button>
                 </div>
