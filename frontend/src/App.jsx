@@ -35,7 +35,10 @@ export default function App() {
     setUserType(type);
   }, [location.pathname]);
 
-  const hideFooter = userType === "admin" || location.pathname.startsWith("/donor");
+  const hideFooter =
+    userType === "admin" ||
+    location.pathname.startsWith("/donor") ||
+    location.pathname.startsWith("/teacher");
 
   return (
     <div className="min-h-screen bg-white">
