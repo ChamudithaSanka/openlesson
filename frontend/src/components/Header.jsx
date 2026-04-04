@@ -44,7 +44,14 @@ export default function Header() {
     };
   }, [location.pathname, location.search]);
 
-  const displayName = authUser?.fullName || authUser?.name || authUser?.email || "User";
+  const dashboardPath =
+    userType === "admin"
+      ? "/admin/complaints"
+      : userType === "donor"
+        ? "/donor/dashboard"
+        : userType === "teacher"
+          ? "/teacher/dashboard"
+          : "/";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -78,9 +85,12 @@ export default function Header() {
         <div className="flex items-center gap-3">
           {authUser ? (
             <>
-              <span className="hidden rounded-md bg-white/10 px-3 py-2 text-sm font-medium sm:inline">
-                {displayName}
-              </span>
+              <Link
+                to={dashboardPath}
+                className="hidden rounded-md border border-white px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-700 sm:inline"
+              >
+                Dashboard
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}
@@ -119,13 +129,21 @@ export default function Header() {
           </a>
         ))}
         {authUser ? (
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="rounded bg-yellow-400 px-2 py-1 text-xs font-semibold text-blue-900 transition hover:bg-yellow-300"
-          >
-            Logout
-          </button>
+          <>
+            <Link
+              to={dashboardPath}
+              className="rounded bg-white/10 px-2 py-1 text-xs font-medium transition hover:bg-white hover:text-blue-900"
+            >
+              Dashboard
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded bg-yellow-400 px-2 py-1 text-xs font-semibold text-blue-900 transition hover:bg-yellow-300"
+            >
+              Logout
+            </button>
+          </>
         ) : (
           <>
             <Link
