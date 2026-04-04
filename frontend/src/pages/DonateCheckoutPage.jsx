@@ -74,9 +74,9 @@ export default function DonateCheckoutPage() {
           last_name: lastName,
           email: user.email || "",
           phone: donorProfile.phone || "",
-          address: "",
-          city: "",
-          country: "Sri Lanka",
+          address: donorProfile.address || "",
+          city: donorProfile.city || "",
+          country: donorProfile.country || "Sri Lanka",
         }));
 
         setProfilePrefilled(Boolean(firstName || lastName || user.email || donorProfile.phone));

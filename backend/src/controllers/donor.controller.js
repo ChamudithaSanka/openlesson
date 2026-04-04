@@ -117,11 +117,11 @@ export const getDonorForAdmin = async (req, res) => {
 // @access  Private (admin)
 export const updateDonorForAdmin = async (req, res) => {
   try {
-    const { fullName, phone, companyName, status } = req.body;
+    const { fullName, phone, address, city, country, status } = req.body;
     
     const donor = await Donor.findByIdAndUpdate(
       req.params.id,
-      { fullName, phone, companyName, status },
+      { fullName, phone, address, city, country, status },
       { new: true, runValidators: true }
     ).populate("userId", "email");
 
