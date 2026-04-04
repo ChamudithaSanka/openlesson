@@ -31,7 +31,10 @@ export const getAnnouncementById = async (req, res) => {
 export const createAnnouncement = async (req, res) => {
   try {
     const announcement = await Announcement.create(req.body);
-    res.status(201).json({ success: true, data: announcement });
+    const populatedAnnouncement = await Announcement.findById(announcement._id)
+      .populate("gradeId", "gradeName description")
+      .populate("subjectId", "subjectName description");
+    res.status(201).json({ success: true, data: populatedAnnouncement });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -40,14 +43,16 @@ export const createAnnouncement = async (req, res) => {
 // PUT /api/announcements/:id
 export const updateAnnouncement = async (req, res) => {
   try {
-    const announcement = await Announcement.findByIdAndUpdate(req.params.id, req.body, {
-      returnDocument: "after",
+    await Announcement.findByIdAndUpdate(req.params.id, req.body, {
       runValidators: true,
     });
-    if (!announcement) {
+    const populatedAnnouncement = await Announcement.findById(req.params.id)
+      .populate("gradeId", "gradeName description")
+      .populate("subjectId", "subjectName description");
+    if (!populatedAnnouncement) {
       return res.status(404).json({ success: false, message: "Announcement not found" });
     }
-    res.status(200).json({ success: true, data: announcement });
+    res.status(200).json({ success: true, data: populatedAnnouncement });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
