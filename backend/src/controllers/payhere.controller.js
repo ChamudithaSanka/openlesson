@@ -70,6 +70,18 @@ const buildDonationLabel = (donationType) => {
   return "One-Time Donation";
 };
 
+const buildRecurringTerms = (donationType) => {
+  if (donationType === "monthly") {
+    return { recurrence: "1 Month", duration: "Forever" };
+  }
+
+  if (donationType === "yearly") {
+    return { recurrence: "1 Year", duration: "Forever" };
+  }
+
+  return { recurrence: null, duration: null };
+};
+
 // @desc    Create PayHere checkout session
 // @route   POST /api/payments/payhere/checkout-session
 // @access  Public
@@ -100,6 +112,13 @@ export const createPayHereCheckoutSession = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid donation type",
+      });
+    }
+
+    if (donation_type !== "one-time" && !req.headers.authorization?.startsWith("Bearer ")) {
+      return res.status(403).json({
+        success: false,
+        message: "Recurring donations require a donor account",
       });
     }
 
@@ -135,6 +154,8 @@ export const createPayHereCheckoutSession = async (req, res) => {
     const items = buildDonationLabel(donation_type);
     const currency = "LKR";
     const hash = buildHash(merchantId(), orderId, normalizedAmount, currency);
+    const recurringTerms = buildRecurringTerms(donation_type);
+    const isRecurring = donation_type !== "one-time";
 
     const donation = await Donation.create({
       donorId,
@@ -151,6 +172,8 @@ export const createPayHereCheckoutSession = async (req, res) => {
           },
       orderId,
       donationType: donation_type,
+      recurrence: recurringTerms.recurrence || undefined,
+      duration: recurringTerms.duration || undefined,
       amount: Number(normalizedAmount),
       currency,
       paymentMethod: "PayHere Checkout",
@@ -160,6 +183,7 @@ export const createPayHereCheckoutSession = async (req, res) => {
       payhereAmount: Number(normalizedAmount),
       payhereCurrency: currency,
       statusCode: 0,
+      recurring: isRecurring,
     });
 
     return res.status(201).json({
@@ -184,6 +208,8 @@ export const createPayHereCheckoutSession = async (req, res) => {
         order_id: orderId,
         items,
         currency,
+        ...(recurringTerms.recurrence ? { recurrence: recurringTerms.recurrence } : {}),
+        ...(recurringTerms.duration ? { duration: recurringTerms.duration } : {}),
         amount: normalizedAmount,
         hash,
         custom_1: String(donation._id),
@@ -205,12 +231,20 @@ export const handlePayHereNotify = async (req, res) => {
       merchant_id,
       order_id,
       payment_id,
+      subscription_id,
       payhere_amount,
       payhere_currency,
       status_code,
       md5sig,
       method,
       status_message,
+      recurring,
+      message_type,
+      item_recurrence,
+      item_duration,
+      item_rec_status,
+      item_rec_date_next,
+      item_rec_install_paid,
     } = req.body;
 
     if (!merchant_id || !order_id || !payhere_amount || !payhere_currency || status_code === undefined || !md5sig) {
@@ -234,6 +268,7 @@ export const handlePayHereNotify = async (req, res) => {
     const wasCompleted = donation.paymentStatus === "Completed";
 
     donation.payherePaymentId = payment_id || donation.payherePaymentId;
+    donation.subscriptionId = subscription_id || donation.subscriptionId;
     donation.payhereAmount = Number(payhere_amount);
     donation.payhereCurrency = payhere_currency;
     donation.statusCode = Number(status_code);
@@ -241,6 +276,14 @@ export const handlePayHereNotify = async (req, res) => {
     donation.paymentStatus = nextStatus;
     donation.paymentMethod = method ? `PayHere (${method})` : donation.paymentMethod;
     donation.paymentGateway = "PayHere";
+    donation.recurring = recurring === "1" || recurring === 1 || recurring === true || donation.recurring;
+    donation.messageType = message_type || donation.messageType;
+    donation.itemRecurrence = item_recurrence || donation.itemRecurrence;
+    donation.itemDuration = item_duration || donation.itemDuration;
+    donation.itemRecStatus = item_rec_status !== undefined ? Number(item_rec_status) : donation.itemRecStatus;
+    donation.itemRecDateNext = item_rec_date_next || donation.itemRecDateNext;
+    donation.itemRecInstallPaid =
+      item_rec_install_paid !== undefined ? Number(item_rec_install_paid) : donation.itemRecInstallPaid;
 
     await donation.save();
 
@@ -248,6 +291,11 @@ export const handlePayHereNotify = async (req, res) => {
       const donor = await Donor.findById(donation.donorId);
       if (donor) {
         donor.totalDonated = Number(donor.totalDonated || 0) + Number(payhere_amount || 0);
+        if (donation.donationType === "monthly" || donation.donationType === "yearly") {
+          donor.recurringPlan = donation.donationType;
+          donor.recurringAmount = Number(payhere_amount || 0);
+          donor.isSubscriptionEnabled = true;
+        }
         await donor.save();
       }
     }

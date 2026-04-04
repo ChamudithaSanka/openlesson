@@ -49,6 +49,14 @@ const donationSchema = new mongoose.Schema(
       enum: ["one-time", "monthly", "yearly"],
       default: "one-time",
     },
+    recurrence: {
+      type: String,
+      trim: true,
+    },
+    duration: {
+      type: String,
+      trim: true,
+    },
     amount: {
       type: Number,
       required: true,
@@ -83,6 +91,36 @@ const donationSchema = new mongoose.Schema(
     payhereCurrency: {
       type: String,
       trim: true,
+    },
+    subscriptionId: {
+      type: String,
+      trim: true,
+    },
+    recurring: {
+      type: Boolean,
+      default: false,
+    },
+    messageType: {
+      type: String,
+      trim: true,
+    },
+    itemRecurrence: {
+      type: String,
+      trim: true,
+    },
+    itemDuration: {
+      type: String,
+      trim: true,
+    },
+    itemRecStatus: {
+      type: Number,
+    },
+    itemRecDateNext: {
+      type: String,
+      trim: true,
+    },
+    itemRecInstallPaid: {
+      type: Number,
     },
     statusCode: {
       type: Number,
