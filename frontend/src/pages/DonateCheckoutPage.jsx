@@ -14,12 +14,6 @@ const INITIAL_FORM = {
   message: "",
 };
 
-const typeToLabel = {
-  "one-time": "One-Time",
-  monthly: "Monthly",
-  yearly: "Yearly",
-};
-
 export default function DonateCheckoutPage() {
   const [searchParams] = useSearchParams();
   const initialType = searchParams.get("type");
@@ -109,6 +103,10 @@ export default function DonateCheckoutPage() {
     if (!form.last_name.trim()) return "Last name is required.";
     if (!form.email.trim()) return "Email is required.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Enter a valid email address.";
+    if (!form.phone.trim()) return "Phone is required.";
+    if (!form.address.trim()) return "Address is required.";
+    if (!form.city.trim()) return "City is required.";
+    if (!form.country.trim()) return "Country is required.";
 
     const amount = Number(form.amount);
     if (!Number.isFinite(amount) || amount <= 0) return "Enter a valid donation amount.";
@@ -135,41 +133,50 @@ export default function DonateCheckoutPage() {
     setLoading(true);
 
     try {
-      const amount = Number(form.amount).toFixed(2);
-
-      // This is the server-side payload shape expected before redirecting to PayHere sandbox.
+      const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
       const checkoutPayload = {
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
         email: form.email.trim(),
-        amount,
-        phone: form.phone.trim() || undefined,
-        address: form.address.trim() || undefined,
-        city: form.city.trim() || undefined,
-        country: form.country.trim() || undefined,
+        phone: form.phone.trim(),
+        address: form.address.trim(),
+        city: form.city.trim(),
+        country: form.country.trim(),
+        amount: Number(form.amount),
         donation_type: donationType,
+        message: form.message.trim(),
       };
 
-      if (isDonor) {
-        await axios.post(
-          "http://localhost:5000/api/donations",
-          {
-            amount: Number(form.amount),
-            paymentMethod: `PayHere Sandbox (${typeToLabel[donationType]})`,
-            message: form.message.trim() || `Checkout initiated by ${form.first_name} ${form.last_name}`,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      const response = await axios.post(
+        `${apiBase}/api/payments/payhere/checkout-session`,
+        checkoutPayload,
+        {
+          headers: isDonor && token ? { Authorization: `Bearer ${token}` } : undefined,
+        }
+      );
+
+      const { actionUrl, fields } = response.data || {};
+      if (!actionUrl || !fields) {
+        throw new Error("Unable to initialize PayHere checkout.");
       }
 
-      setPayloadPreview(checkoutPayload);
-      setSuccess(
-        "Checkout details validated. Next step is backend PayHere session creation and redirect to sandbox gateway."
-      );
+      setPayloadPreview(fields);
+      setSuccess("Redirecting to PayHere sandbox...");
+
+      const formElement = document.createElement("form");
+      formElement.method = "post";
+      formElement.action = actionUrl;
+
+      Object.entries(fields).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = String(value ?? "");
+        formElement.appendChild(input);
+      });
+
+      document.body.appendChild(formElement);
+      formElement.submit();
     } catch (err) {
       setError(err.response?.data?.message || "Could not initialize checkout. Please try again.");
     } finally {
@@ -292,52 +299,56 @@ export default function DonateCheckoutPage() {
 
           <div>
             <label htmlFor="phone" className="mb-1 block text-sm font-medium text-blue-900">
-              Phone
+              Phone *
             </label>
             <input
               id="phone"
               name="phone"
               value={form.phone}
               onChange={onChange}
+              required
               className="block w-full rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2"
             />
           </div>
 
           <div>
             <label htmlFor="country" className="mb-1 block text-sm font-medium text-blue-900">
-              Country
+              Country *
             </label>
             <input
               id="country"
               name="country"
               value={form.country}
               onChange={onChange}
+              required
               className="block w-full rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2"
             />
           </div>
 
           <div className="sm:col-span-2">
             <label htmlFor="address" className="mb-1 block text-sm font-medium text-blue-900">
-              Address
+              Address *
             </label>
             <input
               id="address"
               name="address"
               value={form.address}
               onChange={onChange}
+              required
               className="block w-full rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2"
             />
           </div>
 
           <div>
             <label htmlFor="city" className="mb-1 block text-sm font-medium text-blue-900">
-              City
+              City *
             </label>
             <input
               id="city"
               name="city"
               value={form.city}
               onChange={onChange}
+              required
               className="block w-full rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2"
             />
           </div>

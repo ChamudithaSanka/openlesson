@@ -10,6 +10,7 @@ import WorkPage from "./pages/WorkPage";
 import VolunteerPage from "./pages/VolunteerPage";
 import DonatePage from "./pages/DonatePage";
 import DonateCheckoutPage from "./pages/DonateCheckoutPage";
+import DonationResultPage from "./pages/DonationResultPage";
 import ComplaintManagement from "./pages/ComplaintManagement";
 import TeachersManagement from "./pages/TeachersManagement";
 import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
@@ -51,6 +52,8 @@ export default function App() {
         <Route path="/volunteer" element={<VolunteerPage />} />
         <Route path="/donate" element={<DonatePage />} />
         <Route path="/donate/checkout" element={<DonateCheckoutPage />} />
+        <Route path="/donate/return" element={<DonationResultPage />} />
+        <Route path="/donate/cancel" element={<DonationResultPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
 
