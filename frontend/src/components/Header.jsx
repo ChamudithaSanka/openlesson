@@ -46,6 +46,9 @@ export default function Header() {
 
   const displayName = authUser?.fullName || authUser?.name || authUser?.email || "User";
 
+  const isTeacherRoute = location.pathname.startsWith("/teacher");
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -64,7 +67,7 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {userType !== "admin" && navLinks.map((link) => (
+          {userType !== "admin" && !isTeacherRoute && !isAdminRoute && navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}

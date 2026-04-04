@@ -1,7 +1,6 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Route, Routes, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
@@ -30,12 +29,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   const location = useLocation();
-  const [userType, setUserType] = useState(null);
-
-  useEffect(() => {
-    const type = localStorage.getItem("userType");
-    setUserType(type);
-  }, [location.pathname]);
+  const userType = localStorage.getItem("userType");
 
   const hideFooter =
     userType === "admin" ||
@@ -144,6 +138,22 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherStudySessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/announcements"
+          element={
+            <ProtectedRoute allowedRoles={["teacher"]}>
+              <TeacherAnnouncements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/profile"
+          element={
+            <ProtectedRoute allowedRoles={["teacher"]}>
+              <TeacherProfile />
             </ProtectedRoute>
           }
         />

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, FileText, Clock } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, Clock, Bell, User } from 'lucide-react';
 
 const TeacherSidebar = () => {
   const location = useLocation();
@@ -57,6 +57,30 @@ const TeacherSidebar = () => {
         >
           <BookOpen size={20} />
           <span>Quizzes</span>
+        </Link>
+
+        <Link
+          to="/teacher/announcements"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/teacher/announcements')
+              ? 'bg-yellow-600'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <Bell size={20} />
+          <span>Announcements</span>
+        </Link>
+
+        <Link
+          to="/teacher/profile"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/teacher/profile')
+              ? 'bg-blue-900'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <User size={20} />
+          <span>Profile</span>
         </Link>
       </nav>
     </div>
