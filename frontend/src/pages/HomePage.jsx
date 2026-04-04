@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useInView } from "../hooks/useInView";
 
 const heroSlides = [
   {
@@ -100,6 +101,14 @@ const trustPillars = [
 
 export default function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  
+  // Scroll animation refs
+  const [audienceRef, audienceInView] = useInView();
+  const [howItWorksRef, howItWorksInView] = useInView();
+  const [impactRef, impactInView] = useInView();
+  const [featuredRef, featuredInView] = useInView();
+  const [trustRef, trustInView] = useInView();
+  const [ctaRef, ctaInView] = useInView();
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -129,22 +138,23 @@ export default function HomePage() {
             style={{ backgroundImage: `url(${slide.image})` }}
             aria-hidden={index !== activeSlide}
           >
-            <div className="absolute inset-0 bg-blue-950/55" />
+            <div className="absolute inset-0" style={{backgroundColor: 'rgba(30, 58, 138, 0.6)'}} />
             <div className="relative mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-6 text-center text-white">
               <h1 className="max-w-4xl text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
                 {slide.headline}
               </h1>
-              <p className="mt-4 max-w-2xl text-base text-blue-100 sm:text-lg">{slide.subtext}</p>
+              <p className="mt-4 max-w-2xl text-base text-white/90 sm:text-lg">{slide.subtext}</p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   to="/register?role=student"
-                  className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
+                  className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold transition hover:bg-yellow-300"
+                  style={{color: '#1e3a8a'}}
                 >
                   Get Started
                 </Link>
                 <Link
                   to="/#audience"
-                  className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
+                  className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   Learn More
                 </Link>
@@ -185,22 +195,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="audience" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <section id="audience" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8" ref={audienceRef}>
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-bold text-blue-900">Choose Your Path</h2>
-          <p className="mt-2 text-blue-800">One platform built for students, teachers, and donors.</p>
+          <h2 className={`text-3xl font-bold ${audienceInView ? 'animate-fade-in-up' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>Choose Your Path</h2>
+          <p className={`mt-2 ${audienceInView ? 'animate-fade-in-up delay-100' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>One platform built for students, teachers, and donors.</p>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
-          {audienceCards.map((card) => (
+          {audienceCards.map((card, idx) => (
             <article
               key={card.title}
-              className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className={`rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${audienceInView ? idx === 0 ? 'animate-slide-in-left' : idx === 2 ? 'animate-slide-in-right' : 'animate-scale-in' : 'opacity-0'}`}
+              style={{borderColor: '#e0e7ff', border: '1px solid #e0e7ff', animationDelay: audienceInView ? `${0.2 + idx * 0.25}s` : '0s'}}
             >
-              <h3 className="text-xl font-bold text-blue-900">{card.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-800">{card.description}</p>
+              <h3 className="text-xl font-bold" style={{color: '#1e3a8a'}}>{card.title}</h3>
+              <p className="mt-3 text-sm leading-6" style={{color: '#1e3a8a'}}>{card.description}</p>
               <Link
                 to={card.actionTo}
-                className="mt-5 inline-block rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800"
+                className="mt-5 inline-block rounded-md px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                style={{backgroundColor: '#1e3a8a'}}
               >
                 {card.actionLabel}
               </Link>
@@ -209,89 +221,90 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-blue-50 py-14">
+      <section className="py-14" style={{backgroundColor: '#f0f4ff'}} ref={howItWorksRef}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-blue-900">How It Works</h2>
-            <p className="mt-2 text-blue-800">Fast, simple, and built for action.</p>
+            <h2 className={`text-3xl font-bold ${howItWorksInView ? 'animate-fade-in-down' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>How It Works</h2>
+            <p className={`mt-2 ${howItWorksInView ? 'animate-fade-in-down delay-100' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>Fast, simple, and built for action.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {steps.map((step) => (
-              <article key={step.number} className="rounded-2xl bg-white p-6 text-center shadow-sm">
+            {steps.map((step, idx) => (
+              <article key={step.number} className={`rounded-2xl bg-white p-6 text-center shadow-sm ${howItWorksInView ? 'animate-fade-in-down' : 'opacity-0'}`} style={{animationDelay: howItWorksInView ? `${0.2 + idx * 0.25}s` : '0s'}}>
                 <p className="text-sm font-bold tracking-wider text-yellow-500">{step.number}</p>
-                <h3 className="mt-3 text-lg font-semibold text-blue-900">{step.title}</h3>
+                <h3 className="mt-3 text-lg font-semibold" style={{color: '#1e3a8a'}}>{step.title}</h3>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8" ref={impactRef}>
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-bold text-blue-900">Impact Snapshot</h2>
-          <p className="mt-2 text-blue-800">A quick look at community progress.</p>
+          <h2 className={`text-3xl font-bold ${impactInView ? 'animate-fade-in-up' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>Impact Snapshot</h2>
+          <p className={`mt-2 ${impactInView ? 'animate-fade-in-up delay-100' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>A quick look at community progress.</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {impactStats.map((stat) => (
-            <article key={stat.label} className="rounded-2xl border border-blue-100 bg-white p-6 text-center shadow-sm">
-              <p className="text-3xl font-bold text-blue-900">{stat.value}</p>
-              <p className="mt-1 text-sm font-medium text-blue-700">{stat.label}</p>
+          {impactStats.map((stat, idx) => (
+            <article key={stat.label} className={`rounded-2xl bg-white p-6 text-center shadow-sm ${impactInView ? 'animate-scale-in' : 'opacity-0'}`} style={{borderColor: '#e0e7ff', border: '1px solid #e0e7ff', animationDelay: impactInView ? `${0.15 + idx * 0.2}s` : '0s'}}>
+              <p className="text-3xl font-bold" style={{color: '#1e3a8a'}}>{stat.value}</p>
+              <p className="mt-1 text-sm font-medium" style={{color: '#1e3a8a'}}>{stat.label}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="bg-white py-14">
+      <section className="bg-white py-14" ref={featuredRef}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-blue-900">Featured Content</h2>
-            <p className="mt-2 text-blue-800">Fresh updates from across the platform.</p>
+            <h2 className={`text-3xl font-bold ${featuredInView ? 'animate-fade-in-up' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>Featured Content</h2>
+            <p className={`mt-2 ${featuredInView ? 'animate-fade-in-up delay-100' : 'opacity-0'}`} style={{color: '#1e3a8a'}}>Fresh updates from across the platform.</p>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
-            {featuredContent.map((item) => (
-              <article key={item.title} className="rounded-2xl border border-blue-100 bg-blue-50 p-6">
-                <p className="text-xs font-bold uppercase tracking-wide text-blue-700">{item.type}</p>
-                <h3 className="mt-3 text-lg font-semibold text-blue-900">{item.title}</h3>
-                <p className="mt-2 text-sm text-blue-700">{item.meta}</p>
+            {featuredContent.map((item, idx) => (
+              <article key={item.title} className={`rounded-2xl border p-6 ${featuredInView ? 'animate-slide-in-right' : 'opacity-0'}`} style={{borderColor: '#e0e7ff', backgroundColor: '#f0f4ff', animationDelay: featuredInView ? `${0.2 + idx * 0.25}s` : '0s'}}>
+                <p className="text-xs font-bold uppercase tracking-wide" style={{color: '#1e3a8a'}}>{item.type}</p>
+                <h3 className="mt-3 text-lg font-semibold" style={{color: '#1e3a8a'}}>{item.title}</h3>
+                <p className="mt-2 text-sm" style={{color: '#1e3a8a'}}>{item.meta}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-blue-900 py-14 text-white">
+      <section className="py-14 text-white" style={{backgroundColor: '#182c64'}} ref={trustRef}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold">Trust & Safety</h2>
-            <p className="mt-2 text-blue-100">Built-in checks that protect students and strengthen confidence.</p>
+            <h2 className={`text-3xl font-bold ${trustInView ? 'animate-fade-in-down' : 'opacity-0'}`}>Trust & Safety</h2>
+            <p className={`mt-2 ${trustInView ? 'animate-fade-in-down delay-100' : 'opacity-0'}`} style={{color: 'rgba(255, 255, 255, 0.9)'}}>Built-in checks that protect students and strengthen confidence.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {trustPillars.map((pillar) => (
-              <article key={pillar.title} className="rounded-2xl border border-blue-700 bg-blue-800/60 p-6">
+            {trustPillars.map((pillar, idx) => (
+              <article key={pillar.title} className={`rounded-2xl border p-6 ${trustInView ? 'animate-slide-in-left' : 'opacity-0'}`} style={{borderColor: 'rgba(255, 255, 255, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.05)', animationDelay: trustInView ? `${0.2 + idx * 0.25}s` : '0s'}}>
                 <h3 className="text-lg font-semibold text-yellow-300">{pillar.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-blue-100">{pillar.description}</p>
+                <p className="mt-2 text-sm leading-6" style={{color: 'rgba(255, 255, 255, 0.9)'}}>{pillar.description}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="final-cta" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-gradient-to-r from-blue-700 to-blue-900 px-6 py-10 text-center text-white sm:px-10">
+      <section id="final-cta" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" ref={ctaRef}>
+        <div className={`rounded-3xl px-6 py-10 text-center text-white sm:px-10 ${ctaInView ? 'animate-fade-in-up' : 'opacity-0'}`} style={{backgroundColor: '#182c64'}}>
           <h2 className="text-3xl font-bold">Ready To Be Part Of The Mission?</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-blue-100">
+          <p className={`mx-auto mt-3 max-w-2xl ${ctaInView ? 'animate-fade-in-up delay-100' : 'opacity-0'}`} style={{color: 'rgba(255, 255, 255, 0.95)'}}>
             Join as a student or teacher, or power change through your donation.
           </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <div className={`mt-7 flex flex-wrap items-center justify-center gap-3 ${ctaInView ? 'animate-fade-in-up delay-200' : 'opacity-0'}`}>
             <Link
               to="/register"
-              className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
+              className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold transition hover:bg-yellow-300"
+              style={{color: '#1e3a8a'}}
             >
               Join as Student/Teacher
             </Link>
             <Link
               to="/register?role=donor"
-              className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
+              className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
             >
               Donate Now
             </Link>
