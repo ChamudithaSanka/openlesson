@@ -19,6 +19,8 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherQuizzes from "./pages/TeacherQuizzes";
 import TeacherStudyMaterials from "./pages/TeacherStudyMaterials";
 import TeacherStudySessions from "./pages/TeacherStudySessions";
+import TeacherAnnouncements from "./pages/TeacherAnnouncements";
+import TeacherProfile from "./pages/TeacherProfile";
 import StudentManagement from "./pages/admin/StudentManagement";
 import DonorManagement from "./pages/admin/DonorManagement";
 import DonationManagement from "./pages/admin/DonationManagement";
