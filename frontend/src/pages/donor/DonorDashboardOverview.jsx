@@ -24,8 +24,12 @@ const isSuccessfulDonation = (status = "") => {
   return ["succeeded", "success", "completed", "paid"].includes(normalized);
 };
 
-const getDerivedType = (paymentMethod = "") => {
-  const method = String(paymentMethod).toLowerCase();
+const getDerivedType = (donation = {}) => {
+  if (donation?.donationType) {
+    return String(donation.donationType).replace(/-/g, " ");
+  }
+
+  const method = String(donation?.paymentMethod || "").toLowerCase();
   if (method.includes("monthly")) return "Monthly";
   if (method.includes("yearly") || method.includes("annual")) return "Yearly";
   return "One-time";
@@ -198,7 +202,7 @@ export default function DonorDashboardOverview() {
                       <tr key={donation._id} className="border-b border-blue-50 last:border-b-0">
                         <td className="px-2 py-2 text-blue-900">{formatDate(donation.createdAt)}</td>
                         <td className="px-2 py-2 font-medium text-blue-900">{formatLKR(Number(donation.amount || 0))}</td>
-                        <td className="px-2 py-2 text-blue-900">{getDerivedType(donation.paymentMethod)}</td>
+                        <td className="px-2 py-2 text-blue-900">{getDerivedType(donation)}</td>
                         <td className="px-2 py-2">
                           <span
                             className={`rounded-full px-2 py-1 text-xs font-semibold ${
@@ -278,7 +282,7 @@ export default function DonorDashboardOverview() {
                     View Full History ({donations.length} records)
                   </Link>
                   <Link
-                    to="/donor/settings"
+                    to="/donor/subscription"
                     className="w-full rounded-md border border-blue-200 px-3 py-2 text-left font-medium hover:border-blue-400"
                   >
                     Manage Recurring Plan ({donorProfile?.recurringPlan || "none"})

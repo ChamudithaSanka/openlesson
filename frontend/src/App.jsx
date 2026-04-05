@@ -16,6 +16,7 @@ import TeachersManagement from "./pages/admin/TeachersManagement";
 import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
 import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
 import ProfileSettingsPage from "./pages/donor/ProfileSettingsPage";
+import SubscriptionSettingsPage from "./pages/donor/SubscriptionSettingsPage";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherQuizzes from "./pages/TeacherQuizzes";
 import TeacherStudyMaterials from "./pages/TeacherStudyMaterials";
@@ -76,6 +77,14 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["donor"]}>
               <ProfileSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/subscription"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <SubscriptionSettingsPage />
             </ProtectedRoute>
           }
         />
