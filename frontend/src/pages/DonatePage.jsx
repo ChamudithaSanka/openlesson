@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const givingOptions = [
   {
@@ -55,10 +55,17 @@ const workflowSteps = [
 ];
 
 export default function DonatePage() {
+  const [searchParams] = useSearchParams();
   const token = localStorage.getItem("token");
   const userType = localStorage.getItem("userType");
   const isLoggedIn = Boolean(token);
   const isDonor = isLoggedIn && userType === "donor";
+  const selectedPlan = searchParams.get("plan");
+  const planCheckoutUrl = selectedPlan ? `/donate/checkout?type=${selectedPlan}` : "/donate/checkout";
+  const loginReturnUrl = selectedPlan ? `/login?returnTo=${encodeURIComponent(planCheckoutUrl)}` : "/login";
+  const registerUrl = selectedPlan
+    ? `/register?role=donor&plan=${selectedPlan}`
+    : "/register?role=donor";
 
   return (
     <main className="bg-white">
@@ -73,7 +80,7 @@ export default function DonatePage() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              to="/donate/checkout"
+              to={planCheckoutUrl}
               className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
             >
               Donate Now
@@ -103,7 +110,7 @@ export default function DonatePage() {
                 to="/donate/checkout?type=one-time"
                 className="inline-block rounded-md bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800"
               >
-                Donate as Guest
+                Proceed to One-Time Donation
               </Link>
             </div>
           </article>
@@ -112,19 +119,58 @@ export default function DonatePage() {
             <h3 className="text-xl font-semibold text-blue-900">Recurring Giving</h3>
             <p className="mt-3 text-sm text-blue-800">Monthly or yearly support for sustained learning impact.</p>
             {!isLoggedIn ? (
-              <div className="mt-6 flex gap-3">
-                <Link
-                  to="/register?role=donor&plan=monthly"
-                  className="inline-block rounded-md border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
-                >
-                  Monthly
-                </Link>
-                <Link
-                  to="/register?role=donor&plan=yearly"
-                  className="inline-block rounded-md border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
-                >
-                  Yearly
-                </Link>
+              <div className="mt-6 space-y-4">
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    to="/donate?plan=monthly"
+                    className={`inline-block rounded-md px-4 py-2 text-sm font-semibold transition ${
+                      selectedPlan === "monthly"
+                        ? "bg-blue-900 text-white"
+                        : "border border-blue-900 text-blue-900 hover:bg-blue-50"
+                    }`}
+                  >
+                    Monthly
+                  </Link>
+                  <Link
+                    to="/donate?plan=yearly"
+                    className={`inline-block rounded-md px-4 py-2 text-sm font-semibold transition ${
+                      selectedPlan === "yearly"
+                        ? "bg-blue-900 text-white"
+                        : "border border-blue-900 text-blue-900 hover:bg-blue-50"
+                    }`}
+                  >
+                    Yearly
+                  </Link>
+                </div>
+
+                {selectedPlan ? (
+                  <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                    <p className="text-sm font-medium text-blue-900">
+                      Selected plan: <span className="font-semibold">{selectedPlan === "monthly" ? "Monthly" : "Yearly"}</span>
+                    </p>
+                    <p className="mt-1 text-sm text-blue-800">
+                      Continue with login or create a donor account for recurring giving.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Link
+                        to={loginReturnUrl}
+                        className="inline-block rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800"
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        to={registerUrl}
+                        className="inline-block rounded-md border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
+                      >
+                        Create Donor Account
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Choose monthly or yearly to continue with recurring giving.
+                  </p>
+                )}
               </div>
             ) : isDonor ? (
               <div className="mt-6 flex gap-3">
@@ -216,7 +262,7 @@ export default function DonatePage() {
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/donate/checkout"
+              to={planCheckoutUrl}
               className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
             >
               Start Donation
