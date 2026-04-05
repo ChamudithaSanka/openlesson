@@ -34,6 +34,7 @@ export default function DonateCheckoutPage() {
   const userType = localStorage.getItem("userType");
   const isDonor = Boolean(token) && userType === "donor";
   const requiresAccount = donationType === "monthly" || donationType === "yearly";
+  const canShowForm = !requiresAccount || isDonor;
 
   // Fetch donor profile on mount if logged in as donor
   useEffect(() => {
@@ -240,7 +241,8 @@ export default function DonateCheckoutPage() {
           )}
         </div>
 
-        <form className="mt-6 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
+        {!canShowForm ? null : (
+          <form className="mt-6 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="first_name" className="mb-1 block text-sm font-medium text-blue-900">
               First Name *
@@ -385,7 +387,8 @@ export default function DonateCheckoutPage() {
               Back to Donate Page
             </Link>
           </div>
-        </form>
+          </form>
+        )}
 
         {payloadPreview ? (
           <div className="mt-6 rounded-xl bg-slate-900 p-4 text-xs text-slate-100">
