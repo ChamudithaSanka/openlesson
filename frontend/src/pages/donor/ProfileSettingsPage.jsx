@@ -1,29 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import DonorLayout from "../../components/donor/DonorLayout";
 
 const getApiBase = () => import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
-const formatLKR = (amount) =>
-  new Intl.NumberFormat("en-LK", {
-    style: "currency",
-    currency: "LKR",
-    maximumFractionDigits: 0,
-  }).format(Number(amount || 0));
-
-const formatDate = (date) => {
-  if (!date) return "-";
-  return new Date(date).toLocaleDateString("en-LK", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-};
-
-const isSuccessfulDonation = (status = "") => {
-  const normalized = String(status).toLowerCase();
-  return ["succeeded", "success", "completed", "paid"].includes(normalized);
-};
 
 const resolveDonorId = async (headers) => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -35,56 +14,29 @@ const resolveDonorId = async (headers) => {
   return meRes.data?.user?.profile?._id || "";
 };
 
-const getNextBillingDate = (donor, donations) => {
-  if (!donor?.isSubscriptionEnabled || donor?.recurringPlan === "none") return "-";
-
-  const latestSuccessful = donations.find((item) => isSuccessfulDonation(item.paymentStatus));
-  if (!latestSuccessful?.createdAt) return "-";
-
-  const billingDate = new Date(latestSuccessful.createdAt);
-  if (donor.recurringPlan === "monthly") {
-    billingDate.setMonth(billingDate.getMonth() + 1);
-  } else if (donor.recurringPlan === "yearly") {
-    billingDate.setFullYear(billingDate.getFullYear() + 1);
-  }
-
-  return formatDate(billingDate);
-};
-
 export default function ProfileSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [savingSubscription, setSavingSubscription] = useState(false);
-  const [togglingSubscription, setTogglingSubscription] = useState(false);
-  const [cancellingSubscription, setCancellingSubscription] = useState(false);
-
+  const [savingPassword, setSavingPassword] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
   const [donorId, setDonorId] = useState("");
   const [donorProfile, setDonorProfile] = useState(null);
-  const [donations, setDonations] = useState([]);
 
   const [profileForm, setProfileForm] = useState({
     fullName: "",
     email: "",
     phone: "",
+    address: "",
+    city: "",
+    country: "Sri Lanka",
   });
 
-  const [subscriptionForm, setSubscriptionForm] = useState({
-    recurringPlan: "none",
-    recurringAmount: "",
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
-
-  const nextBillingDate = useMemo(
-    () => getNextBillingDate(donorProfile, donations),
-    [donorProfile, donations]
-  );
-
-  const monthlyActive =
-    donorProfile?.isSubscriptionEnabled && donorProfile?.recurringPlan === "monthly";
-  const yearlyActive =
-    donorProfile?.isSubscriptionEnabled && donorProfile?.recurringPlan === "yearly";
 
   const syncLocalUser = (updatedDonor) => {
     try {
@@ -99,21 +51,19 @@ export default function ProfileSettingsPage() {
       };
       localStorage.setItem("user", JSON.stringify(nextUser));
     } catch {
-      // Ignore local storage parsing errors.
+      // Ignore local storage parse failures.
     }
   };
 
-  const hydrateState = (profile, donationList) => {
+  const hydrateState = (profile) => {
     setDonorProfile(profile || null);
-    setDonations(donationList || []);
     setProfileForm({
       fullName: profile?.fullName || "",
       email: profile?.userId?.email || "",
       phone: profile?.phone || "",
-    });
-    setSubscriptionForm({
-      recurringPlan: profile?.recurringPlan || "none",
-      recurringAmount: String(profile?.recurringAmount || ""),
+      address: profile?.address || "",
+      city: profile?.city || "",
+      country: profile?.country || "Sri Lanka",
     });
   };
 
@@ -139,15 +89,10 @@ export default function ProfileSettingsPage() {
       }
 
       setDonorId(resolvedDonorId);
-
-      const [profileRes, donationsRes] = await Promise.all([
-        axios.get(`${getApiBase()}/api/donors/profile/${resolvedDonorId}`, { headers }),
-        axios.get(`${getApiBase()}/api/donations/my/${resolvedDonorId}`, { headers }),
-      ]);
-
+      const profileRes = await axios.get(`${getApiBase()}/api/donors/profile/${resolvedDonorId}`, { headers });
       const profile = profileRes.data?.donor || null;
-      const donationList = donationsRes.data?.donations || [];
-      hydrateState(profile, donationList);
+
+      hydrateState(profile);
       syncLocalUser(profile);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load profile settings.");
@@ -164,8 +109,8 @@ export default function ProfileSettingsPage() {
     setProfileForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubscriptionChange = (field, value) => {
-    setSubscriptionForm((prev) => ({ ...prev, [field]: value }));
+  const handlePasswordChange = (field, value) => {
+    setPasswordForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSaveProfile = async (e) => {
@@ -177,13 +122,15 @@ export default function ProfileSettingsPage() {
     try {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
-
       const res = await axios.put(
         `${getApiBase()}/api/donors/profile/${donorId}`,
         {
           fullName: profileForm.fullName.trim(),
           email: profileForm.email.trim(),
           phone: profileForm.phone.trim(),
+          address: profileForm.address.trim(),
+          city: profileForm.city.trim(),
+          country: profileForm.country.trim(),
         },
         { headers }
       );
@@ -199,106 +146,38 @@ export default function ProfileSettingsPage() {
     }
   };
 
-  const handleSaveSubscription = async (e) => {
+  const handleSavePassword = async (e) => {
     e.preventDefault();
-    setSavingSubscription(true);
+    setSavingPassword(true);
     setError("");
     setMessage("");
 
     try {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
-
-      const payload = {
-        recurringPlan: subscriptionForm.recurringPlan,
-        recurringAmount:
-          subscriptionForm.recurringPlan === "none"
-            ? 0
-            : Number(subscriptionForm.recurringAmount || 0),
-      };
-
       const res = await axios.put(
-        `${getApiBase()}/api/donors/subscription/${donorId}`,
-        payload,
-        { headers }
-      );
-
-      const updatedDonor = res.data?.donor || donorProfile;
-      setDonorProfile(updatedDonor);
-      setSubscriptionForm({
-        recurringPlan: updatedDonor?.recurringPlan || "none",
-        recurringAmount: String(updatedDonor?.recurringAmount || ""),
-      });
-      syncLocalUser(updatedDonor);
-      setMessage("Subscription plan updated.");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to update subscription.");
-    } finally {
-      setSavingSubscription(false);
-    }
-  };
-
-  const handleToggleSubscription = async () => {
-    setTogglingSubscription(true);
-    setError("");
-    setMessage("");
-
-    try {
-      const token = localStorage.getItem("token");
-      const headers = { Authorization: `Bearer ${token}` };
-      const enabled = !Boolean(donorProfile?.isSubscriptionEnabled);
-
-      const res = await axios.patch(
-        `${getApiBase()}/api/donors/subscription/${donorId}/toggle`,
-        { enabled },
-        { headers }
-      );
-
-      const updatedDonor = res.data?.donor || donorProfile;
-      setDonorProfile(updatedDonor);
-      syncLocalUser(updatedDonor);
-      setMessage(enabled ? "Subscription resumed." : "Subscription paused.");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to update subscription status.");
-    } finally {
-      setTogglingSubscription(false);
-    }
-  };
-
-  const handleCancelSubscription = async () => {
-    setCancellingSubscription(true);
-    setError("");
-    setMessage("");
-
-    try {
-      const token = localStorage.getItem("token");
-      const headers = { Authorization: `Bearer ${token}` };
-
-      const res = await axios.put(
-        `${getApiBase()}/api/donors/subscription/${donorId}`,
+        `${getApiBase()}/api/auth/password`,
         {
-          recurringPlan: "none",
-          recurringAmount: 0,
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+          confirmPassword: passwordForm.confirmPassword,
         },
         { headers }
       );
 
-      const updatedDonor = res.data?.donor || donorProfile;
-      setDonorProfile(updatedDonor);
-      setSubscriptionForm({ recurringPlan: "none", recurringAmount: "" });
-      syncLocalUser(updatedDonor);
-      setMessage("Subscription canceled.");
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setMessage(res.data?.message || "Password updated successfully.");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to cancel subscription.");
+      setError(err.response?.data?.message || "Failed to update password.");
     } finally {
-      setCancellingSubscription(false);
+      setSavingPassword(false);
     }
   };
 
   if (loading) {
     return (
       <DonorLayout>
-        <div className="p-6 text-sm text-slate-600">Loading profile and settings...</div>
+        <div className="p-6 text-sm text-slate-600">Loading profile settings...</div>
       </DonorLayout>
     );
   }
@@ -315,189 +194,143 @@ export default function ProfileSettingsPage() {
     <DonorLayout>
       <section className="space-y-6 p-6">
         <header className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-          <h1 className="text-2xl font-bold text-blue-900">Profile & Settings</h1>
-          <p className="mt-1 text-sm text-blue-700">
-            Manage your profile and recurring donation settings.
-          </p>
+          <h1 className="text-2xl font-bold text-blue-900">Profile Settings</h1>
+          <p className="mt-1 text-sm text-blue-700">Update your donor details and account password.</p>
         </header>
 
         {message ? <p className="rounded-md bg-green-50 p-3 text-sm font-medium text-green-700">{message}</p> : null}
         {error ? <p className="rounded-md bg-red-50 p-3 text-sm font-medium text-red-700">{error}</p> : null}
 
-        <div className="grid gap-6 xl:grid-cols-3">
-          <section className="space-y-6 xl:col-span-2">
-            <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-blue-900">View/Edit Donor Profile</h2>
-              <form className="mt-4 grid gap-4 md:grid-cols-2" onSubmit={handleSaveProfile}>
-                <label className="text-sm text-blue-900">
-                  <span className="mb-1 block font-medium">Name</span>
-                  <input
-                    type="text"
-                    value={profileForm.fullName}
-                    onChange={(e) => handleProfileChange("fullName", e.target.value)}
-                    className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
-                    required
-                  />
-                </label>
+        <div className="grid gap-6 xl:grid-cols-2">
+          <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-semibold text-blue-900">View/Edit Donor Profile</h2>
+            <form className="mt-4 grid gap-4 md:grid-cols-2" onSubmit={handleSaveProfile}>
+              <label className="text-sm text-blue-900">
+                <span className="mb-1 block font-medium">Name</span>
+                <input
+                  type="text"
+                  value={profileForm.fullName}
+                  onChange={(e) => handleProfileChange("fullName", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  required
+                />
+              </label>
 
-                <label className="text-sm text-blue-900">
-                  <span className="mb-1 block font-medium">Phone</span>
-                  <input
-                    type="tel"
-                    value={profileForm.phone}
-                    onChange={(e) => handleProfileChange("phone", e.target.value)}
-                    className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
-                    placeholder="07X XXX XXXX"
-                  />
-                </label>
+              <label className="text-sm text-blue-900">
+                <span className="mb-1 block font-medium">Phone</span>
+                <input
+                  type="tel"
+                  value={profileForm.phone}
+                  onChange={(e) => handleProfileChange("phone", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  placeholder="07X XXX XXXX"
+                />
+              </label>
 
-                <label className="text-sm text-blue-900 md:col-span-2">
-                  <span className="mb-1 block font-medium">Email</span>
-                  <input
-                    type="email"
-                    value={profileForm.email}
-                    onChange={(e) => handleProfileChange("email", e.target.value)}
-                    className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
-                    required
-                  />
-                </label>
+              <label className="text-sm text-blue-900 md:col-span-2">
+                <span className="mb-1 block font-medium">Email</span>
+                <input
+                  type="email"
+                  value={profileForm.email}
+                  onChange={(e) => handleProfileChange("email", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  required
+                />
+              </label>
 
-                <div className="md:col-span-2">
-                  <button
-                    type="submit"
-                    disabled={savingProfile}
-                    className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {savingProfile ? "Saving..." : "Save Profile"}
-                  </button>
-                </div>
-              </form>
-            </article>
+              <label className="text-sm text-blue-900 md:col-span-2">
+                <span className="mb-1 block font-medium">Address</span>
+                <input
+                  type="text"
+                  value={profileForm.address}
+                  onChange={(e) => handleProfileChange("address", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  placeholder="Street address"
+                />
+              </label>
 
-            <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-blue-900">Active Subscriptions</h2>
-              <p className="mt-1 text-sm text-blue-700">
-                View monthly/yearly status, edit amount, pause/resume/cancel, and next billing date.
-              </p>
+              <label className="text-sm text-blue-900">
+                <span className="mb-1 block font-medium">City</span>
+                <input
+                  type="text"
+                  value={profileForm.city}
+                  onChange={(e) => handleProfileChange("city", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  placeholder="Colombo"
+                />
+              </label>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-900">
-                  <p className="font-medium">Monthly Plan</p>
-                  <p>Status: {monthlyActive ? "Active" : "Inactive"}</p>
-                  <p>
-                    Amount:{" "}
-                    {donorProfile?.recurringPlan === "monthly"
-                      ? formatLKR(donorProfile?.recurringAmount)
-                      : formatLKR(0)}
-                  </p>
-                </div>
-                <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-900">
-                  <p className="font-medium">Yearly Plan</p>
-                  <p>Status: {yearlyActive ? "Active" : "Inactive"}</p>
-                  <p>
-                    Amount:{" "}
-                    {donorProfile?.recurringPlan === "yearly"
-                      ? formatLKR(donorProfile?.recurringAmount)
-                      : formatLKR(0)}
-                  </p>
-                </div>
+              <label className="text-sm text-blue-900">
+                <span className="mb-1 block font-medium">Country</span>
+                <input
+                  type="text"
+                  value={profileForm.country}
+                  onChange={(e) => handleProfileChange("country", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  placeholder="Sri Lanka"
+                />
+              </label>
+
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  disabled={savingProfile}
+                  className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {savingProfile ? "Saving..." : "Save Profile"}
+                </button>
               </div>
+            </form>
+          </article>
 
-              <p className="mt-3 text-sm text-blue-900">
-                <span className="font-medium">Next Billing Date:</span> {nextBillingDate}
-              </p>
+          <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-semibold text-blue-900">Change Password</h2>
+            <p className="mt-1 text-sm text-blue-700">Use a strong password to keep your donor account secure.</p>
+            <form className="mt-4 grid gap-4" onSubmit={handleSavePassword}>
+              <label className="text-sm text-blue-900">
+                <span className="mb-1 block font-medium">Current Password</span>
+                <input
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => handlePasswordChange("currentPassword", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  required
+                />
+              </label>
 
-              <form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={handleSaveSubscription}>
-                <label className="text-sm text-blue-900">
-                  <span className="mb-1 block font-medium">Plan</span>
-                  <select
-                    value={subscriptionForm.recurringPlan}
-                    onChange={(e) => handleSubscriptionChange("recurringPlan", e.target.value)}
-                    className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
-                  >
-                    <option value="none">None</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                  </select>
-                </label>
+              <label className="text-sm text-blue-900">
+                <span className="mb-1 block font-medium">New Password</span>
+                <input
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  required
+                />
+              </label>
 
-                <label className="text-sm text-blue-900">
-                  <span className="mb-1 block font-medium">Amount (LKR)</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={subscriptionForm.recurringAmount}
-                    onChange={(e) => handleSubscriptionChange("recurringAmount", e.target.value)}
-                    disabled={subscriptionForm.recurringPlan === "none"}
-                    className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2 disabled:bg-slate-100"
-                    placeholder="5000"
-                  />
-                </label>
+              <label className="text-sm text-blue-900">
+                <span className="mb-1 block font-medium">Confirm New Password</span>
+                <input
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => handlePasswordChange("confirmPassword", e.target.value)}
+                  className="w-full rounded-md border border-blue-200 px-3 py-2 outline-none ring-blue-600 focus:border-blue-400 focus:ring-2"
+                  required
+                />
+              </label>
 
-                <div className="flex flex-wrap items-center gap-2 md:col-span-2">
-                  <button
-                    type="submit"
-                    disabled={savingSubscription}
-                    className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {savingSubscription ? "Updating..." : "Update Plan"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleToggleSubscription}
-                    disabled={togglingSubscription || donorProfile?.recurringPlan === "none"}
-                    className="rounded-md border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-800 hover:border-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {togglingSubscription
-                      ? "Working..."
-                      : donorProfile?.isSubscriptionEnabled
-                      ? "Pause"
-                      : "Resume"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleCancelSubscription}
-                    disabled={cancellingSubscription || donorProfile?.recurringPlan === "none"}
-                    className="rounded-md border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:border-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {cancellingSubscription ? "Cancelling..." : "Cancel Subscription"}
-                  </button>
-                </div>
-              </form>
-            </article>
-          </section>
-
-          <aside className="space-y-6">
-            <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-              <h2 className="text-base font-semibold text-blue-900">Current Summary</h2>
-              <div className="mt-3 space-y-2 text-sm text-blue-900">
-                <p>
-                  <span className="font-medium">Current plan:</span> {donorProfile?.recurringPlan || "none"}
-                </p>
-                <p>
-                  <span className="font-medium">Subscription status:</span>{" "}
-                  {donorProfile?.isSubscriptionEnabled ? "Enabled" : "Disabled"}
-                </p>
-                <p>
-                  <span className="font-medium">Recurring amount:</span>{" "}
-                  {formatLKR(donorProfile?.recurringAmount)}
-                </p>
-                <p>
-                  <span className="font-medium">Next billing:</span> {nextBillingDate}
-                </p>
+              <div>
+                <button
+                  type="submit"
+                  disabled={savingPassword}
+                  className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {savingPassword ? "Updating..." : "Update Password"}
+                </button>
               </div>
-            </article>
-
-            <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-              <h2 className="text-base font-semibold text-blue-900">Recent Donation Signal</h2>
-              <p className="mt-2 text-sm text-blue-800">
-                Successful donations recorded: {donations.filter((item) => isSuccessfulDonation(item.paymentStatus)).length}
-              </p>
-              <p className="text-sm text-blue-800">Total records: {donations.length}</p>
-            </article>
-          </aside>
+            </form>
+          </article>
         </div>
       </section>
     </DonorLayout>

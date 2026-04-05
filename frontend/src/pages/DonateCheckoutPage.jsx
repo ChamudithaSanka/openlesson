@@ -26,7 +26,6 @@ export default function DonateCheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [payloadPreview, setPayloadPreview] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profilePrefilled, setProfilePrefilled] = useState(false);
 
@@ -123,7 +122,6 @@ export default function DonateCheckoutPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    setPayloadPreview(null);
 
     const validationError = validate();
     if (validationError) {
@@ -161,8 +159,7 @@ export default function DonateCheckoutPage() {
         throw new Error("Unable to initialize PayHere checkout.");
       }
 
-      setPayloadPreview(fields);
-      setSuccess("Redirecting to PayHere sandbox...");
+      setSuccess("Redirecting to payment gateway...");
 
       const formElement = document.createElement("form");
       formElement.method = "post";
@@ -190,7 +187,7 @@ export default function DonateCheckoutPage() {
       <section className="rounded-2xl border border-blue-200 bg-white p-6 shadow-sm sm:p-8">
         <h1 className="text-2xl font-bold text-blue-900">Donate Checkout</h1>
         <p className="mt-2 text-sm text-blue-800">
-          Complete your donation details. Currency is fixed to LKR and payment is processed via PayHere sandbox.
+          Complete your donation details. Currency is fixed to LKR and payment is processed securely via PayHere.
         </p>
 
         <div className="mt-6 rounded-xl bg-blue-50 p-4">
@@ -377,7 +374,7 @@ export default function DonateCheckoutPage() {
               disabled={loading}
               className="rounded-md bg-yellow-400 px-5 py-2.5 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? "Initializing..." : "Proceed to PayHere Sandbox"}
+              {loading ? "Initializing..." : "Proceed to Payment"}
             </button>
 
             <Link
@@ -390,12 +387,6 @@ export default function DonateCheckoutPage() {
           </form>
         )}
 
-        {payloadPreview ? (
-          <div className="mt-6 rounded-xl bg-slate-900 p-4 text-xs text-slate-100">
-            <p className="mb-2 font-semibold">Checkout Payload Preview (for backend PayHere endpoint):</p>
-            <pre className="overflow-x-auto whitespace-pre-wrap">{JSON.stringify(payloadPreview, null, 2)}</pre>
-          </div>
-        ) : null}
       </section>
     </main>
   );
