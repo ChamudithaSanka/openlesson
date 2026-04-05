@@ -18,7 +18,9 @@ export const register = async (req, res) => {
       gradeId, 
       schoolName, 
       district, 
-      companyName,
+      address,
+      city,
+      country,
       subjectsTheyTeach,
       gradesTheyTeach
     } = req.body;
@@ -103,7 +105,9 @@ export const register = async (req, res) => {
           userId: user._id,
           fullName,
           phone,
-          companyName,
+          address,
+          city,
+          country: country || "Sri Lanka",
           status: "Active",
         });
       }

@@ -59,8 +59,15 @@ const donorSchema = new mongoose.Schema(
     phone: {
       type: String,
     },
-    companyName: {
+    address: {
       type: String,
+    },
+    city: {
+      type: String,
+    },
+    country: {
+      type: String,
+      default: "Sri Lanka",
     },
     totalDonated: {
       type: Number,
