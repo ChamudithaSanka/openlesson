@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, Edit2, Trash2, Plus } from 'lucide-react';
-import AdminLayout from '../components/AdminLayout';
+import AdminLayout from '../../components/admin/AdminLayout';
 
 const SubjectManagement = () => {
   const [subjects, setSubjects] = useState([]);

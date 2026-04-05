@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, CheckCircle, XCircle, Plus, Edit2, Trash2 } from 'lucide-react';
-import AdminLayout from '../components/AdminLayout';
+import AdminLayout from '../../components/admin/AdminLayout';
 
 const TeachersManagement = () => {
   const [teachers, setTeachers] = useState([]);
