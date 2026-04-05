@@ -278,10 +278,10 @@ export default function DonorDashboardOverview() {
                     View Full History ({donations.length} records)
                   </Link>
                   <Link
-                    to="/donor/payments"
+                    to="/donor/settings"
                     className="w-full rounded-md border border-blue-200 px-3 py-2 text-left font-medium hover:border-blue-400"
                   >
-                    Manage Payments ({donations[0]?.paymentMethod || "No method yet"})
+                    Manage Recurring Plan ({donorProfile?.recurringPlan || "none"})
                   </Link>
                   <Link
                     to="/donor/settings"

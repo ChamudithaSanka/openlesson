@@ -1,10 +1,9 @@
-import { Heart, LayoutDashboard, CreditCard, UserCog } from "lucide-react";
+import { Heart, LayoutDashboard, UserCog } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const donorLinks = [
   { to: "/donor/dashboard", label: "Dashboard Overview", icon: LayoutDashboard, ready: true },
   { to: "/donor/history", label: "Donation History", icon: Heart, ready: true },
-  { to: "/donor/payments", label: "Payment Methods", icon: CreditCard, ready: true },
   { to: "/donor/settings", label: "Profile & Settings", icon: UserCog, ready: true },
 ];
 
