@@ -152,12 +152,6 @@ export default function HomePage() {
                 >
                   Get Started
                 </Link>
-                <Link
-                  to="/#audience"
-                  className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Learn More
-                </Link>
               </div>
             </div>
           </div>
