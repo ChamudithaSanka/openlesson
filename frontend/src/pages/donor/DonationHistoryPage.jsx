@@ -18,8 +18,12 @@ const formatDate = (date) => {
   });
 };
 
-const getDonationType = (paymentMethod = "") => {
-  const method = String(paymentMethod).toLowerCase();
+const getDonationType = (donation = {}) => {
+  if (donation?.donationType) {
+    return String(donation.donationType).toLowerCase();
+  }
+
+  const method = String(donation?.paymentMethod || "").toLowerCase();
   if (method.includes("monthly")) return "monthly";
   if (method.includes("yearly") || method.includes("annual")) return "yearly";
   return "one-time";
@@ -103,7 +107,7 @@ export default function DonationHistoryPage() {
   const filteredDonations = useMemo(() => {
     return donations.filter((item) => {
       const createdAt = item?.createdAt ? new Date(item.createdAt) : null;
-      const type = getDonationType(item?.paymentMethod);
+      const type = getDonationType(item);
 
       if (filters.startDate && createdAt) {
         const start = new Date(filters.startDate);
@@ -268,7 +272,7 @@ export default function DonationHistoryPage() {
                         {formatLKR(Number(donation.amount || 0))}
                       </td>
                       <td className="px-2 py-2 capitalize text-blue-900">
-                        {getDonationType(donation.paymentMethod)}
+                        {getDonationType(donation)}
                       </td>
                       <td className="px-2 py-2">
                         <span
@@ -316,7 +320,7 @@ export default function DonationHistoryPage() {
                 </p>
                 <p>
                   <span className="font-medium">Type:</span>{" "}
-                  <span className="capitalize">{getDonationType(selectedDonation.paymentMethod)}</span>
+                  <span className="capitalize">{getDonationType(selectedDonation)}</span>
                 </p>
                 <p>
                   <span className="font-medium">Payment Method:</span>{" "}

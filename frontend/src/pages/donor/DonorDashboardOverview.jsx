@@ -24,8 +24,12 @@ const isSuccessfulDonation = (status = "") => {
   return ["succeeded", "success", "completed", "paid"].includes(normalized);
 };
 
-const getDerivedType = (paymentMethod = "") => {
-  const method = String(paymentMethod).toLowerCase();
+const getDerivedType = (donation = {}) => {
+  if (donation?.donationType) {
+    return String(donation.donationType).replace(/-/g, " ");
+  }
+
+  const method = String(donation?.paymentMethod || "").toLowerCase();
   if (method.includes("monthly")) return "Monthly";
   if (method.includes("yearly") || method.includes("annual")) return "Yearly";
   return "One-time";
@@ -181,7 +185,7 @@ export default function DonorDashboardOverview() {
             <section className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm xl:col-span-2">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-blue-900">Recent Donations</h2>
-                <span className="text-xs text-blue-700">Last 5 records from backend</span>
+                <span className="text-xs text-blue-700">Last 5 records</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
@@ -198,7 +202,7 @@ export default function DonorDashboardOverview() {
                       <tr key={donation._id} className="border-b border-blue-50 last:border-b-0">
                         <td className="px-2 py-2 text-blue-900">{formatDate(donation.createdAt)}</td>
                         <td className="px-2 py-2 font-medium text-blue-900">{formatLKR(Number(donation.amount || 0))}</td>
-                        <td className="px-2 py-2 text-blue-900">{getDerivedType(donation.paymentMethod)}</td>
+                        <td className="px-2 py-2 text-blue-900">{getDerivedType(donation)}</td>
                         <td className="px-2 py-2">
                           <span
                             className={`rounded-full px-2 py-1 text-xs font-semibold ${
@@ -254,21 +258,6 @@ export default function DonorDashboardOverview() {
               </article>
 
               <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-                <h2 className="text-base font-semibold text-blue-900">Profile Snapshot</h2>
-                <div className="mt-3 space-y-1 text-sm text-blue-900">
-                  <p>Name: {donorProfile?.fullName || "-"}</p>
-                  <p>Email: {donorProfile?.userId?.email || "-"}</p>
-                  <p>Phone: {donorProfile?.phone || "-"}</p>
-                </div>
-                <Link
-                  to="/donor/settings"
-                  className="mt-4 inline-block rounded-md bg-blue-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-800"
-                >
-                  Edit Profile
-                </Link>
-              </article>
-
-              <article className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
                 <h2 className="text-base font-semibold text-blue-900">Quick Actions</h2>
                 <div className="mt-3 space-y-2 text-sm text-blue-900">
                   <Link
@@ -278,10 +267,10 @@ export default function DonorDashboardOverview() {
                     View Full History ({donations.length} records)
                   </Link>
                   <Link
-                    to="/donor/payments"
+                    to="/donor/subscription"
                     className="w-full rounded-md border border-blue-200 px-3 py-2 text-left font-medium hover:border-blue-400"
                   >
-                    Manage Payments ({donations[0]?.paymentMethod || "No method yet"})
+                    Manage Recurring Plan ({donorProfile?.recurringPlan || "none"})
                   </Link>
                   <Link
                     to="/donor/settings"

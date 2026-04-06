@@ -44,7 +44,14 @@ export default function Header() {
     };
   }, [location.pathname, location.search]);
 
-  const displayName = authUser?.fullName || authUser?.name || authUser?.email || "User";
+  const dashboardPath =
+    userType === "admin"
+      ? "/admin/complaints"
+      : userType === "donor"
+        ? "/donor/dashboard"
+        : userType === "teacher"
+          ? "/teacher/dashboard"
+          : "/";
 
   const isTeacherRoute = location.pathname.startsWith("/teacher");
   const isAdminRoute = location.pathname.startsWith("/admin");

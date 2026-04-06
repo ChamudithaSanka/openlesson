@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const givingOptions = [
   {
@@ -31,7 +31,42 @@ const trustPoints = [
   "Feedback and complaint channels for accountability",
 ];
 
+const workflowSteps = [
+  {
+    title: "Guest One-Time Donation",
+    detail:
+      "Guest users can donate one-time by selecting amount and type in checkout, then paying through PayHere sandbox.",
+  },
+  {
+    title: "Registered Donation",
+    detail:
+      "Logged-in donors use the same checkout flow, and donations are linked directly to their donor dashboard.",
+  },
+  {
+    title: "Recurring (Monthly/Yearly)",
+    detail:
+      "Monthly and yearly plans require an account so donors can pause, resume, cancel, and update subscriptions.",
+  },
+  {
+    title: "After Payment",
+    detail:
+      "Users land on success page, while backend confirms final payment status from notify callback before marking success.",
+  },
+];
+
 export default function DonatePage() {
+  const [searchParams] = useSearchParams();
+  const token = localStorage.getItem("token");
+  const userType = localStorage.getItem("userType");
+  const isLoggedIn = Boolean(token);
+  const isDonor = isLoggedIn && userType === "donor";
+  const selectedPlan = searchParams.get("plan");
+  const planCheckoutUrl = selectedPlan ? `/donate/checkout?type=${selectedPlan}` : "/donate/checkout";
+  const loginReturnUrl = selectedPlan ? `/login?returnTo=${encodeURIComponent(planCheckoutUrl)}` : "/login";
+  const registerUrl = selectedPlan
+    ? `/register?role=donor&plan=${selectedPlan}`
+    : "/register?role=donor";
+
   return (
     <main className="bg-white">
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white">
@@ -45,17 +80,19 @@ export default function DonatePage() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              to="/register?role=donor"
+              to={planCheckoutUrl}
               className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
             >
-              Become a Donor
+              Donate Now
             </Link>
-            <Link
-              to="/login"
-              className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
-            >
-              Donor Login
-            </Link>
+            {!isLoggedIn ? (
+              <Link
+                to="/register?role=donor"
+                className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
+              >
+                Create Donor Account
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>
@@ -63,20 +100,116 @@ export default function DonatePage() {
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-bold text-blue-900">Choose How You Give</h2>
-          <p className="mt-2 text-blue-800">Pick the donation style that fits your impact goals.</p>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {givingOptions.map((option) => (
-            <article key={option.title} className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
-              <h3 className="text-xl font-semibold text-blue-900">{option.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-800">{option.description}</p>
-              <ul className="mt-4 space-y-2">
-                {option.points.map((point) => (
-                  <li key={point} className="text-sm text-blue-700">• {point}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
+        <div className="grid gap-6 md:grid-cols-2">
+          <article className="rounded-2xl border border-blue-100 bg-white p-8 shadow-sm">
+            <h3 className="text-xl font-semibold text-blue-900">One-Time Donation</h3>
+            <p className="mt-3 text-sm text-blue-800">Quick, immediate impact for urgent student needs.</p>
+            <div className="mt-6">
+              <Link
+                to="/donate/checkout?type=one-time"
+                className="inline-block rounded-md bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800"
+              >
+                Proceed to One-Time Donation
+              </Link>
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-blue-100 bg-white p-8 shadow-sm">
+            <h3 className="text-xl font-semibold text-blue-900">Recurring Giving</h3>
+            <p className="mt-3 text-sm text-blue-800">Monthly or yearly support for sustained learning impact.</p>
+            {!isLoggedIn ? (
+              <div className="mt-6 space-y-4">
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    to="/donate?plan=monthly"
+                    className={`inline-block rounded-md px-4 py-2 text-sm font-semibold transition ${
+                      selectedPlan === "monthly"
+                        ? "bg-blue-900 text-white"
+                        : "border border-blue-900 text-blue-900 hover:bg-blue-50"
+                    }`}
+                  >
+                    Monthly
+                  </Link>
+                  <Link
+                    to="/donate?plan=yearly"
+                    className={`inline-block rounded-md px-4 py-2 text-sm font-semibold transition ${
+                      selectedPlan === "yearly"
+                        ? "bg-blue-900 text-white"
+                        : "border border-blue-900 text-blue-900 hover:bg-blue-50"
+                    }`}
+                  >
+                    Yearly
+                  </Link>
+                </div>
+
+                {selectedPlan ? (
+                  <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                    <p className="text-sm font-medium text-blue-900">
+                      Selected plan: <span className="font-semibold">{selectedPlan === "monthly" ? "Monthly" : "Yearly"}</span>
+                    </p>
+                    <p className="mt-1 text-sm text-blue-800">
+                      Continue with login or create a donor account for recurring giving.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Link
+                        to={loginReturnUrl}
+                        className="inline-block rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800"
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        to={registerUrl}
+                        className="inline-block rounded-md border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
+                      >
+                        Create Donor Account
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Choose monthly or yearly to continue with recurring giving.
+                  </p>
+                )}
+              </div>
+            ) : isDonor ? (
+              <div className="mt-6 flex gap-3">
+                <Link
+                  to="/donate/checkout?type=monthly"
+                  className="inline-block rounded-md border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
+                >
+                  Monthly
+                </Link>
+                <Link
+                  to="/donate/checkout?type=yearly"
+                  className="inline-block rounded-md border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900 transition hover:bg-blue-50"
+                >
+                  Yearly
+                </Link>
+              </div>
+            ) : (
+              <p className="mt-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                Recurring plans are available only for donor accounts. You can continue with one-time donation.
+              </p>
+            )}
+          </article>
+        </div>
+      </section>
+
+      <section className="bg-white py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-blue-900">How Donations Work</h2>
+            <p className="mt-2 text-blue-800">Simple flow for guest, registered, and recurring donations.</p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            {workflowSteps.map((step) => (
+              <article key={step.title} className="rounded-2xl border border-blue-100 bg-blue-50 p-6">
+                <h3 className="text-lg font-semibold text-blue-900">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-blue-800">{step.detail}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -95,18 +228,25 @@ export default function DonatePage() {
             </article>
 
             <article className="rounded-3xl bg-blue-900 p-8 text-white">
-              <h3 className="text-2xl font-bold">Trust & Transparency</h3>
+              <h3 className="text-2xl font-bold">Trust, Transparency, and Checkout Data</h3>
               <ul className="mt-4 space-y-3 text-sm text-blue-100">
                 {trustPoints.map((point) => (
                   <li key={point}>{point}</li>
                 ))}
               </ul>
+              <div className="mt-6 rounded-xl bg-white/10 p-4 text-sm text-blue-100">
+                <p className="font-semibold text-white">You enter in checkout:</p>
+                <p className="mt-1">First name, last name, email, amount (required)</p>
+                <p>Phone, address, city, country (optional)</p>
+                <p className="mt-3 font-semibold text-white">Set by backend:</p>
+                <p>Currency (LKR), items, merchant ID, URLs, order ID, and hash</p>
+              </div>
               <div className="mt-6">
                 <Link
-                  to="/register?role=donor"
+                  to="/donate/checkout"
                   className="inline-block rounded-md bg-yellow-400 px-5 py-2.5 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
                 >
-                  Donate with OpenLesson
+                  Continue to Checkout
                 </Link>
               </div>
             </article>
@@ -122,11 +262,26 @@ export default function DonatePage() {
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/register?role=donor"
+              to={planCheckoutUrl}
               className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-blue-900 transition hover:bg-yellow-300"
             >
-              Donate Now
+              Start Donation
             </Link>
+            {!isLoggedIn ? (
+              <Link
+                to="/register?role=donor"
+                className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
+              >
+                Register for Recurring Giving
+              </Link>
+            ) : isDonor ? (
+              <Link
+                to="/donate/checkout?type=monthly"
+                className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
+              >
+                Start Monthly Giving
+              </Link>
+            ) : null}
             <Link
               to="/"
               className="rounded-md border border-white/80 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-blue-900"
