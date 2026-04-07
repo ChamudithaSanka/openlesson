@@ -1,25 +1,18 @@
 import express from 'express';
 import {
   getStudentProfile,
-  getMyProfile,
-  updateMyProfile,
   updateProfile,
   getAllStudentsAdmin,
   getStudentDetailAdmin,
   updateStudentStatus,
   updateStudentAdmin,
-  deleteStudent,
-  uploadPicture
+  deleteStudent
 } from '../controllers/studentRegController.js';
 import { protect, authorize } from '../middleware/auth.js';
-import { uploadProfilePicture } from '../middleware/upload.js';
 
 const router = express.Router();
 
 // Private routes (student - own profile only)
-router.get('/my-profile', protect, getMyProfile);
-router.put('/my-profile', protect, updateMyProfile);
-router.put('/upload-picture', protect, uploadProfilePicture.single('profilePicture'), uploadPicture);
 router.get('/profile/:id', protect, getStudentProfile);
 router.put('/profile/:id', protect, updateProfile);
 
