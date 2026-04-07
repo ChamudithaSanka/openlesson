@@ -66,6 +66,8 @@ export default function Header() {
     navigate("/login");
   };
 
+  const displayName = authUser?.name || authUser?.email || "User";
+
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 via-blue-900 to-blue-950 text-white shadow-xl border-b border-blue-800/30">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">

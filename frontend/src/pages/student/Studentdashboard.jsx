@@ -1,287 +1,254 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  User,
-  Users,
-  AlertCircle,
-  MessageSquare,
-  Bell,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
+import React, { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { Users, BookOpen, Clock, HelpCircle, UserCheck, Library, ArrowRight } from 'lucide-react';
+import StudentLayout from '../../components/student/StudentLayout';
 
-const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, to: "/student/dashboard" },
-  { label: "My Profile", icon: User, to: "/student/profile" },
-  { label: "My Teachers", icon: Users, to: "/student/teachers" },
-  { label: "Complaints", icon: AlertCircle, to: "/student/complaints" },
-  { label: "Feedbacks", icon: MessageSquare, to: "/student/feedbacks" },
-  { label: "Notifications", icon: Bell, to: "/student/notifications" },
-];
+const API = 'http://localhost:5000';
 
-function StudentSidebar({ open, setOpen }) {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("userType");
-    localStorage.removeItem("userId");
-    navigate("/login");
-  };
-
-  const isActive = (path) => location.pathname === path;
-
-  return (
-    <>
-      {/* Mobile overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/40 z-20 lg:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-slate-800 text-white flex flex-col z-30 transition-transform duration-300
-          ${open ? "translate-x-0" : "-translate-x-full"} lg:static lg:translate-x-0`}
-      >
-        {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700">
-          <Link to="/" className="text-xl font-bold text-white tracking-wide">
-            OpenLesson
-          </Link>
-          <button
-            className="lg:hidden text-slate-400 hover:text-white"
-            onClick={() => setOpen(false)}
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="px-6 py-4 border-b border-slate-700">
-          <p className="text-xs font-semibold uppercase tracking-widest text-yellow-400 mb-1">
-            Student Panel
-          </p>
-        </div>
-
-        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              onClick={() => setOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                isActive(item.to)
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-300 hover:bg-slate-700 hover:text-white"
-              }`}
-            >
-              <item.icon size={18} />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="px-4 py-4 border-t border-slate-700">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-600/20 hover:text-red-400 transition-all w-full"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
-      </aside>
-    </>
-  );
-}
-
-export default function StudentDashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [student, setStudent] = useState(null);
+const StudentDashboard = () => {
+  const [studentData, setStudentData] = useState(null);
   const [stats, setStats] = useState({
-    complaints: 0,
-    openComplaints: 0,
-    feedbacks: 0,
-    notifications: 0,
+    enrolledTeachers: 0,
+    enrolledSubjects: 0,
+    upcomingSessions: 0,
+    availableQuizzes: 0,
   });
+  const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("token");
-  const API_URL = "http://localhost:5000";
+  const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    const userType = localStorage.getItem("userType");
-    if (userType !== "student") {
-      window.location.href = "/login";
-    }
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
-    const fetchData = async () => {
-      try {
-        const [profileRes, complaintsRes] = await Promise.all([
-          fetch(`${API_URL}/api/students/my-profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_URL}/api/complaints/my-complaints`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+      // Fetch student profile
+      const profileRes = await fetch(`${API}/api/students/my-profile`, config);
+      const profileData = await profileRes.json();
+      if (profileData.success) setStudentData(profileData.student);
 
-        if (profileRes.ok) {
-          const data = await profileRes.json();
-          setStudent(data.student);
-        }
+      // Fetch enrolled teachers count
+      const teachersRes = await fetch(`${API}/api/teachers`, config);
+      const teachersData = await teachersRes.json();
 
-        if (complaintsRes.ok) {
-          const complaints = await complaintsRes.json();
-          const open = complaints.filter((c) => c.status === "Open").length;
-          setStats((prev) => ({
-            ...prev,
-            complaints: complaints.length,
-            openComplaints: open,
-          }));
-        }
-      } catch (err) {
-        console.error("Error fetching dashboard data:", err);
+      // Fetch sessions
+      const sessionsRes = await fetch(`${API}/api/study-sessions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // sessions may fail if student is not authorized - that's fine
+      let sessionCount = 0;
+      if (sessionsRes.ok) {
+        const sessionsData = await sessionsRes.json();
+        const all = sessionsData.data || [];
+        sessionCount = all.filter((s) => s.status === 'Scheduled').length;
       }
-    };
 
-    fetchData();
+      // Fetch quizzes
+      const quizzesRes = await fetch(`${API}/api/quizzes`);
+      const quizzesData = await quizzesRes.json();
+
+      // Fetch enrolled info from localStorage (we store enrollments client-side)
+      const enrolled = JSON.parse(localStorage.getItem('enrolledTeachers') || '[]');
+      const enrolledSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
+
+      setStats({
+        enrolledTeachers: enrolled.length,
+        enrolledSubjects: enrolledSubjects.length,
+        upcomingSessions: sessionCount,
+        availableQuizzes: quizzesData.count || 0,
+      });
+    } catch (err) {
+      console.error('Dashboard error:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
-  const displayName = student?.fullName || "Student";
+  useEffect(() => {
+    const userType = localStorage.getItem('userType');
+    if (userType !== 'student') {
+      window.location.href = '/login';
+      return;
+    }
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
-  const quickStats = [
+  const firstName = studentData?.fullName?.split(' ')[0] || 'Student';
+
+  const statCards = [
     {
-      label: "Total Complaints",
-      value: stats.complaints,
-      color: "bg-blue-50 border-blue-200",
-      textColor: "text-blue-900",
-      labelColor: "text-blue-600",
+      label: 'Enrolled Teachers',
+      value: stats.enrolledTeachers,
+      icon: UserCheck,
+      color: 'bg-green-600',
+      to: '/student/enrolled-teachers',
     },
     {
-      label: "Open Complaints",
-      value: stats.openComplaints,
-      color: "bg-red-50 border-red-200",
-      textColor: "text-red-900",
-      labelColor: "text-red-600",
+      label: 'Enrolled Subjects',
+      value: stats.enrolledSubjects,
+      icon: Library,
+      color: 'bg-teal-600',
+      to: '/student/enrolled-subjects',
     },
     {
-      label: "Feedbacks Given",
-      value: stats.feedbacks,
-      color: "bg-green-50 border-green-200",
-      textColor: "text-green-900",
-      labelColor: "text-green-600",
+      label: 'Upcoming Sessions',
+      value: stats.upcomingSessions,
+      icon: Clock,
+      color: 'bg-orange-500',
+      to: '/student/sessions',
     },
     {
-      label: "Notifications",
-      value: stats.notifications,
-      color: "bg-yellow-50 border-yellow-200",
-      textColor: "text-yellow-900",
-      labelColor: "text-yellow-600",
+      label: 'Available Quizzes',
+      value: stats.availableQuizzes,
+      icon: HelpCircle,
+      color: 'bg-yellow-500',
+      to: '/student/quizzes',
     },
   ];
 
-  const quickLinks = [
-    { label: "View My Profile", to: "/student/profile", desc: "Update your personal details and password", icon: User, color: "text-blue-600" },
-    { label: "My Teachers", to: "/student/teachers", desc: "See all teachers assigned to your grade", icon: Users, color: "text-green-600" },
-    { label: "Submit a Complaint", to: "/student/complaints", desc: "Report an issue or track existing ones", icon: AlertCircle, color: "text-red-600" },
-    { label: "Give Feedback", to: "/student/feedbacks", desc: "Rate and review your teachers", icon: MessageSquare, color: "text-purple-600" },
+  const quickActions = [
+    { label: 'Explore Teachers', to: '/student/teachers', icon: Users, color: 'bg-blue-600' },
+    { label: 'Explore Subjects', to: '/student/subjects', icon: BookOpen, color: 'bg-cyan-600' },
+    { label: 'View Sessions', to: '/student/sessions', icon: Clock, color: 'bg-orange-500' },
+    { label: 'Take a Quiz', to: '/student/quizzes', icon: HelpCircle, color: 'bg-yellow-500' },
   ];
+
+  if (loading) {
+    return (
+      <StudentLayout title="Dashboard">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
+            <p className="mt-4 text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+      </StudentLayout>
+    );
+  }
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
-      <StudentSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-
-      <main className="flex-1 overflow-auto">
-        {/* Top Bar */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-3">
-            <button
-              className="lg:hidden text-gray-500 hover:text-gray-700"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={22} />
-            </button>
+    <StudentLayout title="Dashboard">
+      <div className="p-8 space-y-10">
+        {/* Welcome Banner */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 rounded-[2rem] p-10 text-white shadow-xl shadow-indigo-200/50">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/10 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <h1 className="text-lg font-bold text-gray-800">Welcome back, {displayName}!</h1>
-              <p className="text-xs text-gray-500">Student Dashboard</p>
+              <p className="text-indigo-100/80 text-xs font-bold uppercase tracking-[0.2em] mb-2">Academic Overview</p>
+              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-100">{firstName}</span> 👋
+              </h1>
+              <p className="text-indigo-50/80 mt-4 max-w-md text-lg leading-relaxed font-medium">
+                Keep up the great work! You've got <span className="text-white font-bold">{stats.upcomingSessions} sessions</span> scheduled this week.
+              </p>
+              {studentData?.gradeId?.gradeName && (
+                <div className="mt-6 flex items-center gap-2">
+                  <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-sm">
+                    {studentData.gradeId.gradeName} Student
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]"></span>
+                  <span className="text-xs font-semibold text-indigo-100">Profile Active</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="hidden lg:block">
+              <div className="w-32 h-32 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center rotate-3 shadow-2xl">
+                <BookOpen size={48} className="text-white/80" />
+              </div>
             </div>
           </div>
-          <Link
-            to="/student/notifications"
-            className="relative p-2 rounded-lg hover:bg-gray-100 text-gray-500"
-          >
-            <Bell size={20} />
-          </Link>
         </div>
 
-        <div className="p-6 space-y-6">
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickStats.map((stat) => (
-              <div
-                key={stat.label}
-                className={`rounded-xl border p-5 ${stat.color}`}
-              >
-                <p className={`text-sm font-medium ${stat.labelColor}`}>{stat.label}</p>
-                <p className={`text-3xl font-bold mt-1 ${stat.textColor}`}>{stat.value}</p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statCards.map(({ label, value, icon: Icon, color, to }) => (
+            <Link
+              key={label}
+              to={to}
+              className="group relative bg-white rounded-[1.5rem] p-6 border border-slate-100 hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 transform hover:-translate-y-2 overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                  <Icon size={22} />
+                </div>
+                <div className="text-slate-300 group-hover:text-indigo-400 transition-colors">
+                  <ArrowRight size={18} />
+                </div>
               </div>
-            ))}
-          </div>
+              <div>
+                <p className="text-4xl font-black text-slate-800 tracking-tight">{value}</p>
+                <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-wider">{label}</p>
+              </div>
+              {/* Subtle background decoration */}
+              <div className="absolute -bottom-6 -right-6 text-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <Icon size={80} />
+              </div>
+            </Link>
+          ))}
+        </div>
 
-          {/* Quick Access */}
-          <div>
-            <h2 className="text-lg font-bold text-gray-800 mb-4">Quick Access</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {quickLinks.map((link) => (
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Quick Actions */}
+          <div className="xl:col-span-2">
+            <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-3">
+              <span className="w-8 h-1 bg-indigo-600 rounded-full"></span>
+              Recommended for You
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {quickActions.map(({ label, to, icon: Icon, color }) => (
                 <Link
-                  key={link.to}
-                  to={link.to}
-                  className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all flex items-start gap-4"
+                  key={label}
+                  to={to}
+                  className="group bg-white rounded-3xl border border-slate-100 p-6 flex flex-col items-center gap-4 hover:shadow-xl hover:shadow-slate-200/50 hover:border-indigo-100 transition-all duration-300"
                 >
-                  <div className={`mt-0.5 ${link.color}`}>
-                    <link.icon size={22} />
+                  <div className={`${color} w-14 h-14 rounded-2xl flex items-center justify-center text-white group-hover:rotate-12 transition-transform duration-300 shadow-md shadow-indigo-100`}>
+                    <Icon size={26} />
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">{link.label}</p>
-                    <p className="text-sm text-gray-500 mt-0.5">{link.desc}</p>
-                  </div>
+                  <span className="text-xs font-black text-slate-600 uppercase tracking-widest text-center">{label}</span>
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* Profile snapshot */}
-          {student && (
-            <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-2xl p-6 text-white">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-yellow-400 flex items-center justify-center text-blue-900 font-bold text-xl">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-lg font-bold">{displayName}</p>
-                  <p className="text-blue-200 text-sm">{student.userId?.email || ""}</p>
-                  {student.gradeId && (
-                    <p className="text-yellow-300 text-sm font-medium mt-0.5">
-                      Grade: {student.gradeId?.gradeName || "Enrolled"}
-                    </p>
-                  )}
-                </div>
-                <Link
-                  to="/student/profile"
-                  className="ml-auto bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition"
-                >
-                  Edit Profile
-                </Link>
+          {/* Profile Quick View */}
+          <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm">
+            <h2 className="text-xl font-black text-slate-800 mb-6 tracking-tight">Your Identity</h2>
+            {studentData ? (
+              <div className="space-y-4">
+                {[
+                  ['Full Name', studentData.fullName],
+                  ['Grade', studentData.gradeId?.gradeName || '-'],
+                  ['Education', studentData.schoolName || '-'],
+                  ['Status', studentData.status],
+                ].map(([key, val]) => (
+                  <div key={key} className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{key}</span>
+                    <span className="text-sm font-black text-slate-700 max-w-[150px] truncate">{val}</span>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
+                    <Users size={32} />
+                 </div>
+                 <p className="text-slate-400 text-sm font-medium leading-relaxed">Profile summary is temporarily unavailable.</p>
+              </div>
+            )}
+            <Link
+              to="/student/profile"
+              className="flex items-center justify-center gap-2 mt-8 w-full py-4 bg-slate-50 rounded-2xl text-sm font-black text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-sm"
+            >
+              Manage Profile <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </StudentLayout>
   );
-}
+};
+
+export default StudentDashboard;
