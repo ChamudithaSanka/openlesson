@@ -31,6 +31,19 @@ import SubjectManagement from "./pages/admin/SubjectManagement";
 import FeedbackManagement from "./pages/admin/FeedbackManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// Student pages
+import StudentDashboard from './pages/student/StudentDashboard';
+import StudentTeachers from './pages/student/StudentTeachers';
+import StudentSubjects from './pages/student/StudentSubjects';
+import StudentEnrolledTeachers from './pages/student/StudentEnrolledTeachers';
+import StudentEnrolledSubjects from './pages/student/StudentEnrolledSubjects';
+import StudentSessions from './pages/student/StudentSessions';
+import StudentQuizzes from './pages/student/StudentQuizzes';
+import StudentFeedback from './pages/student/StudentFeedback';
+import StudentComplaints from './pages/student/StudentComplaints';
+import StudentProfile from './pages/student/StudentProfile';
+
+
 export default function App() {
   const location = useLocation();
   const userType = localStorage.getItem("userType");
@@ -212,6 +225,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+
+
+        <Route path="/student/dashboard"        element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
+        <Route path="/student/teachers"         element={<ProtectedRoute allowedRoles={['student']}><StudentTeachers /></ProtectedRoute>} />
+        <Route path="/student/subjects"         element={<ProtectedRoute allowedRoles={['student']}><StudentSubjects /></ProtectedRoute>} />
+        <Route path="/student/enrolled-teachers" element={<ProtectedRoute allowedRoles={['student']}><StudentEnrolledTeachers /></ProtectedRoute>} />
+        <Route path="/student/enrolled-subjects" element={<ProtectedRoute allowedRoles={['student']}><StudentEnrolledSubjects /></ProtectedRoute>} />
+        <Route path="/student/sessions"         element={<ProtectedRoute allowedRoles={['student']}><StudentSessions /></ProtectedRoute>} />
+        <Route path="/student/quizzes"          element={<ProtectedRoute allowedRoles={['student']}><StudentQuizzes /></ProtectedRoute>} />
+        <Route path="/student/feedback"         element={<ProtectedRoute allowedRoles={['student']}><StudentFeedback /></ProtectedRoute>} />
+        <Route path="/student/complaints"       element={<ProtectedRoute allowedRoles={['student']}><StudentComplaints /></ProtectedRoute>} />
+        <Route path="/student/profile"          element={<ProtectedRoute allowedRoles={['student']}><StudentProfile /></ProtectedRoute>} />
+
+
+
       </Routes>
       {!hideFooter && <Footer />}
     </div>

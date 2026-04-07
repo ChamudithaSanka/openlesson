@@ -51,6 +51,8 @@ export default function LoginPage() {
         setTimeout(() => navigate("/donor/dashboard"), 600);
       } else if (user.userType === "teacher") {
         setTimeout(() => navigate("/teacher/dashboard"), 600);
+      } else if (user.userType === "student") {
+        setTimeout(() => navigate("/student/dashboard"), 600);
       } else {
         setTimeout(() => navigate("/"), 600);
       }
