@@ -14,6 +14,13 @@ export default function Header() {
   const location = useLocation();
   const [authUser, setAuthUser] = useState(null);
   const [userType, setUserType] = useState(null);
+  const displayName =
+    authUser?.profile?.fullName ||
+    authUser?.fullName ||
+    authUser?.name ||
+    authUser?.email ||
+    userType ||
+    "Account";
 
   useEffect(() => {
     const syncAuth = () => {
