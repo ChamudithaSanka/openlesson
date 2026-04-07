@@ -124,43 +124,41 @@ const StudentProfile = () => {
 
   return (
     <StudentLayout title="My Profile">
-      <div className="p-8 max-w-3xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">My Profile</h1>
-          <p className="text-gray-500 mt-2">Manage your personal information and account security.</p>
-        </div>
+      <div className="p-6 max-w-4xl">
 
         {/* Profile Card Header */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-indigo-700 to-blue-600 p-6 flex items-center gap-5 text-white">
-            <div className="w-20 h-20 rounded-full bg-white/20 border-4 border-white/40 flex items-center justify-center text-3xl font-bold">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden mb-6">
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 flex items-center gap-5 text-white">
+            <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl font-bold backdrop-blur-sm">
               {getInitials(student?.fullName)}
             </div>
             <div>
-              <h2 className="text-2xl font-bold">{student?.fullName}</h2>
-              <p className="text-indigo-200 text-sm mt-0.5">Student</p>
-              {student?.gradeId?.gradeName && (
-                <span className="inline-block mt-2 bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                  {student.gradeId.gradeName}
-                </span>
-              )}
+              <h2 className="text-xl font-bold tracking-tight">{student?.fullName}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-slate-400 text-xs font-medium px-2 py-0.5 bg-white/5 rounded-md border border-white/5">Student</span>
+                {student?.gradeId?.gradeName && (
+                  <span className="bg-blue-500/20 text-blue-300 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-blue-500/20">
+                    {student.gradeId.gradeName}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-gray-100 flex">
+          <div className="border-b border-slate-100 flex px-2">
             {[{ id: 'info', label: 'Personal Info', icon: User }, { id: 'security', label: 'Security', icon: Lock }].map(
               ({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => { setActiveTab(id); setError(''); setSuccess(''); }}
-                  className={`flex items-center gap-2 px-6 py-4 text-sm font-semibold border-b-2 transition ${
+                  className={`flex items-center gap-2 px-4 py-3.5 text-[13px] font-semibold border-b-2 transition-all duration-200 ${
                     activeTab === id
-                      ? 'border-indigo-600 text-indigo-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-slate-500 hover:text-slate-700'
                   }`}
                 >
-                  <Icon size={16} /> {label}
+                  <Icon size={14} /> {label}
                 </button>
               )
             )}
@@ -171,12 +169,12 @@ const StudentProfile = () => {
             <div className="p-6">
               {!isEditing ? (
                 <>
-                  <div className="flex justify-end mb-4">
+                  <div className="flex justify-end mb-6">
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 transition"
+                      className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold text-[13px] hover:bg-slate-800 transition shadow-sm"
                     >
-                      <Edit2 size={16} /> Edit Profile
+                      <Edit2 size={14} /> Edit Profile
                     </button>
                   </div>
                   <div className="space-y-4">
@@ -187,13 +185,13 @@ const StudentProfile = () => {
                       { icon: School, label: 'School', value: student?.schoolName || '—' },
                       { icon: MapPin, label: 'District', value: student?.district || '—' },
                     ].map(({ icon: Icon, label, value }) => (
-                      <div key={label} className="flex items-start gap-4 border-b border-gray-50 pb-4 last:border-0">
-                        <div className="bg-indigo-50 p-2.5 rounded-lg">
-                          <Icon size={18} className="text-indigo-600" />
+                      <div key={label} className="flex items-start gap-4 border-b border-slate-50 pb-4 last:border-0 pl-2">
+                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                          <Icon size={16} className="text-slate-600" />
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">{label}</p>
-                          <p className="text-gray-800 font-semibold mt-0.5">{value}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
+                          <p className="text-slate-700 font-semibold text-sm mt-0.5">{value}</p>
                         </div>
                       </div>
                     ))}
@@ -209,36 +207,36 @@ const StudentProfile = () => {
                       { label: 'District', key: 'district', type: 'text', placeholder: 'Your district' },
                     ].map(({ label, key, type, placeholder }) => (
                       <div key={key}>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{label}</label>
                         <input
                           type={type}
                           value={editData[key] || ''}
                           onChange={(e) => setEditData((p) => ({ ...p, [key]: e.target.value }))}
                           placeholder={placeholder}
-                          className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 transition text-sm"
+                          className="w-full px-4 py-2 border-2 border-slate-100 rounded-lg focus:outline-none focus:border-blue-500 transition text-[13px] bg-slate-50/30"
                         />
                       </div>
                     ))}
 
                     {/* Email - read only */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email (read-only)</label>
+                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email (read-only)</label>
                       <input
                         type="email"
                         value={student?.userId?.email || ''}
                         disabled
-                        className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl bg-gray-50 text-gray-400 text-sm cursor-not-allowed"
+                        className="w-full px-4 py-2 border-2 border-slate-100 rounded-lg bg-slate-50 text-slate-400 text-[13px] cursor-not-allowed"
                       />
                     </div>
 
                     {/* Grade - read only */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Grade (assigned by admin)</label>
+                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Grade (assigned by admin)</label>
                       <input
                         type="text"
                         value={student?.gradeId?.gradeName || '—'}
                         disabled
-                        className="w-full px-4 py-2.5 border-2 border-gray-100 rounded-xl bg-gray-50 text-gray-400 text-sm cursor-not-allowed"
+                        className="w-full px-4 py-2 border-2 border-slate-100 rounded-lg bg-slate-50 text-slate-400 text-[13px] cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -249,19 +247,19 @@ const StudentProfile = () => {
                     </div>
                   )}
 
-                  <div className="flex gap-3 mt-6">
+                  <div className="flex gap-3 mt-8">
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition disabled:opacity-60"
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-[13px] transition disabled:opacity-60 shadow-sm"
                     >
-                      <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
+                      <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
                     </button>
                     <button
                       onClick={() => { setIsEditing(false); setError(''); }}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition"
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold text-[13px] transition"
                     >
-                      <X size={16} /> Cancel
+                      <X size={14} /> Cancel
                     </button>
                   </div>
                 </>
@@ -277,7 +275,7 @@ const StudentProfile = () => {
 
           {activeTab === 'security' && (
             <div className="p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-5">Change Password</h3>
+              <h3 className="text-base font-bold text-slate-800 mb-5">Change Password</h3>
               <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
                 {[
                   { label: 'Current Password', key: 'currentPassword', show: showPw.current, toggle: () => setShowPw((p) => ({ ...p, current: !p.current })) },
@@ -285,13 +283,13 @@ const StudentProfile = () => {
                   { label: 'Confirm New Password', key: 'confirmPassword', show: showPw.confirm, toggle: () => setShowPw((p) => ({ ...p, confirm: !p.confirm })) },
                 ].map(({ label, key, show, toggle }) => (
                   <div key={key}>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{label}</label>
                     <div className="relative">
                       <input
                         type={show ? 'text' : 'password'}
                         value={pwForm[key]}
                         onChange={(e) => setPwForm((p) => ({ ...p, [key]: e.target.value }))}
-                        className="w-full px-4 py-2.5 pr-11 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 transition text-sm"
+                        className="w-full px-4 py-2 pr-11 border-2 border-slate-100 rounded-lg focus:outline-none focus:border-blue-500 transition text-[13px] bg-slate-50/30"
                         placeholder={`Enter ${label.toLowerCase()}`}
                       />
                       <button
@@ -319,7 +317,7 @@ const StudentProfile = () => {
                 <button
                   type="submit"
                   disabled={pwLoading}
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition disabled:opacity-60"
+                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-[13px] transition disabled:opacity-60 shadow-sm"
                 >
                   {pwLoading ? 'Updating...' : 'Update Password'}
                 </button>

@@ -14,9 +14,9 @@ const StudentTopbar = ({ title }) => {
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <header className="student-header bg-white border-b border-slate-200/80 px-8 py-4 flex items-center justify-between flex-shrink-0 sticky top-0 z-40 backdrop-blur-md bg-white/90">
+    <header className="student-header bg-white border-b border-slate-200/60 px-6 py-3.5 flex items-center justify-between flex-shrink-0 sticky top-0 z-40 backdrop-blur-md bg-white/90">
       <div className="flex items-center gap-4">
-        <h2 className="text-xl font-bold text-slate-800 tracking-tight">{title || 'Dashboard'}</h2>
+        <h2 className="text-lg font-bold text-slate-800 tracking-tight">{title || 'Dashboard'}</h2>
       </div>
 
       <div className="flex items-center gap-6">
