@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const roleOptions = ["student", "teacher", "donor"];
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [role, setRole] = useState("student");
+  const plan = searchParams.get("plan");
+  const normalizedPlan = plan === "monthly" || plan === "yearly" ? plan : null;
   const [grades, setGrades] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [gradesLoading, setGradesLoading] = useState(false);
@@ -14,10 +17,15 @@ export default function RegisterPage() {
   const [subjectsLoading, setSubjectsLoading] = useState(false);
   const [subjectsError, setSubjectsError] = useState("");
   const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
     fullName: "",
     email: "",
     password: "",
     phone: "",
+    address: "",
+    city: "",
+    country: "Sri Lanka",
     gradeId: "",
     schoolName: "",
     district: "",
@@ -118,7 +126,18 @@ export default function RegisterPage() {
       setLoading(true);
       const payload = new FormData();
       payload.append("userType", role);
-      payload.append("fullName", form.fullName);
+      
+      // Combine firstName + lastName for fullName
+      if (role === "donor") {
+        const fullName = `${form.firstName} ${form.lastName}`.trim();
+        payload.append("fullName", fullName);
+        payload.append("address", form.address);
+        payload.append("city", form.city);
+        payload.append("country", form.country);
+      } else {
+        payload.append("fullName", form.fullName);
+      }
+      
       payload.append("email", form.email);
       payload.append("password", form.password);
       payload.append("phone", form.phone);
@@ -135,16 +154,42 @@ export default function RegisterPage() {
         payload.append("gradesTheyTeach", JSON.stringify(teacherGrades));
       }
 
-      await axios.post("http://localhost:5000/api/auth/register", payload, {
+      const response = await axios.post("http://localhost:5000/api/auth/register", payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      const { token, user } = response.data;
+      if (token && user) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("userType", user.userType);
+        localStorage.setItem("userId", user.id);
+      }
+
       setMessage("Registration successful.");
+      
+      // Donor flow: with plan -> recurring checkout, without plan -> donor dashboard
+      if (role === "donor") {
+        setTimeout(() => {
+          if (normalizedPlan) {
+            navigate(`/donate/checkout?type=${normalizedPlan}`);
+            return;
+          }
+
+          navigate("/donor/dashboard");
+        }, 1500);
+      }
+      
       setForm({
+        firstName: "",
+        lastName: "",
         fullName: "",
         email: "",
         password: "",
         phone: "",
+        address: "",
+        city: "",
+        country: "Sri Lanka",
         gradeId: "",
         schoolName: "",
         district: "",
@@ -183,10 +228,29 @@ export default function RegisterPage() {
         </div>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <Input label="Full Name" name="fullName" value={form.fullName} onChange={onChange} required />
-          <Input label="Email" name="email" type="email" value={form.email} onChange={onChange} required />
-          <Input label="Password" name="password" type="password" value={form.password} onChange={onChange} required />
-          <Input label="Phone" name="phone" value={form.phone} onChange={onChange} required />
+          {role === "donor" ? (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input label="First Name" name="firstName" value={form.firstName} onChange={onChange} required />
+                <Input label="Last Name" name="lastName" value={form.lastName} onChange={onChange} required />
+              </div>
+              <Input label="Email" name="email" type="email" value={form.email} onChange={onChange} required />
+              <Input label="Password" name="password" type="password" value={form.password} onChange={onChange} required />
+              <Input label="Phone" name="phone" value={form.phone} onChange={onChange} required />
+              <Input label="Address" name="address" value={form.address} onChange={onChange} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input label="City" name="city" value={form.city} onChange={onChange} />
+                <Input label="Country" name="country" value={form.country} onChange={onChange} />
+              </div>
+            </>
+          ) : (
+            <>
+              <Input label="Full Name" name="fullName" value={form.fullName} onChange={onChange} required />
+              <Input label="Email" name="email" type="email" value={form.email} onChange={onChange} required />
+              <Input label="Password" name="password" type="password" value={form.password} onChange={onChange} required />
+              <Input label="Phone" name="phone" value={form.phone} onChange={onChange} required />
+            </>
+          )}
 
           {role === "student" && (
             <>

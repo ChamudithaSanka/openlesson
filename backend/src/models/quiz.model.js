@@ -21,6 +21,11 @@ const questionSchema = new mongoose.Schema({
     type: [Number],
     required: true,  // indices of correct options
   },
+  points: {
+    type: Number,
+    default: 1,
+    min: 1,
+  },
 });
 
 // Quiz Schema - Main quiz structure

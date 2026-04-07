@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login, getCurrentUser } from "../controllers/auth.controller.js";
+import { register, login, getCurrentUser, changePassword } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/auth.js";
 import { uploadCv } from "../middleware/upload.js";
 
@@ -11,5 +11,6 @@ router.post("/login", login);
 
 // Private routes
 router.get("/me", protect, getCurrentUser);
+router.put("/password", protect, changePassword);
 
 export default router;

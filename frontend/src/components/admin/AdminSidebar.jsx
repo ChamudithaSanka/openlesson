@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AlertCircle, Users, Wallet, ChevronDown, BookOpen, BookMarked } from 'lucide-react';
+import { AlertCircle, Users, Wallet, ChevronDown, BookOpen, BookMarked, Bell, MessageSquare } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -14,16 +14,17 @@ const AdminSidebar = () => {
       <h1 className="text-2xl font-bold mb-8">Admin Panel</h1>
       
       <nav className="flex-1 space-y-2">
+        {/* Manage Announcements Section */}
         <Link
-          to="/admin/complaints"
+          to="/admin/announcements"
           className={`flex items-center gap-3 p-3 rounded-lg transition ${
-            isActive('/admin/complaints')
+            isActive('/admin/announcements')
               ? 'bg-blue-600'
               : 'hover:bg-slate-700'
           }`}
         >
-          <AlertCircle size={20} />
-          <span>Manage Complaints</span>
+          <Bell size={20} />
+          <span>Manage Announcements</span>
         </Link>
 
         {/* Manage Users Section */}
@@ -78,19 +79,6 @@ const AdminSidebar = () => {
           )}
         </div>
 
-        {/* Manage Donations Section */}
-        <Link
-          to="/admin/manage-donations"
-          className={`flex items-center gap-3 p-3 rounded-lg transition ${
-            isActive('/admin/manage-donations')
-              ? 'bg-blue-600'
-              : 'hover:bg-slate-700'
-          }`}
-        >
-          <Wallet size={20} />
-          <span>Manage Donations</span>
-        </Link>
-
         {/* Grade Management Section */}
         <Link
           to="/admin/grades"
@@ -115,6 +103,45 @@ const AdminSidebar = () => {
         >
           <BookMarked size={20} />
           <span>Manage Subjects</span>
+        </Link>
+
+        {/* Manage Donations Section */}
+        <Link
+          to="/admin/manage-donations"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/admin/manage-donations')
+              ? 'bg-blue-600'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <Wallet size={20} />
+          <span>Manage Donations</span>
+        </Link>
+
+        {/* Manage Complaints Section */}
+        <Link
+          to="/admin/complaints"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/admin/complaints')
+              ? 'bg-blue-600'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <AlertCircle size={20} />
+          <span>Manage Complaints</span>
+        </Link>
+
+        {/* Feedback Management Section */}
+        <Link
+          to="/admin/feedback"
+          className={`flex items-center gap-3 p-3 rounded-lg transition ${
+            isActive('/admin/feedback')
+              ? 'bg-blue-600'
+              : 'hover:bg-slate-700'
+          }`}
+        >
+          <MessageSquare size={20} />
+          <span>Manage Feedback</span>
         </Link>
       </nav>
     </div>

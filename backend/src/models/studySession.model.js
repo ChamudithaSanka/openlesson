@@ -2,14 +2,11 @@ import mongoose from "mongoose";
 
 const studySessionSchema = new mongoose.Schema(
   {
-    title: {
+    lesson: {
       type: String,
       required: true,
       trim: true,
-    },
-    description: {
-      type: String,
-      trim: true,
+      description: "Topic or lesson for the study session",
     },
     subjectId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -41,11 +38,25 @@ const studySessionSchema = new mongoose.Schema(
     meetingLink: {
       type: String,
       trim: true,
+      description: "Auto-generated Zoom meeting URL",
+    },
+    meetingId: {
+      type: String,
+      trim: true,
+      description: "Auto-generated Zoom meeting ID",
+    },
+    zoomMeetingId: {
+      type: Number,
+      description: "Zoom API meeting ID for future updates/deletions",
     },
     status: {
       type: String,
-      enum: ["Scheduled", "Completed", "Cancelled"],
+      enum: ["Scheduled", "Ongoing", "Completed", "Cancelled"],
       default: "Scheduled",
+    },
+    notes: {
+      type: String,
+      trim: true,
     },
   },
   { timestamps: true }

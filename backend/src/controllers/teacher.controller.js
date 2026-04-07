@@ -236,6 +236,14 @@ export const getAllTeachersAdmin = async (req, res) => {
         path: "userId",
         select: "email"
       })
+      .populate({
+        path: "gradesTheyTeach",
+        select: "gradeName description"
+      })
+      .populate({
+        path: "subjectsTheyTeach",
+        select: "subjectName description"
+      })
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -259,6 +267,14 @@ export const getTeacherDetailAdmin = async (req, res) => {
       .populate({
         path: "userId",
         select: "email"
+      })
+      .populate({
+        path: "gradesTheyTeach",
+        select: "gradeName description"
+      })
+      .populate({
+        path: "subjectsTheyTeach",
+        select: "subjectName description"
       });
 
     if (!teacher) {
@@ -286,6 +302,14 @@ export const approveTeacher = async (req, res) => {
       .populate({
         path: "userId",
         select: "email"
+      })
+      .populate({
+        path: "gradesTheyTeach",
+        select: "gradeName description"
+      })
+      .populate({
+        path: "subjectsTheyTeach",
+        select: "subjectName description"
       });
 
     if (!teacher) {
@@ -317,6 +341,14 @@ export const rejectTeacher = async (req, res) => {
       .populate({
         path: "userId",
         select: "email"
+      })
+      .populate({
+        path: "gradesTheyTeach",
+        select: "gradeName description"
+      })
+      .populate({
+        path: "subjectsTheyTeach",
+        select: "subjectName description"
       });
 
     if (!teacher) {

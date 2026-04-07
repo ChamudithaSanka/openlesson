@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+  const safeReturnTo = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "";
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,6 +45,8 @@ export default function LoginPage() {
       // Redirect by role.
       if (user.userType === "admin") {
         setTimeout(() => navigate("/admin/complaints"), 600);
+      } else if (user.userType === "donor" && safeReturnTo) {
+        setTimeout(() => navigate(safeReturnTo), 600);
       } else if (user.userType === "donor") {
         setTimeout(() => navigate("/donor/dashboard"), 600);
       } else if (user.userType === "teacher") {

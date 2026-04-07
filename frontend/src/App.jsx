@@ -1,7 +1,6 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Route, Routes, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
@@ -9,33 +8,37 @@ import AboutPage from "./pages/AboutPage";
 import WorkPage from "./pages/WorkPage";
 import VolunteerPage from "./pages/VolunteerPage";
 import DonatePage from "./pages/DonatePage";
-import ComplaintManagement from "./pages/ComplaintManagement";
-import TeachersManagement from "./pages/TeachersManagement";
+import DonateCheckoutPage from "./pages/DonateCheckoutPage";
+import DonationResultPage from "./pages/DonationResultPage";
+import ComplaintManagement from "./pages/admin/ComplaintManagement";
+import AnnouncementManagement from "./pages/admin/AnnouncementManagement";
+import TeachersManagement from "./pages/admin/TeachersManagement";
 import DonorDashboardOverview from "./pages/donor/DonorDashboardOverview";
 import DonationHistoryPage from "./pages/donor/DonationHistoryPage";
-import PaymentMethodsPage from "./pages/donor/PaymentMethodsPage";
 import ProfileSettingsPage from "./pages/donor/ProfileSettingsPage";
+import SubscriptionSettingsPage from "./pages/donor/SubscriptionSettingsPage";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherQuizzes from "./pages/TeacherQuizzes";
 import TeacherStudyMaterials from "./pages/TeacherStudyMaterials";
 import TeacherStudySessions from "./pages/TeacherStudySessions";
-import StudentManagement from "./pages/StudentManagement";
-import DonorManagement from "./pages/DonorManagement";
-import DonationManagement from "./pages/DonationManagement";
-import GradeManagement from "./pages/GradeManagement";
-import SubjectManagement from "./pages/SubjectManagement";
+import TeacherAnnouncements from "./pages/TeacherAnnouncements";
+import TeacherProfile from "./pages/TeacherProfile";
+import StudentManagement from "./pages/admin/StudentManagement";
+import DonorManagement from "./pages/admin/DonorManagement";
+import DonationManagement from "./pages/admin/DonationManagement";
+import GradeManagement from "./pages/admin/GradeManagement";
+import SubjectManagement from "./pages/admin/SubjectManagement";
+import FeedbackManagement from "./pages/admin/FeedbackManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   const location = useLocation();
-  const [userType, setUserType] = useState(null);
+  const userType = localStorage.getItem("userType");
 
-  useEffect(() => {
-    const type = localStorage.getItem("userType");
-    setUserType(type);
-  }, [location.pathname]);
-
-  const hideFooter = userType === "admin" || location.pathname.startsWith("/donor");
+  const hideFooter =
+    userType === "admin" ||
+    location.pathname.startsWith("/donor") ||
+    location.pathname.startsWith("/teacher");
 
   return (
     <div className="min-h-screen bg-white">
@@ -46,6 +49,9 @@ export default function App() {
         <Route path="/work" element={<WorkPage />} />
         <Route path="/volunteer" element={<VolunteerPage />} />
         <Route path="/donate" element={<DonatePage />} />
+        <Route path="/donate/checkout" element={<DonateCheckoutPage />} />
+        <Route path="/donate/return" element={<DonationResultPage />} />
+        <Route path="/donate/cancel" element={<DonationResultPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
 
@@ -67,18 +73,18 @@ export default function App() {
           }
         />
         <Route
-          path="/donor/payments"
-          element={
-            <ProtectedRoute allowedRoles={["donor"]}>
-              <PaymentMethodsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/donor/settings"
           element={
             <ProtectedRoute allowedRoles={["donor"]}>
               <ProfileSettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor/subscription"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <SubscriptionSettingsPage />
             </ProtectedRoute>
           }
         />
@@ -89,6 +95,14 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <ComplaintManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/announcements"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AnnouncementManagement />
             </ProtectedRoute>
           }
         />
@@ -105,7 +119,7 @@ export default function App() {
         <Route
           path="/teacher/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherDashboard />
             </ProtectedRoute>
           }
@@ -113,7 +127,7 @@ export default function App() {
         <Route
           path="/teacher/quizzes"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherQuizzes />
             </ProtectedRoute>
           }
@@ -121,7 +135,7 @@ export default function App() {
         <Route
           path="/teacher/study-materials"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherStudyMaterials />
             </ProtectedRoute>
           }
@@ -129,8 +143,24 @@ export default function App() {
         <Route
           path="/teacher/study-sessions"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <TeacherStudySessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/announcements"
+          element={
+            <ProtectedRoute allowedRoles={["teacher"]}>
+              <TeacherAnnouncements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/profile"
+          element={
+            <ProtectedRoute allowedRoles={["teacher"]}>
+              <TeacherProfile />
             </ProtectedRoute>
           }
         />
@@ -171,6 +201,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <SubjectManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/feedback"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <FeedbackManagement />
             </ProtectedRoute>
           }
         />
