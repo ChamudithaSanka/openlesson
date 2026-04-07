@@ -137,10 +137,10 @@ const StudentDashboard = () => {
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <p className="text-indigo-100/80 text-xs font-bold uppercase tracking-[0.2em] mb-2">Academic Overview</p>
-              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
                 Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-100">{firstName}</span> 👋
               </h1>
-              <p className="text-indigo-50/80 mt-4 max-w-md text-lg leading-relaxed font-medium">
+              <p className="text-indigo-50/80 mt-2 max-w-md text-base leading-relaxed font-medium">
                 Keep up the great work! You've got <span className="text-white font-bold">{stats.upcomingSessions} sessions</span> scheduled this week.
               </p>
               {studentData?.gradeId?.gradeName && (
@@ -179,8 +179,8 @@ const StudentDashboard = () => {
                 </div>
               </div>
               <div>
-                <p className="text-4xl font-black text-slate-800 tracking-tight">{value}</p>
-                <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-black text-slate-800 tracking-tight">{value}</p>
+                <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{label}</p>
               </div>
               {/* Subtle background decoration */}
               <div className="absolute -bottom-6 -right-6 text-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
@@ -193,7 +193,7 @@ const StudentDashboard = () => {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Quick Actions */}
           <div className="xl:col-span-2">
-            <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-3">
+            <h2 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-3">
               <span className="w-8 h-1 bg-indigo-600 rounded-full"></span>
               Recommended for You
             </h2>
@@ -215,7 +215,7 @@ const StudentDashboard = () => {
 
           {/* Profile Quick View */}
           <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm">
-            <h2 className="text-xl font-black text-slate-800 mb-6 tracking-tight">Your Identity</h2>
+            <h2 className="text-lg font-black text-slate-800 mb-6 tracking-tight">Your Identity</h2>
             {studentData ? (
               <div className="space-y-4">
                 {[

@@ -61,7 +61,7 @@ const StudentSidebar = () => {
   };
 
   return (
-    <div className="w-64 bg-slate-900 text-slate-300 flex flex-col h-screen shadow-2xl z-50">
+    <div className="w-60 bg-slate-900 text-slate-300 flex flex-col h-screen shadow-2xl z-50">
       {/* Brand */}
       <div className="px-6 py-8 border-b border-slate-800/50">
         <div className="flex items-center gap-3">
@@ -69,8 +69,8 @@ const StudentSidebar = () => {
             OL
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white tracking-tight leading-none">Student</h1>
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">OpenLesson v1.0</p>
+            <h1 className="text-base font-bold text-white tracking-tight leading-none">Student</h1>
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-1">OpenLesson v1.0</p>
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@ const StudentSidebar = () => {
         {navItems.map((section, si) => (
           <div key={si}>
             {section.group && (
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-3 px-3">
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-3 px-3">
                 {section.group}
               </p>
             )}
@@ -89,7 +89,7 @@ const StudentSidebar = () => {
                 <Link
                   key={to}
                   to={to}
-                  className={`flex items-center justify-between group px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium ${
+                  className={`flex items-center justify-between group px-3 py-2 rounded-xl transition-all duration-200 text-[13px] font-medium ${
                     isActive(to)
                       ? `${activeColor} text-white shadow-lg shadow-blue-900/20`
                       : 'hover:bg-slate-800 hover:text-white'
@@ -111,7 +111,7 @@ const StudentSidebar = () => {
       <div className="px-4 py-6 border-t border-slate-800/50 space-y-4">
         <Link 
           to="/student/profile"
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
             isActive('/student/profile') 
               ? 'bg-blue-600 text-white' 
               : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -122,7 +122,7 @@ const StudentSidebar = () => {
         </Link>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 group"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[13px] font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 group"
         >
           <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
           <span>Logout</span>
