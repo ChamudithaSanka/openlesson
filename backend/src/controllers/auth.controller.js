@@ -24,7 +24,10 @@ export const register = async (req, res) => {
       subjectsTheyTeach,
       gradesTheyTeach
     } = req.body;
-    const cvUrl = req.file ? `/uploads/cv/${req.file.filename}` : null;
+    
+    // Build full CV URL with backend domain for cross-domain access
+    const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const cvUrl = req.file ? `${backendUrl}/uploads/cv/${req.file.filename}` : null;
 
     if (userType === "admin") {
       return res.status(403).json({

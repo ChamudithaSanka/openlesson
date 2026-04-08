@@ -292,7 +292,9 @@ const TeachersManagement = () => {
   // Download CV file
   const handleDownloadCV = async (cvUrl) => {
     try {
-      const response = await fetch(`http://localhost:5000${cvUrl}`);
+      // Check if cvUrl is already a full URL or relative path
+      const fullUrl = cvUrl.startsWith('http') ? cvUrl : `http://localhost:5000${cvUrl}`;
+      const response = await fetch(fullUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

@@ -22,10 +22,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000", "http://localhost:5173", process.env.FRONTEND_URL],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
+
+// Serve uploaded files with proper headers
+app.use("/uploads", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  next();
+}, express.static(path.resolve(__dirname, "../uploads")));
 
 // Auth routes
 app.use("/api/auth", authRoutes);
