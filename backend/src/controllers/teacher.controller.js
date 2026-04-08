@@ -1,5 +1,6 @@
 import Teacher from "../models/teacher.model.js";
 import User from "../models/user.model.js";
+import { sendApprovalEmail, sendRejectionEmail } from "../utils/emailService.js";
 
 // @desc    Get current teacher's profile (for logged-in teacher)
 // @route   GET /api/teachers/my-profile
@@ -142,7 +143,7 @@ export const createTeacher = async (req, res) => {
 // @access  Private (admin)
 export const updateTeacherStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, rejectionReason } = req.body;
 
     if (!["Approved", "Rejected", "Pending"].includes(status)) {
       return res.status(400).json({ success: false, message: "Invalid status value" });
@@ -161,7 +162,22 @@ export const updateTeacherStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
 
-    res.json({ success: true, teacher });
+    // Send email notification based on status
+    try {
+      const teacherEmail = teacher.userId?.email;
+      const teacherName = teacher.fullName;
+
+      if (status === "Approved" && teacherEmail) {
+        await sendApprovalEmail(teacherEmail, teacherName);
+      } else if (status === "Rejected" && teacherEmail) {
+        await sendRejectionEmail(teacherEmail, teacherName, rejectionReason);
+      }
+    } catch (emailError) {
+      console.error("Email notification failed:", emailError.message);
+      // Continue even if email fails - don't block the status update
+    }
+
+    res.json({ success: true, teacher, message: `Teacher status updated to ${status}` });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -316,6 +332,20 @@ export const approveTeacher = async (req, res) => {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
 
+    // Send approval email
+    try {
+      const teacherEmail = teacher.userId?.email;
+      const teacherName = teacher.fullName;
+
+      if (teacherEmail) {
+        await sendApprovalEmail(teacherEmail, teacherName);
+        console.log(`✅ Approval email sent to ${teacherEmail}`);
+      }
+    } catch (emailError) {
+      console.error("Email notification failed:", emailError.message);
+      // Continue even if email fails - don't block the approval
+    }
+
     res.status(200).json({
       success: true,
       message: "Teacher approved successfully",
@@ -333,6 +363,8 @@ export const approveTeacher = async (req, res) => {
 // 🔹 Reject Teacher (Admin Only)
 export const rejectTeacher = async (req, res) => {
   try {
+    const { rejectionReason } = req.body;
+
     const teacher = await Teacher.findByIdAndUpdate(
       req.params.id,
       { status: "Rejected" },
@@ -353,6 +385,20 @@ export const rejectTeacher = async (req, res) => {
 
     if (!teacher) {
       return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    // Send rejection email
+    try {
+      const teacherEmail = teacher.userId?.email;
+      const teacherName = teacher.fullName;
+
+      if (teacherEmail) {
+        await sendRejectionEmail(teacherEmail, teacherName, rejectionReason);
+        console.log(`✅ Rejection email sent to ${teacherEmail}`);
+      }
+    } catch (emailError) {
+      console.error("Email notification failed:", emailError.message);
+      // Continue even if email fails - don't block the rejection
     }
 
     res.status(200).json({
