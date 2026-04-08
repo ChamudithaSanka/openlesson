@@ -289,10 +289,21 @@ const TeachersManagement = () => {
     });
   };
 
-  // Download CV file
-  const handleDownloadCV = async (cvUrl) => {
+  // Download CV file from database
+  const handleDownloadCV = async (teacherId, cvUrl) => {
     try {
-      const response = await fetch(`http://localhost:5000${cvUrl}`);
+      // Use the new API endpoint to download from database
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:5000/api/teachers/${teacherId}/cv-download`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to download CV");
+      }
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -614,7 +625,7 @@ const TeachersManagement = () => {
                     <p className="text-sm text-gray-600">CV Document</p>
                     {selectedTeacher.cvUrl ? (
                       <button
-                        onClick={() => handleDownloadCV(selectedTeacher.cvUrl)}
+                        onClick={() => handleDownloadCV(selectedTeacher._id, selectedTeacher.cvUrl)}
                         className="mt-2 px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg"
                       >
                         Download CV

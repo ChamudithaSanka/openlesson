@@ -24,6 +24,12 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    cvFile: {
+      data: Buffer,
+      contentType: String,
+      filename: String,
+      uploadedAt: Date,
+    },
     gradesTheyTeach: [
       {
         type: mongoose.Schema.Types.ObjectId,
