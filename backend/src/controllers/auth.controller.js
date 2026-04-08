@@ -3,7 +3,7 @@ import Student from "../models/studentRegModel.js";
 import Teacher from "../models/teacher.model.js";
 import Donor from "../models/donor.model.js";
 import { generateToken } from "../utils/jwt.js";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -31,8 +31,6 @@ export const register = async (req, res) => {
     // Handle CV file upload
     let cvFileData = null;
     if (req.file) {
-      const fs = require('fs').promises;
-      const path = require('path');
       const fileContent = await fs.readFile(req.file.path);
       cvFileData = {
         data: fileContent,
