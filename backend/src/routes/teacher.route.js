@@ -12,6 +12,7 @@ import {
   getTeacherDetailAdmin,
   approveTeacher,
   rejectTeacher,
+  getTeacherCV,
 } from "../controllers/teacher.controller.js";
 import { protect, authorize } from "../middleware/auth.js";
 
@@ -30,6 +31,9 @@ router.get("/pending", protect, authorize("admin"), getPendingTeachers);
 router.put("/:id/status", protect, authorize("admin"), updateTeacherStatus);
 router.put("/:id", protect, updateTeacher);
 router.delete("/:id", protect, authorize("admin"), deleteTeacher);
+
+// Get teacher CV (download from database)
+router.get("/:id/cv", protect, getTeacherCV);
 
 // ============ ADMIN ROUTES ============
 

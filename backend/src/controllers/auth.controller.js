@@ -25,9 +25,18 @@ export const register = async (req, res) => {
       gradesTheyTeach
     } = req.body;
     
-    // Build full CV URL with backend domain for cross-domain access
-    const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
-    const cvUrl = req.file ? `${backendUrl}/uploads/cv/${req.file.filename}` : null;
+    // Prepare CV data for database storage
+    let cvData = null;
+    if (req.file) {
+      cvData = {
+        data: req.file.buffer,
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype,
+      };
+    }
+    
+    // Keep cvUrl for backward compatibility (will reference /api/teachers/:id/cv)
+    const cvUrl = req.file ? `/uploads/cv/${req.file.filename}` : null;
 
     if (userType === "admin") {
       return res.status(403).json({
@@ -99,6 +108,7 @@ export const register = async (req, res) => {
           fullName,
           phone,
           cvUrl,
+          cvFile: cvData,
           subjectsTheyTeach: subjects,
           gradesTheyTeach: grades,
           status: "Pending",

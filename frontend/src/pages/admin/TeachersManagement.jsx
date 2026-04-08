@@ -290,16 +290,32 @@ const TeachersManagement = () => {
   };
 
   // Download CV file
-  const handleDownloadCV = async (cvUrl) => {
+  const handleDownloadCV = async (teacherId) => {
     try {
-      // Check if cvUrl is already a full URL or relative path
-      const fullUrl = cvUrl.startsWith('http') ? cvUrl : `http://localhost:5000${cvUrl}`;
-      const response = await fetch(fullUrl);
+      const response = await fetch(`${API_URL}/api/teachers/${teacherId}/cv`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to download CV');
+      }
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = cvUrl.split('/').pop() || 'cv.pdf';
+      
+      // Extract filename from Content-Disposition header if available
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'cv.pdf';
+      if (contentDisposition) {
+        const matches = contentDisposition.match(/filename="(.+?)"/);
+        if (matches) filename = matches[1];
+      }
+      
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -614,9 +630,9 @@ const TeachersManagement = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">CV Document</p>
-                    {selectedTeacher.cvUrl ? (
+                    {selectedTeacher.cvUrl || selectedTeacher.cvFile ? (
                       <button
-                        onClick={() => handleDownloadCV(selectedTeacher.cvUrl)}
+                        onClick={() => handleDownloadCV(selectedTeacher._id)}
                         className="mt-2 px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg"
                       >
                         Download CV
