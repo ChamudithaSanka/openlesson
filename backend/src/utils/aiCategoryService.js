@@ -61,24 +61,33 @@ export const categorizeComplaint = async (subject, description) => {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error("❌ Hugging Face API error body:", errorBody);
-      throw new Error(`Hugging Face API error: ${response.status}`);
+      return "Other";
     }
 
     const data = await response.json();
     console.log("✅ Hugging Face raw response:", JSON.stringify(data));
 
-    // Response is an array of { label, score } objects sorted by score (highest first)
-    const results = Array.isArray(data) ? data : data[0];
-    const bestDescriptiveLabel = results[0].label;
+    let bestDescriptiveLabel = "";
+    
+    // 1. { labels: [...], scores: [...] }
+    // 2. [ { labels: [...], scores: [...] } ]
+    if (Array.isArray(data)) {
+      bestDescriptiveLabel = data[0]?.labels?.[0] || "";
+    } else if (data.labels && data.labels.length > 0) {
+      bestDescriptiveLabel = data.labels[0];
+    } else {
+      console.warn("⚠️ Unexpected AI response format:", data);
+      return "Other";
+    }
+
     console.log("🏆 Best descriptive label from AI:", bestDescriptiveLabel);
 
     // Map the descriptive label back to the clean category name
-    // e.g. "Technical Bug: app crash..." → "Technical Bug"
     const matched = VALID_CATEGORIES.find((cat) =>
-      bestDescriptiveLabel.startsWith(cat)
+      bestDescriptiveLabel.toLowerCase().includes(cat.toLowerCase())
     );
 
-    console.log(`✅ Final category: "${matched || "Other"}"`);
+    console.log(`✅ Final category matched: "${matched || "Other"}"`);
     return matched || "Other";
 
   } catch (error) {

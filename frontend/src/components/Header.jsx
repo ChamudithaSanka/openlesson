@@ -14,13 +14,6 @@ export default function Header() {
   const location = useLocation();
   const [authUser, setAuthUser] = useState(null);
   const [userType, setUserType] = useState(null);
-  const displayName =
-    authUser?.profile?.fullName ||
-    authUser?.fullName ||
-    authUser?.name ||
-    authUser?.email ||
-    userType ||
-    "Account";
 
   useEffect(() => {
     const syncAuth = () => {
@@ -72,6 +65,8 @@ export default function Header() {
     setUserType(null);
     navigate("/login");
   };
+
+  const displayName = authUser?.name || authUser?.email || "User";
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 via-blue-900 to-blue-950 text-white shadow-xl border-b border-blue-800/30">

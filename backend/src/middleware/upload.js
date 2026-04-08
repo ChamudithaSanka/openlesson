@@ -37,3 +37,30 @@ export const uploadCv = multer({
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });
+
+// Profile pictures
+const profileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const profileUploadDir = path.resolve(__dirname, "../../uploads/profiles");
+    fs.mkdirSync(profileUploadDir, { recursive: true });
+    cb(null, profileUploadDir);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    cb(null, `profile-${timestamp}${ext}`);
+  },
+});
+
+const imageFilter = (req, file, cb) => {
+  if (!file.mimetype.startsWith("image/")) {
+    return cb(new Error("Only images are allowed"));
+  }
+  cb(null, true);
+};
+
+export const uploadProfilePicture = multer({
+  storage: profileStorage,
+  fileFilter: imageFilter,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+});

@@ -9,7 +9,7 @@ export const getStudentProfile = async (req, res) => {
     const student = await Student.findById(req.params.id)
       .populate('userId', 'email')
       .populate('gradeId', 'gradeName');
-    
+
     if (!student) {
       return res.status(404).json({ success: false, message: 'Student not found' });
     }
@@ -21,6 +21,61 @@ export const getStudentProfile = async (req, res) => {
     res.json({
       success: true,
       student
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+};
+
+// @desc    Get current student profile
+// @route   GET /api/students/my-profile
+// @access  Private (student only)
+export const getMyProfile = async (req, res) => {
+  try {
+    const student = await Student.findOne({ userId: req.user.id })
+      .populate('userId', 'email')
+      .populate('gradeId', 'gradeName');
+
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student profile not found' });
+    }
+
+    res.json({
+      success: true,
+      student
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+};
+
+// @desc    Update current student profile
+// @route   PUT /api/students/my-profile
+// @access  Private (student only)
+export const updateMyProfile = async (req, res) => {
+  try {
+    const student = await Student.findOne({ userId: req.user.id });
+
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student profile not found' });
+    }
+
+    const updates = req.body;
+    // Prevent updating userId or restricted fields
+    delete updates.userId;
+    delete updates.gradeId; // grade can only be updated by admin
+
+    const updatedStudent = await Student.findByIdAndUpdate(
+      student._id,
+      updates,
+      { new: true, runValidators: true }
+    ).populate('userId', 'email')
+      .populate('gradeId', 'gradeName');
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      student: updatedStudent
     });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error', error: err.message });
@@ -222,5 +277,34 @@ export const deleteStudent = async (req, res) => {
       message: 'Server error',
       error: error.message
     });
+  }
+};
+
+// @desc    Upload profile picture
+// @route   PUT /api/students/upload-picture
+// @access  Private (student only)
+export const uploadPicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student profile not found' });
+    }
+
+    // Save relative path: /uploads/profiles/filename
+    const filePath = `/uploads/profiles/${req.file.filename}`;
+    student.profilePicture = filePath;
+    await student.save();
+
+    res.json({
+      success: true,
+      message: 'Profile picture uploaded successfully',
+      profilePicture: filePath
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };
