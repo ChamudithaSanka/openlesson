@@ -26,12 +26,9 @@ const teacherSchema = new mongoose.Schema(
     },
     cvFile: {
       data: Buffer,
+      contentType: String,
       filename: String,
-      mimetype: String,
-      uploadedAt: {
-        type: Date,
-        default: Date.now,
-      },
+      uploadedAt: Date,
     },
     gradesTheyTeach: [
       {

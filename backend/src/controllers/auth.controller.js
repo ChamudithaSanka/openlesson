@@ -3,6 +3,9 @@ import Student from "../models/studentRegModel.js";
 import Teacher from "../models/teacher.model.js";
 import Donor from "../models/donor.model.js";
 import { generateToken } from "../utils/jwt.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // @desc    Register user (student, teacher, or donor)
 // @route   POST /api/auth/register
@@ -25,17 +28,22 @@ export const register = async (req, res) => {
       gradesTheyTeach
     } = req.body;
     
-    // Prepare CV data for database storage
-    let cvData = null;
+    // Handle CV file upload
+    let cvFileData = null;
     if (req.file) {
-      cvData = {
-        data: req.file.buffer,
-        filename: req.file.originalname,
-        mimetype: req.file.mimetype,
+      const fs = require('fs').promises;
+      const path = require('path');
+      const fileContent = await fs.readFile(req.file.path);
+      cvFileData = {
+        data: fileContent,
+        contentType: req.file.mimetype,
+        filename: req.file.filename,
+        uploadedAt: new Date(),
       };
+      // Delete the temp file
+      await fs.unlink(req.file.path).catch(() => {});
     }
     
-    // Keep cvUrl for backward compatibility (will reference /api/teachers/:id/cv)
     const cvUrl = req.file ? `/uploads/cv/${req.file.filename}` : null;
 
     if (userType === "admin") {
@@ -108,7 +116,7 @@ export const register = async (req, res) => {
           fullName,
           phone,
           cvUrl,
-          cvFile: cvData,
+          cvFile: cvFileData,
           subjectsTheyTeach: subjects,
           gradesTheyTeach: grades,
           status: "Pending",

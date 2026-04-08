@@ -415,27 +415,24 @@ export const rejectTeacher = async (req, res) => {
   }
 };
 
-/**
- * Get teacher CV file from database
- * @route GET /api/teachers/:id/cv
- * @access Private
- */
-export const getTeacherCV = async (req, res) => {
+// @desc    Download teacher CV from database
+// @route   GET /api/teachers/:id/cv-download
+// @access  Private (admin)
+export const downloadTeacherCV = async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
-    
+
     if (!teacher) {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
-    
+
     if (!teacher.cvFile || !teacher.cvFile.data) {
-      return res.status(404).json({ success: false, message: "CV not found" });
+      return res.status(404).json({ success: false, message: "CV file not found" });
     }
-    
-    // Set appropriate headers for file download
-    res.setHeader("Content-Type", teacher.cvFile.mimetype || "application/pdf");
+
+    // Set headers for file download
+    res.setHeader("Content-Type", teacher.cvFile.contentType);
     res.setHeader("Content-Disposition", `attachment; filename="${teacher.cvFile.filename}"`);
-    res.setHeader("Content-Length", teacher.cvFile.data.length);
     
     // Send the file data
     res.send(teacher.cvFile.data);

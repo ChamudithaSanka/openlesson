@@ -12,7 +12,7 @@ import {
   getTeacherDetailAdmin,
   approveTeacher,
   rejectTeacher,
-  getTeacherCV,
+  downloadTeacherCV,
 } from "../controllers/teacher.controller.js";
 import { protect, authorize } from "../middleware/auth.js";
 
@@ -32,9 +32,6 @@ router.put("/:id/status", protect, authorize("admin"), updateTeacherStatus);
 router.put("/:id", protect, updateTeacher);
 router.delete("/:id", protect, authorize("admin"), deleteTeacher);
 
-// Get teacher CV (download from database)
-router.get("/:id/cv", protect, getTeacherCV);
-
 // ============ ADMIN ROUTES ============
 
 // Get all teachers (admin)
@@ -48,5 +45,8 @@ router.put("/admin/:id/approve", protect, authorize("admin"), approveTeacher);
 
 // Reject teacher (admin)
 router.put("/admin/:id/reject", protect, authorize("admin"), rejectTeacher);
+
+// Download teacher CV (admin)
+router.get("/:id/cv-download", protect, authorize("admin"), downloadTeacherCV);
 
 export default router;

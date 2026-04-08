@@ -289,33 +289,26 @@ const TeachersManagement = () => {
     });
   };
 
-  // Download CV file
-  const handleDownloadCV = async (teacherId) => {
+  // Download CV file from database
+  const handleDownloadCV = async (teacherId, cvUrl) => {
     try {
-      const response = await fetch(`${API_URL}/api/teachers/${teacherId}/cv`, {
+      // Use the new API endpoint to download from database
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:5000/api/teachers/${teacherId}/cv-download`, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          "Authorization": `Bearer ${token}`
+        }
       });
       
       if (!response.ok) {
-        throw new Error('Failed to download CV');
+        throw new Error("Failed to download CV");
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
-      // Extract filename from Content-Disposition header if available
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'cv.pdf';
-      if (contentDisposition) {
-        const matches = contentDisposition.match(/filename="(.+?)"/);
-        if (matches) filename = matches[1];
-      }
-      
-      a.download = filename;
+      a.download = cvUrl.split('/').pop() || 'cv.pdf';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -630,9 +623,9 @@ const TeachersManagement = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">CV Document</p>
-                    {selectedTeacher.cvUrl || selectedTeacher.cvFile ? (
+                    {selectedTeacher.cvUrl ? (
                       <button
-                        onClick={() => handleDownloadCV(selectedTeacher._id)}
+                        onClick={() => handleDownloadCV(selectedTeacher._id, selectedTeacher.cvUrl)}
                         className="mt-2 px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg"
                       >
                         Download CV
