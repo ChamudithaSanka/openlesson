@@ -20,7 +20,7 @@ const validateComplaint = [
   body("description").notEmpty().withMessage("Description is required"),
   body("category")
     .optional()
-    .isIn(["Login Issue", "Video/Content Issue", "Technical Bug", "Payment Issue", "Other"])
+    .isIn(["Login Issue", "Video/Content Issue", "Technical Bug", "Other"])
     .withMessage("Invalid category"),
   (req, res, next) => {
     const errors = validationResult(req);

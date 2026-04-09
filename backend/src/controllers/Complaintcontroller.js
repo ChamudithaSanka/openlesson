@@ -1,5 +1,5 @@
-import Complaint from "../models/ComplaintModel.js";
-import { categorizeComplaint } from "../utils/aiCategoryService.js"; // 👈 AI service
+import Complaint from "../models/Complaintmodel.js";
+import { categorizeComplaintWithGemini } from "../utils/geminiService.js"; // 👈 Gemini service
 import Student from "../models/studentRegModel.js";
 
 // 🔹 Create Complaint (with AI auto-categorization)
@@ -18,10 +18,18 @@ export const createComplaint = async (req, res) => {
       return res.status(403).json({ message: "Only students can create complaints" });
     }
 
-    // 🤖 If the student didn't pick a category, let AI decide
-    let resolvedCategory = category;
-    if (!category || category === "Other") {
-      resolvedCategory = await categorizeComplaint(subject, description);
+    // 🤖 Always let Gemini AI decide the category for a clean automated experience
+    const resolvedCategory = await categorizeComplaintWithGemini(subject, description);
+    console.log(`📌 Complaint Auto-Categorized as: ${resolvedCategory}`);
+
+    const textData = (subject + " " + description).toLowerCase();
+
+    let priority = "Medium";
+
+    if (textData.includes("crash") || textData.includes("cannot access") || textData.includes("not working")) {
+      priority = "High";
+    } else if (textData.includes("slow") || textData.includes("delay")) {
+      priority = "Low";
     }
 
     const newComplaint = new Complaint({
@@ -29,6 +37,7 @@ export const createComplaint = async (req, res) => {
       subject,
       description,
       category: resolvedCategory,
+      priority, 
     });
 
     await newComplaint.save();
@@ -94,9 +103,9 @@ export const updateComplaint = async (req, res) => {
     if (subject) complaint.subject = subject;
     if (description) complaint.description = description;
 
-    // 🤖 If description changed and no new category given, re-run AI categorization
+    // 🤖 If description changed and no new category given, re-run Gemini AI categorization
     if (description && !category) {
-      complaint.category = await categorizeComplaint(
+      complaint.category = await categorizeComplaintWithGemini(
         subject || complaint.subject,
         description
       );

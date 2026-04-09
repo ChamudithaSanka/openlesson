@@ -19,13 +19,18 @@ const complaintSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["Login Issue", "Video/Content Issue", "Technical Bug", "Payment Issue", "Other"],
+      enum: ["Login Issue", "Video/Content Issue", "Technical Bug", "Other"],
       default: "Other",
     },
     status: {
       type: String,
       enum: ["Open", "Under Review", "Resolved"],
       default: "Open",
+    },
+    priority: {
+      type: String,
+      enum: ["Low", "Medium", "High"],
+      default: "Medium",
     },
     adminNote: {
       type: String,
