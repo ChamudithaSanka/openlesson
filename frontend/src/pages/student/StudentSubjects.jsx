@@ -1,14 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Search, BookOpen, CheckCircle } from 'lucide-react';
+import { Search, BookOpen, CheckCircle, ChevronRight } from 'lucide-react';
 import StudentLayout from '../../components/student/StudentLayout';
 
 const API = 'http://localhost:5000';
+
+const SUBJECT_THEMES = [
+  { bg: 'from-indigo-500 to-indigo-700',  light: 'bg-indigo-50',  text: 'text-indigo-700',  border: 'border-indigo-200',  btn: 'bg-indigo-600 hover:bg-indigo-700'  },
+  { bg: 'from-cyan-500 to-cyan-700',      light: 'bg-cyan-50',    text: 'text-cyan-700',    border: 'border-cyan-200',    btn: 'bg-cyan-600 hover:bg-cyan-700'      },
+  { bg: 'from-teal-500 to-teal-700',      light: 'bg-teal-50',    text: 'text-teal-700',    border: 'border-teal-200',    btn: 'bg-teal-600 hover:bg-teal-700'      },
+  { bg: 'from-blue-500 to-blue-700',      light: 'bg-blue-50',    text: 'text-blue-700',    border: 'border-blue-200',    btn: 'bg-blue-600 hover:bg-blue-700'      },
+  { bg: 'from-violet-500 to-violet-700',  light: 'bg-violet-50',  text: 'text-violet-700',  border: 'border-violet-200',  btn: 'bg-violet-600 hover:bg-violet-700'  },
+  { bg: 'from-sky-500 to-sky-700',        light: 'bg-sky-50',     text: 'text-sky-700',     border: 'border-sky-200',     btn: 'bg-sky-600 hover:bg-sky-700'        },
+];
 
 const StudentSubjects = () => {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [enrolledIds, setEnrolledIds] = useState([]);
+  const [enrolling, setEnrolling] = useState(null);
   const [toast, setToast] = useState('');
 
   const showToast = (msg) => {
@@ -35,106 +45,142 @@ const StudentSubjects = () => {
     fetchSubjects();
   }, [fetchSubjects]);
 
-  const handleEnroll = (subject) => {
+  const handleEnroll = async (subject) => {
     if (enrolledIds.includes(subject._id)) return;
+    setEnrolling(subject._id);
+    await new Promise((r) => setTimeout(r, 500));
     const current = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
     const updated = [...current, subject];
     localStorage.setItem('enrolledSubjects', JSON.stringify(updated));
     setEnrolledIds((prev) => [...prev, subject._id]);
+    setEnrolling(null);
     showToast(`Enrolled in ${subject.subjectName}!`);
   };
 
-  const filtered = subjects.filter((s) =>
-    s.subjectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = subjects.filter(
+    (s) =>
+      s.subjectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const colors = [
-    'from-indigo-500 to-indigo-700',
-    'from-cyan-500 to-cyan-700',
-    'from-teal-500 to-teal-700',
-    'from-blue-500 to-blue-700',
-    'from-violet-500 to-violet-700',
-    'from-sky-500 to-sky-700',
-  ];
 
   return (
     <StudentLayout title="Explore Subjects">
+      {/* Toast */}
       {toast && (
-        <div className="fixed top-6 right-6 z-50 bg-cyan-600 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2">
-          <CheckCircle size={16} /> {toast}
+        <div className="fixed top-6 right-6 z-50 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-medium flex items-center gap-2">
+          <CheckCircle size={16} className="text-green-400" /> {toast}
         </div>
       )}
 
       <div className="p-8">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Explore Subjects</h1>
-          <p className="text-gray-500 mt-2">Browse all available subjects and enroll to start learning.</p>
+          <h1 className="text-3xl font-bold text-gray-900">Explore Subjects</h1>
+          <p className="text-gray-500 mt-1 text-sm">Browse all available subjects and enroll to start learning.</p>
         </div>
 
-        <div className="relative mb-8 max-w-lg">
-          <Search size={18} className="absolute left-4 top-3.5 text-gray-400" />
+        {/* Search */}
+        <div className="relative mb-8 max-w-md">
+          <Search size={17} className="absolute left-4 top-3.5 text-gray-400" />
           <input
             type="text"
             placeholder="Search subjects..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-cyan-500 transition text-sm"
+            className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition text-sm"
           />
         </div>
 
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-600 mx-auto" />
-              <p className="mt-3 text-gray-500 text-sm">Loading subjects...</p>
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto" />
+              <p className="mt-3 text-gray-400 text-sm">Loading subjects...</p>
             </div>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
+          <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center shadow-sm">
             <BookOpen size={48} className="mx-auto text-gray-300 mb-3" />
             <p className="text-gray-500 font-medium">No subjects found</p>
+            <p className="text-gray-400 text-sm mt-1">Try adjusting your search</p>
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-500 mb-5">
-              Showing <span className="font-semibold text-gray-700">{filtered.length}</span> subject{filtered.length !== 1 ? 's' : ''}
+            <p className="text-sm text-gray-500 mb-6">
+              Showing <span className="font-semibold text-gray-800">{filtered.length}</span>{' '}
+              subject{filtered.length !== 1 ? 's' : ''}
+              {enrolledIds.length > 0 && (
+                <span className="ml-3 text-green-600 font-medium">
+                  · {enrolledIds.length} enrolled
+                </span>
+              )}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.map((subject, idx) => {
                 const isEnrolled = enrolledIds.includes(subject._id);
-                const gradient = colors[idx % colors.length];
+                const isLoadingThis = enrolling === subject._id;
+                const theme = SUBJECT_THEMES[idx % SUBJECT_THEMES.length];
+
                 return (
                   <div
                     key={subject._id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col"
                   >
-                    <div className={`bg-gradient-to-br ${gradient} p-6 flex items-center justify-between`}>
-                      <div className="bg-white/20 p-3 rounded-xl">
-                        <BookOpen className="text-white" size={24} />
+                    {/* Thin colored top accent bar */}
+                    <div className={`bg-gradient-to-r ${theme.bg} h-1.5 w-full`} />
+
+                    <div className="p-5 flex flex-col flex-1">
+                      {/* Icon row */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`${theme.light} ${theme.border} border p-3 rounded-xl`}>
+                          <BookOpen className={theme.text} size={22} />
+                        </div>
+                        {isEnrolled && (
+                          <span className="flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
+                            <CheckCircle size={11} /> Enrolled
+                          </span>
+                        )}
                       </div>
-                      {isEnrolled && (
-                        <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
-                          <CheckCircle size={12} /> Enrolled
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold text-gray-800">{subject.subjectName}</h3>
+
+                      {/* Name & description */}
+                      <h3 className="text-base font-bold text-gray-900">{subject.subjectName}</h3>
                       {subject.description && (
-                        <p className="text-gray-500 text-sm mt-1 line-clamp-2">{subject.description}</p>
+                        <p className="text-gray-500 text-sm mt-1 line-clamp-2 leading-relaxed">
+                          {subject.description}
+                        </p>
                       )}
-                      <button
-                        onClick={() => handleEnroll(subject)}
-                        disabled={isEnrolled}
-                        className={`w-full mt-4 py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                          isEnrolled
-                            ? 'bg-green-100 text-green-700 cursor-default'
-                            : 'bg-cyan-600 hover:bg-cyan-700 text-white'
-                        }`}
-                      >
-                        {isEnrolled ? '✓ Enrolled' : 'Enroll'}
-                      </button>
+
+                      <div className="flex-1" />
+
+                      {/* CTA — sits on clean white, no color clash */}
+                      <div className="mt-5 pt-4 border-t border-gray-100">
+                        {isEnrolled ? (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-semibold text-green-600 flex items-center gap-1.5">
+                              <CheckCircle size={14} /> You're enrolled
+                            </span>
+                            <span className={`text-xs font-medium ${theme.text} flex items-center gap-0.5`}>
+                              Go to subject <ChevronRight size={13} />
+                            </span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleEnroll(subject)}
+                            disabled={isLoadingThis}
+                            className={`w-full py-2.5 rounded-xl font-semibold text-sm text-white transition-all flex items-center justify-center gap-2 shadow-sm ${theme.btn} disabled:opacity-70`}
+                          >
+                            {isLoadingThis ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                Enrolling...
+                              </>
+                            ) : (
+                              'Enroll Now'
+                            )}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );

@@ -4,7 +4,7 @@ import StudentLayout from '../../components/student/StudentLayout';
 
 const API = 'http://localhost:5000';
 
-const CATEGORIES = ['Login Issue', 'Video/Content Issue', 'Technical Bug', 'Payment Issue', 'Other'];
+const CATEGORIES = ['Login Issue', 'Video/Content Issue', 'Technical Bug', 'Other'];
 
 const statusColors = {
   Open: 'bg-blue-100 text-blue-800',
@@ -14,7 +14,7 @@ const statusColors = {
 
 const StudentComplaints = () => {
   const [complaints, setComplaints] = useState([]);
-  const [form, setForm] = useState({ subject: '', description: '', category: 'Other' });
+  const [form, setForm] = useState({ subject: '', description: '' });
   const [loading, setLoading] = useState(false);
   const [fetchingComplaints, setFetchingComplaints] = useState(true);
   const [error, setError] = useState('');
@@ -63,7 +63,7 @@ const StudentComplaints = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to submit complaint');
       setSuccess('Complaint submitted successfully!');
-      setForm({ subject: '', description: '', category: 'Other' });
+      setForm({ subject: '', description: '' });
       fetchComplaints();
     } catch (err) {
       setError(err.message);
@@ -108,25 +108,10 @@ const StudentComplaints = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Category */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setForm((p) => ({ ...p, category: cat }))}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-                        form.category === cat
-                          ? 'bg-red-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-2">
+                <p className="text-xs text-blue-700 leading-relaxed">
+                  <span className="font-bold">✨ AI Categorization:</span> Your complaint will be automatically categorized by our AI model based on your subject and description.
+                </p>
               </div>
 
               {/* Subject */}
@@ -222,6 +207,9 @@ const StudentComplaints = () => {
                           </span>
                           <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                             {c.category}
+                          </span>
+                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                            {c.priority}
                           </span>
                         </div>
                         <p className="text-gray-400 text-xs mt-1 flex items-center gap-1">
