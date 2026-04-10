@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node init && node server.js",
+    "dev": "node init && nodemon server.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
     "seedAdmin": "node src/scripts/seedAdmin.js",
     "cleanup:indexes": "node src/scripts/cleanupLegacyIndexes.js"
