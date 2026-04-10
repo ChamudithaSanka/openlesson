@@ -3,6 +3,11 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const roleOptions = ["student", "teacher", "donor"];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\d{9,15}$/;
+const NAME_REGEX = /^[A-Za-z]{2,}$/;
+const NAME_WITH_SPACES_REGEX = /^[A-Za-z ]{2,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
@@ -82,7 +87,29 @@ export default function RegisterPage() {
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    let nextValue = value;
+
+    if (name === "firstName" || name === "lastName") {
+      nextValue = value.replace(/[^A-Za-z]/g, "");
+    }
+
+    if (name === "fullName") {
+      nextValue = value.replace(/[^A-Za-z ]/g, "");
+    }
+
+    if (name === "phone") {
+      nextValue = value.replace(/\D/g, "").slice(0, 15);
+    }
+
+    if (name === "city" || name === "country") {
+      nextValue = value.replace(/[^A-Za-z ]/g, "");
+    }
+
+    if (name === "email") {
+      nextValue = value.trimStart().toLowerCase();
+    }
+
+    setForm((prev) => ({ ...prev, [name]: nextValue }));
   };
 
   const handleSubjectChange = (subjectId) => {
@@ -120,6 +147,48 @@ export default function RegisterPage() {
     if (role === "student" && !form.gradeId) {
       setError("Please select a grade.");
       return;
+    }
+
+    if (!form.email.trim() || !EMAIL_REGEX.test(form.email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!form.phone.trim() || !PHONE_REGEX.test(form.phone.trim())) {
+      setError("Phone must contain 9 to 15 digits.");
+      return;
+    }
+
+    if (!PASSWORD_REGEX.test(form.password)) {
+      setError("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+      return;
+    }
+
+    if (role === "donor") {
+      if (!NAME_REGEX.test(form.firstName.trim())) {
+        setError("First name must be at least 2 letters and contain letters only.");
+        return;
+      }
+
+      if (!NAME_REGEX.test(form.lastName.trim())) {
+        setError("Last name must be at least 2 letters and contain letters only.");
+        return;
+      }
+
+      if (!form.address.trim() || form.address.trim().length < 5) {
+        setError("Address must be at least 5 characters.");
+        return;
+      }
+
+      if (!NAME_WITH_SPACES_REGEX.test(form.city.trim())) {
+        setError("City must contain letters and spaces only.");
+        return;
+      }
+
+      if (!NAME_WITH_SPACES_REGEX.test(form.country.trim())) {
+        setError("Country must contain letters only.");
+        return;
+      }
     }
 
     try {
@@ -421,6 +490,15 @@ function Input({ label, name, value, onChange, required = false, type = "text" }
         value={value}
         onChange={onChange}
         required={required}
+        minLength={name === "firstName" || name === "lastName" ? 2 : undefined}
+        maxLength={name === "phone" ? 15 : undefined}
+        pattern={
+          name === "phone"
+            ? "\\d{9,15}"
+            : name === "email"
+              ? "[^\\s@]+@[^\\s@]+\\.[^\\s@]+"
+              : undefined
+        }
         className="block w-full rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2"
       />
     </div>

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -14,7 +16,8 @@ export default function LoginPage() {
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const nextValue = name === "email" ? value.trimStart().toLowerCase() : value;
+    setForm((prev) => ({ ...prev, [name]: nextValue }));
   };
 
   const handleSubmit = async (e) => {
@@ -24,6 +27,11 @@ export default function LoginPage() {
 
     if (!form.email || !form.password) {
       setError("Email and password are required.");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(form.email.trim())) {
+      setError("Enter a valid email address.");
       return;
     }
 
