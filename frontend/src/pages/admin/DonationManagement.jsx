@@ -197,8 +197,12 @@ export default function DonationManagement() {
               {filteredDonations.length > 0 ? (
                 filteredDonations.map((donation) => (
                   <tr key={donation._id} className="border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 text-gray-800">{donation.donorId?.fullName}</td>
-                    <td className="px-6 py-4 text-gray-600">{donation.donorId?.email}</td>
+                    <td className="px-6 py-4 text-gray-800">
+                      {donation.donorId?.fullName || ((donation.guest?.firstName || "") + (donation.guest?.lastName ? (" " + donation.guest.lastName) : "") || "-")}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {donation.donorId?.email || donation.guest?.email || "-"}
+                    </td>
                     <td className="px-6 py-4 text-gray-800 font-semibold">LKR {donation.amount}</td>
                     <td className="px-6 py-4 text-gray-600">{donation.paymentMethod}</td>
                     <td className="px-6 py-4 text-gray-600">
