@@ -144,3 +144,5 @@ vite.config.ts.timestamp-*
 test.js
 tmp/
 backend/src/utils/test.js
+
+backend/uploads
