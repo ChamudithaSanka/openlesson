@@ -11,6 +11,12 @@ const donorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      sparse: true,
+    },
     phone: {
       type: String,
     },

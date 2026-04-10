@@ -66,7 +66,7 @@ export default function Header() {
     navigate("/login");
   };
 
-  const displayName = authUser?.name || authUser?.email || "User";
+
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 via-blue-900 to-blue-950 text-white shadow-xl border-b border-blue-800/30">
@@ -99,9 +99,12 @@ export default function Header() {
         <div className="flex items-center gap-3">
           {authUser ? (
             <>
-              <span className="hidden rounded-lg bg-white/15 backdrop-blur px-4 py-2 text-sm font-medium text-white/90 sm:inline border border-white/20">
-                {displayName}
-              </span>
+              <Link
+                to={dashboardPath}
+                className="hidden sm:inline rounded-lg bg-white/15 backdrop-blur px-4 py-2 text-sm font-semibold text-white/90 border border-white/20 hover:bg-white/25 transition-all duration-200"
+              >
+                Dashboard
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}
@@ -141,13 +144,21 @@ export default function Header() {
           </a>
         ))}
         {authUser ? (
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 px-3 py-1.5 text-xs font-semibold text-blue-900 transition-all duration-300 hover:from-yellow-300 hover:to-yellow-400"
-          >
-            Logout
-          </button>
+          <>
+            <Link
+              to={dashboardPath}
+              className="rounded-lg bg-white/15 backdrop-blur px-3 py-1.5 text-xs font-semibold text-white/90 border border-white/20 hover:bg-white/25 transition-all duration-200"
+            >
+              Dashboard
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 px-3 py-1.5 text-xs font-semibold text-blue-900 transition-all duration-300 hover:from-yellow-300 hover:to-yellow-400"
+            >
+              Logout
+            </button>
+          </>
         ) : (
           <>
             <Link

@@ -21,6 +21,7 @@ router.get("/", protect, authorize("admin"), getAllDonations);
 router.get("/donor/:donorId", protect, authorize("admin"), getDonationsByDonor);
 router.get("/:id", protect, authorize("admin"), getDonationById);
 router.put("/:id", protect, authorize("admin"), updateDonationStatus);
-router.delete("/:id", protect, authorize("admin"), deleteDonation);
+// Allow both admin and donor to delete, but donor can only delete their own
+router.delete("/:id", protect, authorize("admin", "donor"), deleteDonation);
 
 export default router;

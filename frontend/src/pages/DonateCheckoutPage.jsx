@@ -14,6 +14,13 @@ const INITIAL_FORM = {
   message: "",
 };
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\d{9,15}$/;
+const LETTERS_ONLY_REGEX = /^[A-Za-z]+$/;
+const LETTERS_SPACES_REGEX = /^[A-Za-z ]+$/;
+const MIN_DONATION = 100;
+const MAX_MESSAGE_LENGTH = 500;
+
 export default function DonateCheckoutPage() {
   const [searchParams] = useSearchParams();
   const initialType = searchParams.get("type");
@@ -95,21 +102,49 @@ export default function DonateCheckoutPage() {
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    let nextValue = value;
+
+    if (name === "first_name" || name === "last_name") {
+      nextValue = value.replace(/[^A-Za-z]/g, "");
+    }
+
+    if (name === "email") {
+      nextValue = value.trimStart().toLowerCase();
+    }
+
+    if (name === "phone") {
+      nextValue = value.replace(/\D/g, "").slice(0, 15);
+    }
+
+    if (name === "city" || name === "country") {
+      nextValue = value.replace(/[^A-Za-z ]/g, "");
+    }
+
+    if (name === "amount") {
+      nextValue = value.replace(/[^\d]/g, "");
+    }
+
+    if (name === "message") {
+      nextValue = value.slice(0, MAX_MESSAGE_LENGTH);
+    }
+
+    setForm((prev) => ({ ...prev, [name]: nextValue }));
   };
 
   const validate = () => {
-    if (!form.first_name.trim()) return "First name is required.";
-    if (!form.last_name.trim()) return "Last name is required.";
+    if (!LETTERS_ONLY_REGEX.test(form.first_name.trim())) return "First name must contain letters only.";
+    if (!LETTERS_ONLY_REGEX.test(form.last_name.trim())) return "Last name must contain letters only.";
     if (!form.email.trim()) return "Email is required.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Enter a valid email address.";
-    if (!form.phone.trim()) return "Phone is required.";
-    if (!form.address.trim()) return "Address is required.";
-    if (!form.city.trim()) return "City is required.";
+    if (!EMAIL_REGEX.test(form.email)) return "Enter a valid email address.";
+    if (!PHONE_REGEX.test(form.phone.trim())) return "Phone must contain 9 to 15 digits.";
+    if (!form.address.trim() || form.address.trim().length < 5) return "Address must be at least 5 characters.";
+    if (!LETTERS_SPACES_REGEX.test(form.city.trim())) return "City must contain letters and spaces only.";
     if (!form.country.trim()) return "Country is required.";
 
     const amount = Number(form.amount);
-    if (!Number.isFinite(amount) || amount <= 0) return "Enter a valid donation amount.";
+    if (!Number.isFinite(amount) || amount < MIN_DONATION) return `Donation amount must be at least LKR ${MIN_DONATION}.`;
+
+    if (form.message.length > MAX_MESSAGE_LENGTH) return `Message cannot exceed ${MAX_MESSAGE_LENGTH} characters.`;
 
     if (requiresAccount && !isDonor) {
       return "Monthly and yearly donations require a donor account. Please register or login as a donor.";
@@ -288,8 +323,8 @@ export default function DonateCheckoutPage() {
               id="amount"
               name="amount"
               type="number"
-              min="1"
-              step="0.01"
+              min={MIN_DONATION}
+              step="1"
               value={form.amount}
               onChange={onChange}
               className="block w-full rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2"
@@ -361,6 +396,7 @@ export default function DonateCheckoutPage() {
               name="message"
               value={form.message}
               onChange={onChange}
+              maxLength={MAX_MESSAGE_LENGTH}
               className="block w-full rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-900 outline-none ring-blue-600 transition focus:border-blue-400 focus:ring-2"
             />
           </div>

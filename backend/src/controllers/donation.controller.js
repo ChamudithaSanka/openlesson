@@ -113,10 +113,21 @@ export const updateDonationStatus = async (req, res) => {
 // @access  Private (admin)
 export const deleteDonation = async (req, res) => {
   try {
-    const donation = await Donation.findByIdAndDelete(req.params.id);
+    const donation = await Donation.findById(req.params.id);
     if (!donation) {
       return res.status(404).json({ success: false, message: "Donation not found" });
     }
+
+    // Only admin or the owner donor can delete
+    if (req.user.userType === "donor") {
+      // Find donor profile for this user
+      const donorProfile = await Donor.findOne({ userId: req.user.id });
+      if (!donorProfile || String(donation.donorId) !== String(donorProfile._id)) {
+        return res.status(403).json({ success: false, message: "Not authorized to delete this donation." });
+      }
+    }
+
+    await donation.deleteOne();
     res.json({ success: true, message: "Donation deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
