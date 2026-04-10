@@ -19,16 +19,16 @@ const givingOptions = [
 ];
 
 const impactUse = [
-  "Study material preparation and distribution",
-  "Volunteer session logistics and scheduling support",
-  "Student-focused revision and mentoring activities",
-  "Platform maintenance and community moderation",
+  "Learning resources: create and maintain free study materials, notes, and exam preparation content.",
+  "Platform development: improve and maintain the website, add new features, and ensure smooth performance.",
+  "Online learning tools: support live classes, quizzes, and other digital learning experiences.",
+  "Teacher support: help volunteer teachers create better content and deliver quality lessons.",
+  "Platform growth and outreach: reach more students, expand the community, and improve access to education.",
 ];
 
 const trustPoints = [
   "Donation records are tracked in the system",
   "Admin oversight on disbursement and program support",
-  "Feedback and complaint channels for accountability",
 ];
 
 const workflowSteps = [
@@ -218,6 +218,9 @@ export default function DonatePage() {
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <article>
               <h2 className="text-3xl font-bold text-blue-900">Where Your Support Goes</h2>
+              <p className="mt-3 text-sm text-blue-800">
+                Donations support digital education services and platform operations. We do not deliver physical items.
+              </p>
               <ul className="mt-5 space-y-3">
                 {impactUse.map((item) => (
                   <li key={item} className="rounded-xl bg-white px-4 py-3 text-sm font-medium text-blue-900 shadow-sm">
@@ -234,13 +237,6 @@ export default function DonatePage() {
                   <li key={point}>{point}</li>
                 ))}
               </ul>
-              <div className="mt-6 rounded-xl bg-white/10 p-4 text-sm text-blue-100">
-                <p className="font-semibold text-white">You enter in checkout:</p>
-                <p className="mt-1">First name, last name, email, amount (required)</p>
-                <p>Phone, address, city, country (optional)</p>
-                <p className="mt-3 font-semibold text-white">Set by backend:</p>
-                <p>Currency (LKR), items, merchant ID, URLs, order ID, and hash</p>
-              </div>
               <div className="mt-6">
                 <Link
                   to="/donate/checkout"
