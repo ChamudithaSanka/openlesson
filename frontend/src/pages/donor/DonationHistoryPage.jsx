@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import DonorLayout from "../../components/donor/DonorLayout";
+import DonationDetailsModal from "../../components/donor/DonationDetailsModal";
 
 const formatLKR = (amount) =>
   new Intl.NumberFormat("en-LK", {
@@ -49,6 +50,7 @@ export default function DonationHistoryPage() {
   const [error, setError] = useState("");
   const [donations, setDonations] = useState([]);
   const [selectedDonation, setSelectedDonation] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
@@ -318,7 +320,10 @@ export default function DonationHistoryPage() {
                       <td className="px-2 py-2 flex gap-2">
                         <button
                           type="button"
-                          onClick={() => setSelectedDonation(donation)}
+                          onClick={() => {
+                            setSelectedDonation(donation);
+                            setModalOpen(true);
+                          }}
                           className="rounded-md border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-800 hover:border-blue-400"
                         >
                           View
@@ -346,38 +351,15 @@ export default function DonationHistoryPage() {
             </div>
           </section>
 
-          <aside className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-blue-900">Donation Details</h2>
-            {!selectedDonation ? (
-              <p className="mt-3 text-sm text-blue-700">Select a donation to see full details.</p>
-            ) : (
-              <div className="mt-3 space-y-2 text-sm text-blue-900">
-                <p>
-                  <span className="font-medium">Date:</span> {formatDate(selectedDonation.createdAt)}
-                </p>
-                <p>
-                  <span className="font-medium">Amount:</span> {formatLKR(selectedDonation.amount)}
-                </p>
-                <p>
-                  <span className="font-medium">Type:</span>{" "}
-                  <span className="capitalize">{getDonationType(selectedDonation)}</span>
-                </p>
-                <p>
-                  <span className="font-medium">Payment Method:</span>{" "}
-                  {selectedDonation.paymentMethod || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Status:</span> {selectedDonation.paymentStatus || "Pending"}
-                </p>
-                <p>
-                  <span className="font-medium">Message:</span> {selectedDonation.message || "No message"}
-                </p>
-                <p>
-                  <span className="font-medium">Receipt Ref:</span> {selectedDonation._id}
-                </p>
-              </div>
-            )}
-          </aside>
+          {/* Modal for donation details */}
+          <DonationDetailsModal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+            donation={selectedDonation}
+            formatDate={formatDate}
+            formatLKR={formatLKR}
+            getDonationType={getDonationType}
+          />
         </div>
       </section>
     </DonorLayout>
