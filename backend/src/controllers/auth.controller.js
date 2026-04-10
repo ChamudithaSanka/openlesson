@@ -122,6 +122,7 @@ export const register = async (req, res) => {
       } else if (userType === "donor") {
         userProfile = await Donor.create({
           userId: user._id,
+          email,
           fullName,
           phone,
           address,
