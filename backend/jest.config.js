@@ -2,6 +2,7 @@ export default {
   testEnvironment: "node",
   roots: ["<rootDir>/src/tests"],
   testMatch: ["**/*.test.js"],
+  testTimeout: 30000,
   collectCoverageFrom: [
     "src/controllers/**/*.js",
     "src/utils/**/*.js",

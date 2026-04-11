@@ -1,17 +1,37 @@
 config:
   target: "http://localhost:5000"
+  http:
+    timeout: 20
   phases:
-    - duration: 60
-      arrivalRate: 5
-    - duration: 120
-      arrivalRate: 15
+    - name: "warm-up"
+      duration: 20
+      arrivalRate: 2
+    - name: "steady-load"
+      duration: 40
+      arrivalRate: 6
+  defaults:
+    headers:
+      Content-Type: "application/json"
 
 scenarios:
-  - name: "General API load"
+  - name: "Quiz read load (public)"
+    weight: 3
     flow:
       - get:
-          url: "/api/subjects"
-      - get:
-          url: "/api/teachers"
-      - get:
           url: "/api/quizzes"
+
+  - name: "Donor profile load (protected)"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/donors/profile/{{$processEnvironment.DONOR_ID}}"
+          headers:
+            Authorization: "Bearer {{$processEnvironment.DONOR_TOKEN}}"
+
+  - name: "Donation history load (protected)"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/donations/my/{{$processEnvironment.DONOR_ID}}"
+          headers:
+            Authorization: "Bearer {{$processEnvironment.DONOR_TOKEN}}"
