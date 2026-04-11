@@ -11,7 +11,6 @@
     "cleanup:indexes": "node src/scripts/cleanupLegacyIndexes.js",
     "test:unit": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js src/tests/unit --runInBand",
     "test:integration": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js src/tests/integration --runInBand",
-    "test:performance": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js src/tests/performance --runInBand",
     "perf:load": "artillery run src/tests/performance/artillery/load.yml"
   },
   "keywords": [],
