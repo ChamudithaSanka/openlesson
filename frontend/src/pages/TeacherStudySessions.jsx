@@ -36,7 +36,7 @@ const TeacherStudySessions = () => {
         setError('');
 
         // Fetch teacher profile
-        const teacherRes = await axios.get(`${API_URL}/teachers/my-profile`, config);
+        const teacherRes = await axios.get(`${API_URL}/api/teachers/my-profile`, config);
         setTeacherData(teacherRes.data.teacher || teacherRes.data.data || teacherRes.data);
 
         // Fetch all sessions for this teacher

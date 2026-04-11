@@ -28,7 +28,7 @@ const TeacherDashboard = () => {
       }
 
       // Get teacher's own profile
-      const response = await fetch(`${API_URL}/teachers/my-profile`, {
+      const response = await fetch(`${API_URL}/api/teachers/my-profile`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

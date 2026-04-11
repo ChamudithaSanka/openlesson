@@ -6,6 +6,7 @@ import StudentLayout from '../../components/student/Studentlayout';
 const StudentEnrolledTeachers = () => {
   const [enrolledTeachers, setEnrolledTeachers] = useState([]);
   const [toast, setToast] = useState('');
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api';
 
   const showToast = (msg) => {
     setToast(msg);
@@ -17,7 +18,6 @@ const StudentEnrolledTeachers = () => {
     const fetchEnrolled = async () => {
       try {
         const token = localStorage.getItem('token');
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         const res = await fetch(`${API_URL}/enrollments/my-teachers`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -34,7 +34,6 @@ const StudentEnrolledTeachers = () => {
   const handleUnenroll = async (teacherId) => {
     try {
       const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const res = await fetch(`${API_URL}/enrollments/${teacherId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
