@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Search, UserCheck, BookOpen, CheckCircle, ChevronRight } from 'lucide-react';
 import StudentLayout from '../../components/student/StudentLayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const TEACHER_THEMES = [
   { bg: 'from-indigo-500 to-indigo-700', light: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', btn: 'bg-indigo-600 hover:bg-indigo-700' },

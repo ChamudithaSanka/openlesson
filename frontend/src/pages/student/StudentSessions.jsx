@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Clock, Calendar, Users, ExternalLink, Search } from 'lucide-react';
 import StudentLayout from '../../components/student/StudentLayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const statusColors = {
   Scheduled: 'bg-blue-100 text-blue-800',

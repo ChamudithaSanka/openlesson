@@ -7,6 +7,7 @@ const TeacherProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [teacherId, setTeacherId] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
@@ -30,7 +31,7 @@ const TeacherProfile = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/teachers/my-profile', {
+      const response = await fetch(`${API_URL}/teachers/my-profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -76,7 +77,7 @@ const TeacherProfile = () => {
         phone: editData.phone,
       };
 
-      const response = await fetch(`http://localhost:5000/api/teachers/${teacherId}`, {
+      const response = await fetch(`${API_URL}/teachers/${teacherId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

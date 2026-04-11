@@ -8,8 +8,7 @@ const TeacherStudySessions = () => {
   const [sessions, setSessions] = useState([]);
   const [teacherData, setTeacherData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [error, setError] = useState('');  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';  const [successMessage, setSuccessMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -37,12 +36,12 @@ const TeacherStudySessions = () => {
         setError('');
 
         // Fetch teacher profile
-        const teacherRes = await axios.get('http://localhost:5000/api/teachers/my-profile', config);
+        const teacherRes = await axios.get(`${API_URL}/teachers/my-profile`, config);
         setTeacherData(teacherRes.data.teacher || teacherRes.data.data || teacherRes.data);
 
         // Fetch all sessions for this teacher
         const sessionsRes = await axios.get(
-          'http://localhost:5000/api/study-sessions',
+          `${API_URL}/study-sessions`,
           config
         );
         setSessions(sessionsRes.data.data || sessionsRes.data || []);
@@ -121,7 +120,7 @@ const TeacherStudySessions = () => {
         },
       };
       await axios.delete(
-        `http://localhost:5000/api/study-sessions/${deleteConfirm._id}`,
+        `${API_URL}/study-sessions/${deleteConfirm._id}`,
         config
       );
 

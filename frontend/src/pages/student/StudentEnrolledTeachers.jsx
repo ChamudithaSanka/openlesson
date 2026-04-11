@@ -17,7 +17,8 @@ const StudentEnrolledTeachers = () => {
     const fetchEnrolled = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/enrollments/my-teachers', {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const res = await fetch(`${API_URL}/enrollments/my-teachers`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -33,7 +34,8 @@ const StudentEnrolledTeachers = () => {
   const handleUnenroll = async (teacherId) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/enrollments/${teacherId}`, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/enrollments/${teacherId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

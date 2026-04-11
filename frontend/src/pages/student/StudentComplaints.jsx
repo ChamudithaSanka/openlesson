@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { AlertTriangle, CheckCircle, AlertCircle, Clock, Search } from 'lucide-react';
 import StudentLayout from '../../components/student/StudentLayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const CATEGORIES = ['Login Issue', 'Video/Content Issue', 'Technical Bug', 'Other'];
 
