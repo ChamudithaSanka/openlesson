@@ -46,7 +46,7 @@ export default function Header() {
 
   const dashboardPath =
     userType === "admin"
-      ? "/admin/complaints"
+      ? "/admin/announcements"
       : userType === "donor"
         ? "/donor/dashboard"
         : userType === "teacher"

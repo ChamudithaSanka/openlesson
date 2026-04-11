@@ -15,6 +15,7 @@ export default function DonorManagement() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedDonor, setSelectedDonor] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -22,6 +23,20 @@ export default function DonorManagement() {
     companyName: "",
     status: "Active",
   });
+
+  // Validation functions
+  const validateName = (name) => {
+    if (!name) return 'Name is required';
+    if (/\d/.test(name)) return 'Name cannot contain numbers';
+    if (name.trim().length < 2) return 'Name must be at least 2 characters';
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    if (phone === '') return ''; // Phone is optional
+    if (!/^\d{10}$/.test(phone)) return 'Phone number must contain exactly 10 digits';
+    return '';
+  };
 
   // Fetch all donors
   useEffect(() => {
@@ -63,6 +78,40 @@ export default function DonorManagement() {
     filterDonors(donors, status);
   };
 
+  // Form change handler
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    let filteredValue = value;
+
+    // Prevent numbers in name field
+    if (name === 'fullName') {
+      filteredValue = value.replace(/\d/g, '');
+    }
+
+    // Prevent letters in phone field - only allow numbers
+    if (name === 'phone') {
+      filteredValue = value.replace(/[^0-9]/g, '');
+    }
+
+    setFormData({
+      ...formData,
+      [name]: filteredValue,
+    });
+
+    // Real-time validation
+    let fieldError = '';
+    if (name === 'fullName') {
+      fieldError = validateName(filteredValue);
+    } else if (name === 'phone') {
+      fieldError = validatePhone(filteredValue);
+    }
+
+    setErrors({
+      ...errors,
+      [name]: fieldError,
+    });
+  };
+
   const handleViewDonor = (donor) => {
     setSelectedDonor(donor);
     setViewModalOpen(true);
@@ -76,10 +125,25 @@ export default function DonorManagement() {
       companyName: donor.companyName || "",
       status: donor.status,
     });
+    setErrors({});
     setEditModalOpen(true);
   };
 
   const handleUpdateDonor = async () => {
+    // Validate all fields
+    const newErrors = {};
+    
+    newErrors.fullName = validateName(formData.fullName);
+    newErrors.phone = validatePhone(formData.phone);
+
+    setErrors(newErrors);
+
+    // Check if there are any errors
+    if (Object.values(newErrors).some(error => error !== '')) {
+      alert('Please fix validation errors before submitting');
+      return;
+    }
+
     try {
       const response = await fetch(`${API_URL}/donors/admin/${selectedDonor._id}`, {
         method: "PUT",
@@ -98,6 +162,7 @@ export default function DonorManagement() {
           statusFilter
         );
         setEditModalOpen(false);
+        setErrors({});
         alert("Donor updated successfully!");
       } else {
         setError(data.message || "Failed to update donor");
@@ -310,10 +375,14 @@ export default function DonorManagement() {
                   </label>
                   <input
                     type="text"
+                    name="fullName"
                     value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={handleFormChange}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.fullName ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   />
+                  {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                 </div>
 
                 <div>
@@ -322,10 +391,15 @@ export default function DonorManagement() {
                   </label>
                   <input
                     type="text"
+                    name="phone"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={handleFormChange}
+                    maxLength="10"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   />
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
 
                 <div>
@@ -334,8 +408,9 @@ export default function DonorManagement() {
                   </label>
                   <input
                     type="text"
+                    name="companyName"
                     value={formData.companyName}
-                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    onChange={handleFormChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -345,8 +420,9 @@ export default function DonorManagement() {
                     Status
                   </label>
                   <select
+                    name="status"
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    onChange={handleFormChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Active">Active</option>
@@ -364,7 +440,10 @@ export default function DonorManagement() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditModalOpen(false)}
+                    onClick={() => {
+                      setEditModalOpen(false);
+                      setErrors({});
+                    }}
                     className="flex-1 bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 font-semibold"
                   >
                     Cancel

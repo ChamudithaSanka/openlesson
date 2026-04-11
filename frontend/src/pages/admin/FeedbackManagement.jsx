@@ -215,17 +215,14 @@ const FeedbackManagement = () => {
                           {feedback.studentId?.fullName || 'Unknown'}
                         </p>
                         <p className="text-gray-500 text-xs">
-                          {feedback.studentId?.email || 'N/A'}
+                          {feedback.studentId?.userId?.email || 'N/A'}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div>
                         <p className="font-semibold">
-                          {feedback.teacherId?.fullName || 'Unknown'}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {feedback.teacherId?.qualification || 'N/A'}
+                          {feedback.teacherName || feedback.teacherId?.fullName || 'Unknown'}
                         </p>
                       </div>
                     </td>
@@ -276,16 +273,13 @@ const FeedbackManagement = () => {
                       {selectedFeedback.studentId?.fullName || 'Unknown'}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {selectedFeedback.studentId?.email || 'N/A'}
+                      {selectedFeedback.studentId?.userId?.email || 'N/A'}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Teacher</p>
                     <p className="text-lg font-semibold">
-                      {selectedFeedback.teacherId?.fullName || 'Unknown'}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {selectedFeedback.teacherId?.qualification || 'N/A'}
+                      {selectedFeedback.teacherName || selectedFeedback.teacherId?.fullName || 'Unknown'}
                     </p>
                   </div>
                   <div>

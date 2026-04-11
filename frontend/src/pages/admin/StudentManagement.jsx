@@ -16,9 +16,24 @@ const StudentManagement = () => {
     phone: '',
     status: 'active',
   });
+  const [errors, setErrors] = useState({});
 
   const token = localStorage.getItem('token');
   const API_URL = 'http://localhost:5000';
+
+  // Validation functions
+  const validateName = (name) => {
+    if (!name) return 'Name is required';
+    if (/\d/.test(name)) return 'Name cannot contain numbers';
+    if (name.trim().length < 2) return 'Name must be at least 2 characters';
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    if (phone === '') return ''; // Phone is optional
+    if (!/^\d{10}$/.test(phone)) return 'Phone number must contain exactly 10 digits';
+    return '';
+  };
 
   // Fetch all students
   useEffect(() => {
@@ -77,14 +92,24 @@ const StudentManagement = () => {
       phone: student.phone || '',
       status: student.status,
     });
+    setErrors({});
     setModalType('edit');
     setShowModal(true);
   };
 
   // Update student
   const handleUpdateStudent = async () => {
-    if (!formData.fullName) {
-      alert('Full Name is required');
+    // Validate all fields
+    const newErrors = {};
+    
+    newErrors.fullName = validateName(formData.fullName);
+    newErrors.phone = validatePhone(formData.phone);
+
+    setErrors(newErrors);
+
+    // Check if there are any errors
+    if (Object.values(newErrors).some(error => error !== '')) {
+      alert('Please fix validation errors before submitting');
       return;
     }
 
@@ -115,6 +140,7 @@ const StudentManagement = () => {
         phone: '',
         status: 'active',
       });
+      setErrors({});
       alert('Student updated successfully');
     } catch (error) {
       console.error('Error updating student:', error);
@@ -123,6 +149,40 @@ const StudentManagement = () => {
   };
 
 
+
+  // Form change handler
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    let filteredValue = value;
+
+    // Prevent numbers in name field
+    if (name === 'fullName') {
+      filteredValue = value.replace(/\d/g, '');
+    }
+
+    // Prevent letters in phone field - only allow numbers
+    if (name === 'phone') {
+      filteredValue = value.replace(/[^0-9]/g, '');
+    }
+
+    setFormData({
+      ...formData,
+      [name]: filteredValue,
+    });
+
+    // Real-time validation
+    let fieldError = '';
+    if (name === 'fullName') {
+      fieldError = validateName(filteredValue);
+    } else if (name === 'phone') {
+      fieldError = validatePhone(filteredValue);
+    }
+
+    setErrors({
+      ...errors,
+      [name]: fieldError,
+    });
+  };
 
   // Delete student
   const handleDeleteStudent = async (student) => {
@@ -266,13 +326,15 @@ const StudentManagement = () => {
                   </label>
                   <input
                     type="text"
+                    name="fullName"
                     value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    onChange={handleFormChange}
                     disabled={modalType === 'view'}
-                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      modalType === 'view' ? 'bg-gray-100' : ''
-                    }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.fullName ? 'border-red-500' : 'border-gray-300'
+                    } ${modalType === 'view' ? 'bg-gray-100' : ''}`}
                   />
+                  {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                 </div>
 
                 <div>
@@ -293,8 +355,9 @@ const StudentManagement = () => {
                   </label>
                   <input
                     type="text"
+                    name="schoolName"
                     value={formData.schoolName}
-                    onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
+                    onChange={handleFormChange}
                     disabled={modalType === 'view'}
                     className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       modalType === 'view' ? 'bg-gray-100' : ''
@@ -308,8 +371,9 @@ const StudentManagement = () => {
                   </label>
                   <input
                     type="text"
+                    name="district"
                     value={formData.district}
-                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                    onChange={handleFormChange}
                     disabled={modalType === 'view'}
                     className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       modalType === 'view' ? 'bg-gray-100' : ''
@@ -323,13 +387,16 @@ const StudentManagement = () => {
                   </label>
                   <input
                     type="text"
+                    name="phone"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={handleFormChange}
+                    maxLength="10"
                     disabled={modalType === 'view'}
-                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      modalType === 'view' ? 'bg-gray-100' : ''
-                    }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300'
+                    } ${modalType === 'view' ? 'bg-gray-100' : ''}`}
                   />
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
 
                 <div>
@@ -337,8 +404,9 @@ const StudentManagement = () => {
                     Status
                   </label>
                   <select
+                    name="status"
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    onChange={handleFormChange}
                     disabled={modalType === 'view'}
                     className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       modalType === 'view' ? 'bg-gray-100' : ''
@@ -370,6 +438,7 @@ const StudentManagement = () => {
                       gradeId: '',
                       status: 'active',
                     });
+                    setErrors({});
                   }}
                   className={`flex-1 px-4 py-2 ${
                     modalType === 'edit'
