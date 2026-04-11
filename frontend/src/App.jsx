@@ -40,6 +40,8 @@ import StudentEnrolledTeachers from './pages/student/StudentEnrolledTeachers';
 import StudentEnrolledSubjects from './pages/student/StudentEnrolledSubjects';
 import StudentSessions from './pages/student/StudentSessions';
 import StudentQuizzes from './pages/student/StudentQuizzes';
+import StudentStudyMaterials from './pages/student/StudentStudyMaterials';
+import StudentSubjectMaterialsDetail from './pages/student/StudentSubjectMaterialsDetail';
 import StudentFeedback from './pages/student/StudentFeedback';
 import StudentComplaints from './pages/student/StudentComplaints';
 import StudentProfile from './pages/student/StudentProfile';
@@ -235,6 +237,8 @@ export default function App() {
         <Route path="/student/enrolled-teachers" element={<ProtectedRoute allowedRoles={['student']}><StudentEnrolledTeachers /></ProtectedRoute>} />
         <Route path="/student/enrolled-subjects" element={<ProtectedRoute allowedRoles={['student']}><StudentEnrolledSubjects /></ProtectedRoute>} />
         <Route path="/student/sessions"         element={<ProtectedRoute allowedRoles={['student']}><StudentSessions /></ProtectedRoute>} />
+        <Route path="/student/materials"        element={<ProtectedRoute allowedRoles={['student']}><StudentStudyMaterials /></ProtectedRoute>} />
+        <Route path="/student/materials/:subjectId" element={<ProtectedRoute allowedRoles={['student']}><StudentSubjectMaterialsDetail /></ProtectedRoute>} />
         <Route path="/student/quizzes"          element={<ProtectedRoute allowedRoles={['student']}><StudentQuizzes /></ProtectedRoute>} />
         <Route path="/student/feedback"         element={<ProtectedRoute allowedRoles={['student']}><StudentFeedback /></ProtectedRoute>} />
         <Route path="/student/complaints"       element={<ProtectedRoute allowedRoles={['student']}><StudentComplaints /></ProtectedRoute>} />
