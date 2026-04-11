@@ -183,9 +183,6 @@ const FeedbackManagement = () => {
                   Student
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Teacher
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
                   Rating
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
@@ -202,7 +199,7 @@ const FeedbackManagement = () => {
             <tbody>
               {filteredFeedbacks.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
                     No feedbacks found
                   </td>
                 </tr>
@@ -216,13 +213,6 @@ const FeedbackManagement = () => {
                         </p>
                         <p className="text-gray-500 text-xs">
                           {feedback.studentId?.userId?.email || 'N/A'}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div>
-                        <p className="font-semibold">
-                          {feedback.teacherName || feedback.teacherId?.fullName || 'Unknown'}
                         </p>
                       </div>
                     </td>
@@ -274,12 +264,6 @@ const FeedbackManagement = () => {
                     </p>
                     <p className="text-sm text-gray-500">
                       {selectedFeedback.studentId?.userId?.email || 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Teacher</p>
-                    <p className="text-lg font-semibold">
-                      {selectedFeedback.teacherName || selectedFeedback.teacherId?.fullName || 'Unknown'}
                     </p>
                   </div>
                   <div>

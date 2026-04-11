@@ -4,7 +4,7 @@ import Student from "../models/studentRegModel.js";
 // CREATE feedback
 export const createFeedback = async (req, res) => {
   try {
-    const { teacherId, teacherName, rating, comment } = req.body;
+    const { teacherId, rating, comment } = req.body;
     const student = await Student.findOne({ userId: req.user.id });
 
     if (!student) {
@@ -14,7 +14,6 @@ export const createFeedback = async (req, res) => {
     const feedback = new Feedback({
       studentId: student._id,
       teacherId,
-      teacherName: teacherName || "Unknown",
       rating,
       comment,
     });
@@ -45,8 +44,7 @@ export const getAllFeedback = async (req, res) => {
           path: "userId",
           select: "email"
         }
-      })
-      .populate("teacherId", "fullName");
+      });
     
     res.json({ feedbacks });
   } catch (err) {
@@ -65,8 +63,7 @@ export const getFeedbackById = async (req, res) => {
           path: "userId",
           select: "email"
         }
-      })
-      .populate("teacherId", "fullName");
+      });
 
     if (!feedback) {
       return res.status(404).json({ message: "Feedback not found" });
@@ -82,8 +79,7 @@ export const getFeedbackById = async (req, res) => {
 export const getFeedbackByStudent = async (req, res) => {
   try {
     const studentId = req.params.studentId;
-    const feedbacks = await Feedback.find({ studentId })
-      .populate("teacherId", "fullName");
+    const feedbacks = await Feedback.find({ studentId });
     res.json({ feedbacks });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
