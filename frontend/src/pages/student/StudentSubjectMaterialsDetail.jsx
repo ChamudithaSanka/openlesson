@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, FileText, Filter, Search } from 'lucide-react';
-import StudentLayout from '../../components/student/StudentLayout';
+import StudentLayout from '../../components/student/Studentlayout';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
