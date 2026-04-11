@@ -1,3 +1,20 @@
+// DELETE /api/enrollments/:teacherId
+export const unenrollTeacher = async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+    const student = await Student.findOne({ userId: req.user.id });
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+    const enrollment = await Enrollment.findOneAndDelete({ studentId: student._id, teacherId });
+    if (!enrollment) {
+      return res.status(404).json({ success: false, message: 'Enrollment not found' });
+    }
+    res.json({ success: true, message: 'Unenrolled successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 import Enrollment from '../models/enrollment.model.js';
 import Student from '../models/studentRegModel.js';
 import Teacher from '../models/teacher.model.js';
