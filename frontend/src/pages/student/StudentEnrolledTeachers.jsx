@@ -63,7 +63,7 @@ const StudentEnrolledTeachers = () => {
                   className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300"
                 >
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-green-600 to-teal-600 p-5 flex items-center gap-4">
+                  <div className="bg-gradient-to-br from-indigo-500 via-blue-400 to-cyan-400 p-5 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xl">
                       {teacher.fullName?.charAt(0).toUpperCase()}
                     </div>

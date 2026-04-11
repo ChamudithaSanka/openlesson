@@ -69,7 +69,7 @@ const StudentEnrolledSubjects = () => {
                   key={subject._id}
                   className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
                 >
-                  <div className={`bg-gradient-to-br ${colors[idx % colors.length]} p-6`}>
+                  <div className={`bg-gradient-to-br from-indigo-400 via-blue-300 to-cyan-300 p-6`}>
                     <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center">
                       <Library className="text-white" size={22} />
                     </div>

@@ -128,7 +128,7 @@ const StudentSubjects = () => {
                     className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col"
                   >
                     {/* Thin colored top accent bar */}
-                    <div className={`bg-gradient-to-r ${theme.bg} h-1.5 w-full`} />
+                    <div className={`bg-gradient-to-r from-indigo-400 via-blue-300 to-cyan-300 h-1.5 w-full`} />
 
                     <div className="p-5 flex flex-col flex-1">
                       {/* Icon row */}

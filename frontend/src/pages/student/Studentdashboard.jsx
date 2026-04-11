@@ -168,24 +168,27 @@ const StudentDashboard = () => {
             <Link
               key={label}
               to={to}
-              className="group relative bg-white rounded-[1.5rem] p-6 border border-slate-100 hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 transform hover:-translate-y-2 overflow-hidden"
+              className="group relative bg-white/60 rounded-2xl p-6 border border-transparent hover:border-indigo-100 shadow-sm hover:shadow-2xl transition-transform duration-300 transform hover:-translate-y-2 hover:scale-105 overflow-hidden backdrop-blur-sm"
             >
               <div className="flex items-center justify-between mb-5">
-                <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                  <Icon size={22} />
+                <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg transform transition-transform duration-300 group-hover:scale-110`}>
+                  <div className="w-full h-full flex items-center justify-center rounded-2xl">
+                    <Icon size={22} />
+                  </div>
                 </div>
-                <div className="text-slate-300 group-hover:text-indigo-400 transition-colors">
+                <div className="text-slate-400 group-hover:text-indigo-500 transition-colors">
                   <ArrowRight size={18} />
                 </div>
               </div>
               <div>
-                <p className="text-2xl font-black text-slate-800 tracking-tight">{value}</p>
-                <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{value}</p>
+                <p className="text-[11px] font-semibold text-slate-500 mt-1 uppercase tracking-wider">{label}</p>
               </div>
-              {/* Subtle background decoration */}
-              <div className="absolute -bottom-6 -right-6 text-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+              {/* Decorative accent */}
+              <div className="absolute -bottom-6 -right-6 opacity-0 group-hover:opacity-50 transition-opacity duration-700 text-slate-100">
                 <Icon size={80} />
               </div>
+              <div aria-hidden="true" className="absolute inset-0 rounded-2xl pointer-events-none bg-gradient-to-br from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </Link>
           ))}
         </div>
@@ -202,19 +205,20 @@ const StudentDashboard = () => {
                 <Link
                   key={label}
                   to={to}
-                  className="group bg-white rounded-3xl border border-slate-100 p-6 flex flex-col items-center gap-4 hover:shadow-xl hover:shadow-slate-200/50 hover:border-indigo-100 transition-all duration-300"
+                  className="group relative bg-white rounded-3xl border border-transparent p-6 flex flex-col items-center gap-4 hover:shadow-xl transition-transform duration-300 transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
                 >
-                  <div className={`${color} w-14 h-14 rounded-2xl flex items-center justify-center text-white group-hover:rotate-12 transition-transform duration-300 shadow-md shadow-indigo-100`}>
+                  <div className={`${color} w-14 h-14 rounded-2xl flex items-center justify-center text-white transition-transform duration-300 group-hover:rotate-12 shadow-md`}> 
                     <Icon size={26} />
                   </div>
                   <span className="text-xs font-black text-slate-600 uppercase tracking-widest text-center">{label}</span>
+                  <div className="absolute -inset-1 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-tr from-white/40 to-transparent pointer-events-none" />
                 </Link>
               ))}
             </div>
           </div>
 
           {/* Profile Quick View */}
-          <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm">
+          <div className="bg-gradient-to-br from-indigo-100 via-blue-50 to-blue-200 rounded-[2rem] border border-blue-100 p-8 shadow-md backdrop-blur-sm hover:shadow-lg transition-transform duration-300 transform hover:-translate-y-1">
             <h2 className="text-lg font-black text-slate-800 mb-6 tracking-tight">Your Identity</h2>
             {studentData ? (
               <div className="space-y-4">
@@ -240,7 +244,7 @@ const StudentDashboard = () => {
             )}
             <Link
               to="/student/profile"
-              className="flex items-center justify-center gap-2 mt-8 w-full py-4 bg-slate-50 rounded-2xl text-sm font-black text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-sm"
+              className="flex items-center justify-center gap-2 mt-8 w-full py-4 bg-indigo-50/70 rounded-2xl text-sm font-black text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-sm"
             >
               Manage Profile <ArrowRight size={16} />
             </Link>

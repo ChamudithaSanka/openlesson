@@ -102,10 +102,13 @@ const StudentComplaints = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Submit Form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-fit">
-            <h2 className="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
-              <AlertTriangle size={20} className="text-red-500" /> Submit a Complaint
-            </h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-0 h-fit flex">
+            {/* Accent bar */}
+            <div className="hidden sm:block w-2 rounded-l-2xl bg-gradient-to-b from-red-500 via-orange-400 to-yellow-400" />
+            <div className="flex-1 p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
+                <AlertTriangle size={20} className="text-red-500" /> Submit a Complaint
+              </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-2">
@@ -122,7 +125,7 @@ const StudentComplaints = () => {
                   value={form.subject}
                   onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
                   placeholder="Brief title of your issue"
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-400 transition text-sm"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition text-sm"
                 />
               </div>
 
@@ -134,7 +137,7 @@ const StudentComplaints = () => {
                   onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
                   placeholder="Describe the issue in detail..."
                   rows="4"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-400 transition text-sm resize-none"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition text-sm resize-none"
                 />
               </div>
 
@@ -152,11 +155,12 @@ const StudentComplaints = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition disabled:opacity-60"
+                className="w-full py-3 bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 hover:from-red-600 hover:via-orange-500 hover:to-yellow-500 text-white rounded-xl font-bold transition disabled:opacity-60 shadow-md"
               >
                 {loading ? 'Submitting...' : 'Submit Complaint'}
               </button>
             </form>
+            </div>
           </div>
 
           {/* Complaints List */}
@@ -197,18 +201,29 @@ const StudentComplaints = () => {
             ) : (
               <div className="space-y-4">
                 {filtered.map((c) => (
-                  <div key={c._id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
+                  <div key={c._id} className={`bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-all duration-300 relative ${
+                    c.status === 'Resolved' ? 'border-l-4 border-green-400' : c.status === 'Under Review' ? 'border-l-4 border-amber-400' : 'border-l-4 border-blue-400'
+                  }`}>
+                    <div className="flex items-start justify-between mb-2 w-full">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-gray-800 text-sm">{c.subject}</h3>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColors[c.status] || statusColors.Open}`}>
-                            {c.status}
+                          <h3 className="font-semibold text-gray-800 text-sm break-words">{c.subject}</h3>
+                          {/* Status badge */}
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm ${
+                            c.status === 'Resolved'
+                              ? 'bg-green-100 text-green-700 border border-green-200 flex items-center gap-1'
+                              : c.status === 'Under Review'
+                              ? 'bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1'
+                              : 'bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-1'
+                          }`}>
+                            {c.status === 'Resolved' ? <CheckCircle size={12} /> : <Clock size={12} />} {c.status}
                           </span>
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                          {/* Category badge */}
+                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full border border-gray-200">
                             {c.category}
                           </span>
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                          {/* Priority badge */}
+                          <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">
                             {c.priority}
                           </span>
                         </div>
@@ -222,13 +237,14 @@ const StudentComplaints = () => {
                       {c.status === 'Open' && (
                         <button
                           onClick={() => handleDelete(c._id)}
-                          className="text-red-400 hover:text-red-600 text-xs ml-3 transition"
+                          className="text-red-400 hover:text-red-600 text-xs ml-3 transition font-semibold whitespace-nowrap"
+                          style={{ alignSelf: 'flex-start' }}
                         >
                           Delete
                         </button>
                       )}
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed">{c.description}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed mt-1">{c.description}</p>
                     {c.adminNote && (
                       <div className="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800">
                         <span className="font-semibold">Admin Note:</span> {c.adminNote}
