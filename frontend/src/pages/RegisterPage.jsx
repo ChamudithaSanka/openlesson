@@ -56,7 +56,7 @@ export default function RegisterPage() {
       try {
         setGradesLoading(true);
         setGradesError("");
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+        const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
         const response = await axios.get(`${API_URL}/grades`);
         setGrades(response.data?.data || []);
       } catch (err) {
@@ -75,7 +75,7 @@ export default function RegisterPage() {
       try {
         setSubjectsLoading(true);
         setSubjectsError("");
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+        const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
         const response = await axios.get(`${API_URL}/subjects`);
         setSubjects(response.data?.data || []);
       } catch (err) {
