@@ -8,7 +8,6 @@ import {
   deleteFeedback,
 } from "../../../controllers/feedbackController.js";
 
-// ✅ NO jest.mock() — use spyOn like your friend (donor/quiz tests)
 import Feedback from "../../../models/feedbackModel.js";
 import Student from "../../../models/studentRegModel.js";
 

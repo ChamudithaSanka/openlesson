@@ -1,6 +1,5 @@
 import { jest } from "@jest/globals";
 
-// ✅ ES Module mocking must use jest.unstable_mockModule BEFORE importing the controller
 jest.unstable_mockModule("../../../utils/geminiService.js", () => ({
   categorizeComplaintWithGemini: jest.fn().mockResolvedValue("Other"),
 }));

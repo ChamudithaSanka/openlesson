@@ -11,7 +11,6 @@ import {
   deleteStudent,
 } from "../../../controllers/studentRegController.js";
 
-// ✅ NO jest.mock() — use spyOn like your friend (donor/quiz tests)
 import Student from "../../../models/studentRegModel.js";
 import User from "../../../models/user.model.js";
 

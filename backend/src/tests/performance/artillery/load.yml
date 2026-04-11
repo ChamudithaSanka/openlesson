@@ -1,0 +1,54 @@
+config:
+  target: "http://localhost:5000"
+  http:
+    timeout: 20
+  phases:
+    - name: "warm-up"
+      duration: 20
+      arrivalRate: 2
+    - name: "steady-load"
+      duration: 40
+      arrivalRate: 6
+    - name: "stress-load"
+      duration: 30
+      arrivalRate: 12
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Quiz read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/quizzes"
+
+  - name: "Announcement read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/announcements"
+
+  - name: "Grade read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/grades"
+
+  - name: "Subject read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/subjects"
+
+  - name: "Study Materials read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/study-materials"
+
+  - name: "Teachers list load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/teachers"
