@@ -20,6 +20,24 @@ scenarios:
       - get:
           url: "/api/quizzes"
 
+  - name: "Announcement read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/announcements"
+
+  - name: "Grade read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/grades"
+
+  - name: "Subject read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/subjects"
+
   - name: "Donor profile load (protected)"
     weight: 2
     flow:
