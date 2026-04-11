@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, FileText, Filter, Search } from 'lucide-react';
 import StudentLayout from '../../components/student/StudentLayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const typeStyles = {
   PDF: 'bg-red-100 text-red-700',

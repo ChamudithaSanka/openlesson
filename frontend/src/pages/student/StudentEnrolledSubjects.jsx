@@ -26,7 +26,7 @@ const StudentEnrolledSubjects = () => {
     const fetchEnrolled = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/subject-enrollments/my-subjects', {
+        const res = await fetch(`${API_URL}/subject-enrollments/my-subjects`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -42,7 +42,7 @@ const StudentEnrolledSubjects = () => {
   const handleUnenroll = async (subjectId) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/subject-enrollments/${subjectId}`, {
+      const res = await fetch(`${API_URL}/subject-enrollments/${subjectId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

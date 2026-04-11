@@ -7,6 +7,7 @@ const TeacherDashboard = () => {
   const [grades, setGrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const userType = localStorage.getItem('userType');
@@ -27,7 +28,7 @@ const TeacherDashboard = () => {
       }
 
       // Get teacher's own profile
-      const response = await fetch(`http://localhost:5000/api/teachers/my-profile`, {
+      const response = await fetch(`${API_URL}/teachers/my-profile`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

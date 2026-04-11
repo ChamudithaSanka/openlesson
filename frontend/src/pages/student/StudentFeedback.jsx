@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { MessageSquare, Star, CheckCircle, AlertCircle } from 'lucide-react';
 import StudentLayout from '../../components/student/StudentLayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const StudentFeedback = () => {
   const [enrolledTeachers, setEnrolledTeachers] = useState([]);

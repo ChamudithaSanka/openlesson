@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Users, BookOpen, Clock, HelpCircle, UserCheck, Library, ArrowRight } from 'lucide-react';
 import StudentLayout from '../../components/student/StudentLayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const StudentDashboard = () => {
   const [studentData, setStudentData] = useState(null);

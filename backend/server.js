@@ -10,6 +10,15 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Start Express server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`OpenLesson backend running on port ${PORT}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });

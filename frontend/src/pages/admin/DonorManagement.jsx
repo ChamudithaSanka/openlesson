@@ -3,7 +3,7 @@ import { Eye, Edit, Trash2, X } from "lucide-react";
 import AdminLayout from "../../components/admin/AdminLayout";
 
 export default function DonorManagement() {
-  const API_URL = "http://localhost:5000/api";
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
   const token = localStorage.getItem("token");
 
   const [donors, setDonors] = useState([]);
