@@ -40,9 +40,24 @@ const StudentTeachers = () => {
     }
   }, []);
 
+
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('enrolledTeachers') || '[]');
-    setEnrolledIds(saved.map((t) => t._id));
+    // Fetch enrolled teachers from backend
+    const fetchEnrolled = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API}/api/enrollments/my-teachers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setEnrolledIds((data.teachers || []).map((t) => t._id));
+          // Optionally, update localStorage for compatibility
+          localStorage.setItem('enrolledTeachers', JSON.stringify(data.teachers || []));
+        }
+      } catch {}
+    };
+    fetchEnrolled();
     fetchTeachers();
   }, [fetchTeachers]);
 
@@ -52,25 +67,38 @@ const StudentTeachers = () => {
     setEnrollingId(teacher._id);
 
     try {
-      const current = JSON.parse(localStorage.getItem('enrolledTeachers') || '[]');
-      const updated = [...current, teacher];
-      localStorage.setItem('enrolledTeachers', JSON.stringify(updated));
-      setEnrolledIds((prev) => [...prev, teacher._id]);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API}/api/enrollments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ teacherId: teacher._id }),
+      });
+      if (res.ok) {
+        setEnrolledIds((prev) => [...prev, teacher._id]);
+        // Optionally, update localStorage for compatibility
+        const current = JSON.parse(localStorage.getItem('enrolledTeachers') || '[]');
+        const updated = [...current, teacher];
+        localStorage.setItem('enrolledTeachers', JSON.stringify(updated));
 
-      // auto add subjects
-      const currentSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
-      const teacherSubjects = teacher.subjectsTheyTeach || [];
+        // auto add subjects
+        const currentSubjects = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
+        const teacherSubjects = teacher.subjectsTheyTeach || [];
+        const newSubjects = teacherSubjects.filter(
+          (s) => !currentSubjects.some((cs) => cs._id === s._id)
+        );
+        localStorage.setItem(
+          'enrolledSubjects',
+          JSON.stringify([...currentSubjects, ...newSubjects])
+        );
 
-      const newSubjects = teacherSubjects.filter(
-        (s) => !currentSubjects.some((cs) => cs._id === s._id)
-      );
-
-      localStorage.setItem(
-        'enrolledSubjects',
-        JSON.stringify([...currentSubjects, ...newSubjects])
-      );
-
-      showToast(`Enrolled in ${teacher.fullName}!`);
+        showToast(`Enrolled in ${teacher.fullName}!`);
+      } else {
+        const data = await res.json();
+        showToast(data.message || 'Enrollment failed');
+      }
     } catch (err) {
       showToast('Enrollment failed');
     } finally {

@@ -20,31 +20,19 @@ const StudentSessions = () => {
   const fetchSessions = useCallback(async () => {
     try {
       setLoading(true);
-      // Fetch all sessions (public endpoint per studySession.route.js GET /:id is public)
+      // Fetch all sessions from public endpoint
       // We use all sessions and filter by enrolled teacher IDs
       const enrolledTeachers = JSON.parse(localStorage.getItem('enrolledTeachers') || '[]');
       const enrolledTeacherIds = enrolledTeachers.map((t) => t._id);
 
-      const res = await fetch(`${API}/api/study-sessions/all-public`, {}).catch(() => null);
-
-      // Try fetching per enrolled teacher - use quiz endpoint style
-      // The study-sessions GET / requires teacher auth, so we fetch all quizzes-style
-      const allRes = await fetch(`${API}/api/quizzes`); // reference endpoint pattern
-
-      // Since GET /api/study-sessions requires auth as teacher, 
-      // we get the /:id endpoint for each if we had IDs.
-      // Instead: fetch the general list via a workaround with student token
-      const token = localStorage.getItem('token');
-      const directRes = await fetch(`${API}/api/study-sessions`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(`${API}/api/study-sessions/public/all`);
 
       let allSessions = [];
-      if (directRes.ok) {
-        const data = await directRes.json();
+      if (res.ok) {
+        const data = await res.json();
         allSessions = data.data || [];
       } else {
-        // If forbidden (student can't hit teacher route), show empty with message
+        // If request fails, show empty
         allSessions = [];
       }
 

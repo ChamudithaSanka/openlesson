@@ -16,6 +16,7 @@ import studyMaterialRoutes from "./routes/studyMaterial.route.js";
 import studentRegRoutes from "./routes/studentRegRoute.js"; 
 import feedbackRoutes from "./routes/feedbackRoute.js"; 
 import reportRoutes from "./routes/Complaintroute.js";
+import enrollmentRoutes from "./routes/enrollment.route.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +45,9 @@ app.use("/api/payments/payhere", payhereRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/study-materials", studyMaterialRoutes);
+
+// Student-teacher enrollments
+app.use("/api/enrollments", enrollmentRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
