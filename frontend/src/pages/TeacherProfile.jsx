@@ -31,7 +31,7 @@ const TeacherProfile = () => {
         return;
       }
 
-      const response = await fetch(`${API_URL}/teachers/my-profile`, {
+      const response = await fetch(`${API_URL}/api/teachers/my-profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -77,7 +77,7 @@ const TeacherProfile = () => {
         phone: editData.phone,
       };
 
-      const response = await fetch(`${API_URL}/teachers/${teacherId}`, {
+      const response = await fetch(`${API_URL}/api/teachers/${teacherId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -379,7 +379,7 @@ const TeachersManagement = () => {
     try {
       // Use the new API endpoint to download from database
       const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/teachers/${teacherId}/cv-download`, {
+      const response = await fetch(`${API_URL}/api/teachers/${teacherId}/cv-download`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }

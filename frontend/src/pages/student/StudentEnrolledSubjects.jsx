@@ -15,6 +15,7 @@ const colors = [
 const StudentEnrolledSubjects = () => {
   const [enrolledSubjects, setEnrolledSubjects] = useState([]);
   const [toast, setToast] = useState('');
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api';
 
   const showToast = (msg) => {
     setToast(msg);
