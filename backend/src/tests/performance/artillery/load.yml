@@ -35,3 +35,51 @@ scenarios:
           url: "/api/donations/my/{{$processEnvironment.DONOR_ID}}"
           headers:
             Authorization: "Bearer {{$processEnvironment.DONOR_TOKEN}}"
+
+  - name: "Study Materials read load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/study-materials"
+
+  - name: "Study Material by ID load (public)"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/study-materials/{{$processEnvironment.MATERIAL_ID}}"
+
+  - name: "Study Sessions read load (protected)"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/study-sessions"
+          headers:
+            Authorization: "Bearer {{$processEnvironment.TEACHER_TOKEN}}"
+
+  - name: "Study Session by ID load (public)"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/study-sessions/{{$processEnvironment.SESSION_ID}}"
+
+  - name: "Teachers list load (public)"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/teachers"
+
+  - name: "Teacher profile load (protected)"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/teachers/my-profile"
+          headers:
+            Authorization: "Bearer {{$processEnvironment.TEACHER_TOKEN}}"
+
+  - name: "Pending teachers load (protected)"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/teachers/pending"
+          headers:
+            Authorization: "Bearer {{$processEnvironment.ADMIN_TOKEN}}"
