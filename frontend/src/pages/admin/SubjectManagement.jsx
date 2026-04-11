@@ -12,7 +12,16 @@ const SubjectManagement = () => {
     subjectName: '',
     description: '',
   });
+  const [errors, setErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Validation functions
+  const validateName = (name) => {
+    if (!name) return 'Subject name is required';
+    if (/\d/.test(name)) return 'Subject name cannot contain numbers';
+    if (name.trim().length < 2) return 'Subject name must be at least 2 characters';
+    return '';
+  };
 
   const token = localStorage.getItem('token');
   const API_URL = 'http://localhost:5000';
@@ -58,6 +67,33 @@ const SubjectManagement = () => {
     setShowModal(true);
   };
 
+  // Form change handler
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    let filteredValue = value;
+
+    // Prevent numbers in subjectName field
+    if (name === 'subjectName') {
+      filteredValue = value.replace(/\d/g, '');
+    }
+
+    setFormData({
+      ...formData,
+      [name]: filteredValue,
+    });
+
+    // Real-time validation
+    let fieldError = '';
+    if (name === 'subjectName') {
+      fieldError = validateName(filteredValue);
+    }
+
+    setErrors({
+      ...errors,
+      [name]: fieldError,
+    });
+  };
+
   // Edit subject
   const handleEditSubject = (subject) => {
     setSelectedSubject(subject);
@@ -65,6 +101,7 @@ const SubjectManagement = () => {
       subjectName: subject.subjectName,
       description: subject.description || '',
     });
+    setErrors({});
     setModalType('edit');
     setShowModal(true);
   };
@@ -76,6 +113,7 @@ const SubjectManagement = () => {
       subjectName: '',
       description: '',
     });
+    setErrors({});
     setModalType('create');
     setShowModal(true);
   };
@@ -89,8 +127,15 @@ const SubjectManagement = () => {
 
   // Update or create subject
   const handleSubmit = async () => {
-    if (!formData.subjectName.trim()) {
-      alert('Subject Name is required');
+    // Validate all fields
+    const newErrors = {};
+    newErrors.subjectName = validateName(formData.subjectName);
+
+    setErrors(newErrors);
+
+    // Check if there are any errors
+    if (Object.values(newErrors).some(error => error !== '')) {
+      alert('Please fix validation errors before submitting');
       return;
     }
 
@@ -130,6 +175,8 @@ const SubjectManagement = () => {
         subjectName: '',
         description: '',
       });
+      setErrors({});
+      setErrors({});
     } catch (error) {
       console.error('Error:', error);
       alert(`Error ${modalType === 'edit' ? 'updating' : 'creating'} subject`);
@@ -316,13 +363,15 @@ const SubjectManagement = () => {
                     </label>
                     <input
                       type="text"
+                      name="subjectName"
                       value={formData.subjectName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, subjectName: e.target.value })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={handleFormChange}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        errors.subjectName ? 'border-red-500' : 'border-gray-300'
+                      }`}
                       placeholder="e.g., Mathematics, English"
                     />
+                    {errors.subjectName && <p className="text-red-500 text-sm mt-1">{errors.subjectName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -341,7 +390,10 @@ const SubjectManagement = () => {
                 </div>
                 <div className="px-6 py-4 border-t border-gray-200 flex gap-3 justify-end">
                   <button
-                    onClick={() => setShowModal(false)}
+                    onClick={() => {
+                      setShowModal(false);
+                      setErrors({});
+                    }}
                     className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
                   >
                     Cancel

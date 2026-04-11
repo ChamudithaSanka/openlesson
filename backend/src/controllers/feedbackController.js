@@ -19,6 +19,15 @@ export const createFeedback = async (req, res) => {
     });
     await feedback.save();
 
+    // Populate the student data
+    await feedback.populate({
+      path: "studentId",
+      populate: {
+        path: "userId",
+        select: "email"
+      }
+    });
+
     res.status(201).json({ message: "Feedback created successfully", feedback });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -29,10 +38,17 @@ export const createFeedback = async (req, res) => {
 export const getAllFeedback = async (req, res) => {
   try {
     const feedbacks = await Feedback.find()
-      .populate("studentId", "fullName email")
-      .populate("teacherId", "fullName qualification");
+      .populate({
+        path: "studentId",
+        populate: {
+          path: "userId",
+          select: "email"
+        }
+      });
+    
     res.json({ feedbacks });
   } catch (err) {
+    console.error("Error in getAllFeedback:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
@@ -41,8 +57,13 @@ export const getAllFeedback = async (req, res) => {
 export const getFeedbackById = async (req, res) => {
   try {
     const feedback = await Feedback.findById(req.params.id)
-      .populate("studentId", "fullName email")
-      .populate("teacherId", "fullName qualification");
+      .populate({
+        path: "studentId",
+        populate: {
+          path: "userId",
+          select: "email"
+        }
+      });
 
     if (!feedback) {
       return res.status(404).json({ message: "Feedback not found" });
@@ -58,8 +79,7 @@ export const getFeedbackById = async (req, res) => {
 export const getFeedbackByStudent = async (req, res) => {
   try {
     const studentId = req.params.studentId;
-    const feedbacks = await Feedback.find({ studentId })
-      .populate("teacherId", "fullName qualification");
+    const feedbacks = await Feedback.find({ studentId });
     res.json({ feedbacks });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });

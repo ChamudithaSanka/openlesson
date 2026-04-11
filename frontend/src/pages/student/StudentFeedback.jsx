@@ -49,6 +49,7 @@ const StudentFeedback = () => {
 
     try {
       setLoading(true);
+      const selectedTeacher = enrolledTeachers.find((t) => t._id === form.teacherId);
       const res = await fetch(`${API}/api/feedback`, {
         method: 'POST',
         headers: {
@@ -197,7 +198,7 @@ const StudentFeedback = () => {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <p className="font-semibold text-gray-800 text-sm">
-                          {fb.teacherId?.fullName || 'Teacher'}
+                          {fb.teacherName || fb.teacherId?.fullName || 'Teacher'}
                         </p>
                         <p className="text-gray-400 text-xs mt-0.5">
                           {new Date(fb.createdAt).toLocaleDateString('en-US', {

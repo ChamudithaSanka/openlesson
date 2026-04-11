@@ -139,10 +139,10 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 
-# Ignore local test files
-*.test.js
-test.js
-tmp/
-backend/src/utils/test.js
+# # Ignore local test files
+# *.test.js
+# test.js
+# tmp/
+# backend/src/utils/test.js
 
 backend/uploads

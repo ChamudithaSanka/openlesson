@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const navLinks = [
   { label: "Homepage", href: "/#homepage" },
@@ -12,41 +12,11 @@ const navLinks = [
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [authUser, setAuthUser] = useState(null);
-  const [userType, setUserType] = useState(null);
-
-  useEffect(() => {
-    const syncAuth = () => {
-      const storedUser = localStorage.getItem("user");
-      const storedUserType = localStorage.getItem("userType");
-      if (!storedUser) {
-        setAuthUser(null);
-        setUserType(null);
-        return;
-      }
-
-      try {
-        setAuthUser(JSON.parse(storedUser));
-        setUserType(storedUserType);
-      } catch {
-        setAuthUser(null);
-        setUserType(null);
-      }
-    };
-
-    syncAuth();
-    window.addEventListener("storage", syncAuth);
-    window.addEventListener("focus", syncAuth);
-
-    return () => {
-      window.removeEventListener("storage", syncAuth);
-      window.removeEventListener("focus", syncAuth);
-    };
-  }, [location.pathname, location.search]);
+  const { authUser, userType, logout } = useAuth();
 
   const dashboardPath =
     userType === "admin"
-      ? "/admin/complaints"
+      ? "/admin/announcements"
       : userType === "donor"
         ? "/donor/dashboard"
         : userType === "teacher"
@@ -57,12 +27,7 @@ export default function Header() {
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("userType");
-    localStorage.removeItem("userId");
-    setAuthUser(null);
-    setUserType(null);
+    logout();
     navigate("/login");
   };
 
