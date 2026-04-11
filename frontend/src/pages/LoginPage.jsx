@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { setSession } = useAuth();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo");
   const safeReturnTo = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "";
@@ -43,10 +45,7 @@ export default function LoginPage() {
       });
 
       const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("userType", user.userType);
-      localStorage.setItem("userId", user.id);
+      setSession({ token, user });
 
       setMessage("Login successful. Redirecting...");
       

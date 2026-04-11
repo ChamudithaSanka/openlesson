@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const roleOptions = ["student", "teacher", "donor"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,6 +13,7 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { setSession } = useAuth();
   const [role, setRole] = useState("student");
   const plan = searchParams.get("plan");
   const normalizedPlan = plan === "monthly" || plan === "yearly" ? plan : null;
@@ -229,10 +231,7 @@ export default function RegisterPage() {
 
       const { token, user } = response.data;
       if (token && user) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("userType", user.userType);
-        localStorage.setItem("userId", user.id);
+        setSession({ token, user });
       }
 
       setMessage("Registration successful.");
@@ -304,8 +303,14 @@ export default function RegisterPage() {
                 <Input label="Last Name" name="lastName" value={form.lastName} onChange={onChange} required />
               </div>
               <Input label="Email" name="email" type="email" value={form.email} onChange={onChange} required />
-              <Input label="Password" name="password" type="password" value={form.password} onChange={onChange} required />
-              <Input label="Phone" name="phone" value={form.phone} onChange={onChange} required />
+              <div className="space-y-1">
+                <Input label="Password" name="password" type="password" value={form.password} onChange={onChange} required />
+                <p className="text-xs text-blue-700 ml-1">Password must be at least 8 characters and include uppercase, lowercase, number, and special character.</p>
+              </div>
+              <div className="space-y-1">
+                <Input label="Phone" name="phone" value={form.phone} onChange={onChange} required />
+                <p className="text-xs text-blue-700 ml-1">Phone number must be 9-15 digits.</p>
+              </div>
               <Input label="Address" name="address" value={form.address} onChange={onChange} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input label="City" name="city" value={form.city} onChange={onChange} />

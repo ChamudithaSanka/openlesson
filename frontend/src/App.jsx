@@ -30,6 +30,7 @@ import GradeManagement from "./pages/admin/GradeManagement";
 import SubjectManagement from "./pages/admin/SubjectManagement";
 import FeedbackManagement from "./pages/admin/FeedbackManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useAuth } from "./context/AuthContext.jsx";
 
 // Student pages
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -46,7 +47,7 @@ import StudentProfile from './pages/student/StudentProfile';
 
 export default function App() {
   const location = useLocation();
-  const userType = localStorage.getItem("userType");
+  const { userType } = useAuth();
 
   const hideFooter =
     userType === "admin" ||
