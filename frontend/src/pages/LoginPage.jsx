@@ -52,7 +52,7 @@ export default function LoginPage() {
       
       // Redirect by role.
       if (user.userType === "admin") {
-        setTimeout(() => navigate("/admin/complaints"), 600);
+        setTimeout(() => navigate("/admin/announcements"), 600);
       } else if (user.userType === "donor" && safeReturnTo) {
         setTimeout(() => navigate(safeReturnTo), 600);
       } else if (user.userType === "donor") {

@@ -95,6 +95,47 @@ export const createTeacher = async (req, res) => {
       });
     }
 
+    // Validate name - cannot contain numbers
+    if (/\d/.test(fullName)) {
+      return res.status(400).json({
+        success: false,
+        message: "Name cannot contain numbers",
+      });
+    }
+
+    // Validate name length
+    if (fullName.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: "Name must be at least 2 characters",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+    }
+
+    // Validate phone if provided - must be 10 digits and only numbers
+    if (phone && !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number must contain exactly 10 digits",
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters",
+      });
+    }
+
     // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -189,6 +230,31 @@ export const updateTeacherStatus = async (req, res) => {
 export const updateTeacher = async (req, res) => {
   try {
     const updates = req.body;
+
+    // Validate fullName if provided - cannot contain numbers
+    if (updates.fullName) {
+      if (/\d/.test(updates.fullName)) {
+        return res.status(400).json({
+          success: false,
+          message: "Name cannot contain numbers",
+        });
+      }
+
+      if (updates.fullName.trim().length < 2) {
+        return res.status(400).json({
+          success: false,
+          message: "Name must be at least 2 characters",
+        });
+      }
+    }
+
+    // Validate phone if provided - must be 10 digits and only numbers
+    if (updates.phone && !/^\d{10}$/.test(updates.phone)) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number must contain exactly 10 digits",
+      });
+    }
 
     const existingTeacher = await Teacher.findById(req.params.id);
     if (!existingTeacher) {

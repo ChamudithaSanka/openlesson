@@ -11,6 +11,10 @@ const feedbackSchema = new mongoose.Schema({
     ref: "Teacher",
     required: true
   },
+  teacherName: {
+    type: String,
+    default: "Unknown"
+  },
   rating: {
     type: Number,
     required: true,

@@ -11,5 +11,5 @@ export default {
   ],
   coverageDirectory: "coverage",
   verbose: true,
-  testPathIgnorePatterns: ["/node_modules/", "/src/tests/performance/"]
+  testPathIgnorePatterns: ["/node_modules/"]
 };

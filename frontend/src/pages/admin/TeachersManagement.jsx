@@ -23,9 +23,37 @@ const TeachersManagement = () => {
     phone: '',
     status: 'Pending',
   });
+  const [errors, setErrors] = useState({});
 
   const token = localStorage.getItem('token');
   const API_URL = 'http://localhost:5000';
+
+  // Validation functions
+  const validateName = (name) => {
+    if (!name) return 'Name is required';
+    if (/\d/.test(name)) return 'Name cannot contain numbers';
+    if (name.trim().length < 2) return 'Name must be at least 2 characters';
+    return '';
+  };
+
+  const validateEmail = (email) => {
+    if (!email) return 'Email is required';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return 'Invalid email format';
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    if (phone === '') return ''; // Phone is optional
+    if (!/^\d{10}$/.test(phone)) return 'Phone number must contain exactly 10 digits';
+    return '';
+  };
+
+  const validatePassword = (password) => {
+    if (!password) return 'Password is required';
+    if (password.length < 6) return 'Password must be at least 6 characters';
+    return '';
+  };
 
   // Fetch all teachers
   useEffect(() => {
@@ -172,8 +200,19 @@ const TeachersManagement = () => {
 
   // Create new teacher
   const handleCreateTeacher = async () => {
-    if (!formData.fullName) {
-      alert('Full Name is required');
+    // Validate all fields
+    const newErrors = {};
+    
+    newErrors.fullName = validateName(formData.fullName);
+    newErrors.email = validateEmail(formData.email);
+    newErrors.password = validatePassword(formData.password);
+    newErrors.phone = validatePhone(formData.phone);
+
+    setErrors(newErrors);
+
+    // Check if there are any errors
+    if (Object.values(newErrors).some(error => error !== '')) {
+      alert('Please fix validation errors before submitting');
       return;
     }
 
@@ -208,6 +247,7 @@ const TeachersManagement = () => {
       setSelectedSubjects([]);
       setSelectedGrades([]);
       setCvFile(null);
+      setErrors({});
       alert('Teacher created successfully');
     } catch (error) {
       console.error('Error creating teacher:', error);
@@ -217,6 +257,20 @@ const TeachersManagement = () => {
 
   // Update teacher
   const handleUpdateTeacher = async () => {
+    // Validate fields
+    const newErrors = {};
+    
+    newErrors.fullName = validateName(formData.fullName);
+    newErrors.phone = validatePhone(formData.phone);
+
+    setErrors(newErrors);
+
+    // Check if there are any errors
+    if (Object.values(newErrors).some(error => error !== '')) {
+      alert('Please fix validation errors before submitting');
+      return;
+    }
+
     try {
       const payload = {
         fullName: formData.fullName,
@@ -249,6 +303,7 @@ const TeachersManagement = () => {
       setSelectedSubjects([]);
       setSelectedGrades([]);
       setCvFile(null);
+      setErrors({});
       alert('Teacher updated successfully');
     } catch (error) {
       console.error('Error updating teacher:', error);
@@ -283,9 +338,39 @@ const TeachersManagement = () => {
 
   // Form input handler
   const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    let filteredValue = value;
+
+    // Prevent numbers in name field
+    if (name === 'fullName') {
+      filteredValue = value.replace(/\d/g, '');
+    }
+
+    // Prevent letters in phone field - only allow numbers
+    if (name === 'phone') {
+      filteredValue = value.replace(/[^0-9]/g, '');
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: filteredValue,
+    });
+
+    // Real-time validation
+    let fieldError = '';
+    if (name === 'fullName') {
+      fieldError = validateName(filteredValue);
+    } else if (name === 'email') {
+      fieldError = validateEmail(filteredValue);
+    } else if (name === 'phone') {
+      fieldError = validatePhone(filteredValue);
+    } else if (name === 'password') {
+      fieldError = validatePassword(filteredValue);
+    }
+
+    setErrors({
+      ...errors,
+      [name]: fieldError,
     });
   };
 
@@ -661,8 +746,9 @@ const TeachersManagement = () => {
                       value={formData.fullName}
                       onChange={handleFormChange}
                       placeholder="Teacher's full name"
-                      className="w-full border border-gray-300 rounded-lg p-2"
+                      className={`w-full border rounded-lg p-2 ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
                     />
+                    {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2">Email *</label>
@@ -672,8 +758,9 @@ const TeachersManagement = () => {
                       value={formData.email}
                       onChange={handleFormChange}
                       placeholder="Email address"
-                      className="w-full border border-gray-300 rounded-lg p-2"
+                      className={`w-full border rounded-lg p-2 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                     />
+                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2">Password *</label>
@@ -683,8 +770,9 @@ const TeachersManagement = () => {
                       value={formData.password}
                       onChange={handleFormChange}
                       placeholder="Password"
-                      className="w-full border border-gray-300 rounded-lg p-2"
+                      className={`w-full border rounded-lg p-2 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
                     />
+                    {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2">Phone</label>
@@ -693,9 +781,11 @@ const TeachersManagement = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleFormChange}
-                      placeholder="Phone number"
-                      className="w-full border border-gray-300 rounded-lg p-2"
+                      placeholder="10 digit phone number"
+                      maxLength="10"
+                      className={`w-full border rounded-lg p-2 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
                     />
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2">Status</label>
@@ -820,8 +910,9 @@ const TeachersManagement = () => {
                       value={formData.fullName}
                       onChange={handleFormChange}
                       placeholder="Teacher's full name"
-                      className="w-full border border-gray-300 rounded-lg p-2"
+                      className={`w-full border rounded-lg p-2 ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
                     />
+                    {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2">Phone</label>
@@ -830,9 +921,11 @@ const TeachersManagement = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleFormChange}
-                      placeholder="Phone number"
-                      className="w-full border border-gray-300 rounded-lg p-2"
+                      placeholder="10 digit phone number"
+                      maxLength="10"
+                      className={`w-full border rounded-lg p-2 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
                     />
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2">Status</label>
