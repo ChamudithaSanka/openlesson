@@ -12,6 +12,7 @@ A comprehensive web application that connects volunteer teachers with underprivi
 - [API Documentation](#api-documentation)
 - [Authentication](#authentication)
 - [Environment Variables](#environment-variables)
+- [Testing Instruction Report](#testing-instruction-report)
 
 ---
 
@@ -1753,6 +1754,85 @@ GEMINI_API_KEY=your_api_key                  # Google Gemini API key
 ```env
 VITE_API_URL=http://localhost:5000           # Backend API URL
 ```
+
+---
+
+## Testing Instruction Report
+
+This section explains how to run unit, integration, and performance tests in the backend.
+
+### 1. How to run unit tests
+
+1. Open terminal in `backend` folder.
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Run unit tests:
+
+```bash
+npm run test:unit
+```
+
+### 2. Integration testing setup and execution
+
+Integration tests verify route/controller/database behavior together.
+
+1. Ensure backend dependencies are installed:
+
+```bash
+npm install
+```
+
+2. Run integration tests:
+
+```bash
+npm run test:integration
+```
+
+Notes:
+1. The current integration setup uses `mongodb-memory-server` in test files.
+2. First run may download MongoDB binaries depending on environment.
+
+### 3. Performance testing setup and execution
+
+Use Artillery load testing for API throughput and latency checks.
+
+1. Ensure backend is running:
+
+```bash
+npm run dev
+```
+
+2. In another terminal (still in `backend`), run load test:
+
+```bash
+npm run perf:load
+```
+
+3. Optional performance test suite command:
+
+```bash
+npm run test:performance
+```
+
+### 4. Testing environment configuration details
+
+Required test/runtime configuration:
+1. Node.js environment with npm dependencies installed.
+2. Backend scripts from `backend/package.json`:
+  1. `test:unit`
+  2. `test:integration`
+  3. `test:performance`
+  4. `perf:load`
+3. Jest config at `backend/jest.config.js`:
+  1. `testEnvironment: "node"`
+  2. `roots: ["<rootDir>/src/tests"]`
+  3. `testMatch: ["**/*.test.js"]`
+4. Performance test config at `backend/src/tests/performance/artillery/load.yml`.
+5. Environment variables in `backend/.env` should be present when tests depend on auth, DB, or third-party integrations.
 
 ---
 
