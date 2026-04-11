@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, School, MapPin, Edit2, Save, X, AlertCircle, Loader, Lock, Eye, EyeOff } from 'lucide-react';
-import StudentLayout from '../../components/student/StudentLayout';
+import StudentLayout from '../../components/student/Studentlayout';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
