@@ -3,6 +3,8 @@ import axios from "axios";
 import DonorLayout from "../../components/donor/DonorLayout";
 
 const getApiBase = () => import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const MIN_SUBSCRIPTION_AMOUNT = 100;
+const MAX_SUBSCRIPTION_AMOUNT = 10000000;
 
 const formatLKR = (amount) =>
   new Intl.NumberFormat("en-LK", {
@@ -134,6 +136,12 @@ export default function SubscriptionSettingsPage() {
   }, []);
 
   const handleSubscriptionChange = (field, value) => {
+    if (field === "recurringAmount") {
+      const sanitized = value.replace(/[^\d]/g, "");
+      setSubscriptionForm((prev) => ({ ...prev, [field]: sanitized }));
+      return;
+    }
+
     setSubscriptionForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -151,6 +159,17 @@ export default function SubscriptionSettingsPage() {
         recurringPlan: subscriptionForm.recurringPlan,
         recurringAmount: subscriptionForm.recurringPlan === "none" ? 0 : Number(subscriptionForm.recurringAmount || 0),
       };
+
+      if (
+        payload.recurringPlan !== "none" &&
+        (!Number.isFinite(payload.recurringAmount) ||
+          payload.recurringAmount < MIN_SUBSCRIPTION_AMOUNT ||
+          payload.recurringAmount > MAX_SUBSCRIPTION_AMOUNT)
+      ) {
+        setError(`Amount must be between LKR ${MIN_SUBSCRIPTION_AMOUNT} and LKR ${MAX_SUBSCRIPTION_AMOUNT}.`);
+        setSavingSubscription(false);
+        return;
+      }
 
       const res = await axios.put(`${getApiBase()}/api/donors/subscription/${donorId}`, payload, { headers });
       const updatedDonor = res.data?.donor || donorProfile;
@@ -292,7 +311,9 @@ export default function SubscriptionSettingsPage() {
                   <span className="mb-1 block font-medium">Amount (LKR)</span>
                   <input
                     type="number"
-                    min="0"
+                    min={MIN_SUBSCRIPTION_AMOUNT}
+                    max={MAX_SUBSCRIPTION_AMOUNT}
+                    step="1"
                     value={subscriptionForm.recurringAmount}
                     onChange={(e) => handleSubscriptionChange("recurringAmount", e.target.value)}
                     disabled={subscriptionForm.recurringPlan === "none"}

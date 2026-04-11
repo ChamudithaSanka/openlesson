@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import DonorLayout from "../../components/donor/DonorLayout";
+import DonationDetailsModal from "../../components/donor/DonationDetailsModal";
 
 const formatLKR = (amount) =>
   new Intl.NumberFormat("en-LK", {
@@ -43,11 +44,16 @@ const statusBadgeClass = (status = "") => {
   return "bg-amber-100 text-amber-700";
 };
 
+
 export default function DonationHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [donations, setDonations] = useState([]);
   const [selectedDonation, setSelectedDonation] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [actionSuccess, setActionSuccess] = useState("");
 
   const [filters, setFilters] = useState({
     startDate: "",
@@ -55,6 +61,27 @@ export default function DonationHistoryPage() {
     type: "all",
     status: "all",
   });
+  // Delete donation handler
+  const handleDeleteDonation = async (donationId) => {
+    if (!window.confirm("Are you sure you want to delete this donation? This action cannot be undone.")) return;
+    setActionLoading(true);
+    setActionError("");
+    setActionSuccess("");
+    try {
+      const token = localStorage.getItem("token");
+      const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+      await axios.delete(`${apiBase}/api/donations/${donationId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDonations((prev) => prev.filter((d) => d._id !== donationId));
+      if (selectedDonation?._id === donationId) setSelectedDonation(null);
+      setActionSuccess("Donation deleted successfully.");
+    } catch (err) {
+      setActionError(err.response?.data?.message || "Failed to delete donation.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   useEffect(() => {
     const loadDonations = async () => {
@@ -180,6 +207,13 @@ export default function DonationHistoryPage() {
           </p>
         </header>
 
+        {actionError && (
+          <div className="rounded-md bg-red-50 px-4 py-2 text-sm text-red-700 border border-red-200">{actionError}</div>
+        )}
+        {actionSuccess && (
+          <div className="rounded-md bg-green-50 px-4 py-2 text-sm text-green-700 border border-green-200">{actionSuccess}</div>
+        )}
+
         <section className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <label className="text-sm text-blue-900">
@@ -283,13 +317,24 @@ export default function DonationHistoryPage() {
                           {donation.paymentStatus || "Pending"}
                         </span>
                       </td>
-                      <td className="px-2 py-2">
+                      <td className="px-2 py-2 flex gap-2">
                         <button
                           type="button"
-                          onClick={() => setSelectedDonation(donation)}
+                          onClick={() => {
+                            setSelectedDonation(donation);
+                            setModalOpen(true);
+                          }}
                           className="rounded-md border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-800 hover:border-blue-400"
                         >
                           View
+                        </button>
+                        <button
+                          type="button"
+                          disabled={actionLoading}
+                          onClick={() => handleDeleteDonation(donation._id)}
+                          className="rounded-md border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+                        >
+                          {actionLoading ? "Deleting..." : "Delete"}
                         </button>
                       </td>
                     </tr>
@@ -306,38 +351,15 @@ export default function DonationHistoryPage() {
             </div>
           </section>
 
-          <aside className="rounded-xl border border-blue-100 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-blue-900">Donation Details</h2>
-            {!selectedDonation ? (
-              <p className="mt-3 text-sm text-blue-700">Select a donation to see full details.</p>
-            ) : (
-              <div className="mt-3 space-y-2 text-sm text-blue-900">
-                <p>
-                  <span className="font-medium">Date:</span> {formatDate(selectedDonation.createdAt)}
-                </p>
-                <p>
-                  <span className="font-medium">Amount:</span> {formatLKR(selectedDonation.amount)}
-                </p>
-                <p>
-                  <span className="font-medium">Type:</span>{" "}
-                  <span className="capitalize">{getDonationType(selectedDonation)}</span>
-                </p>
-                <p>
-                  <span className="font-medium">Payment Method:</span>{" "}
-                  {selectedDonation.paymentMethod || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Status:</span> {selectedDonation.paymentStatus || "Pending"}
-                </p>
-                <p>
-                  <span className="font-medium">Message:</span> {selectedDonation.message || "No message"}
-                </p>
-                <p>
-                  <span className="font-medium">Receipt Ref:</span> {selectedDonation._id}
-                </p>
-              </div>
-            )}
-          </aside>
+          {/* Modal for donation details */}
+          <DonationDetailsModal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+            donation={selectedDonation}
+            formatDate={formatDate}
+            formatLKR={formatLKR}
+            getDonationType={getDonationType}
+          />
         </div>
       </section>
     </DonorLayout>

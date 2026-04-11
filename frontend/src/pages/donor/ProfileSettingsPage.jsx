@@ -3,6 +3,11 @@ import axios from "axios";
 import DonorLayout from "../../components/donor/DonorLayout";
 
 const getApiBase = () => import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\d{9,15}$/;
+const NAME_WITH_SPACES_REGEX = /^[A-Za-z ]{3,}$/;
+const CITY_COUNTRY_REGEX = /^[A-Za-z ]+$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 const resolveDonorId = async (headers) => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -106,7 +111,25 @@ export default function ProfileSettingsPage() {
   }, []);
 
   const handleProfileChange = (field, value) => {
-    setProfileForm((prev) => ({ ...prev, [field]: value }));
+    let nextValue = value;
+
+    if (field === "fullName") {
+      nextValue = value.replace(/[^A-Za-z ]/g, "");
+    }
+
+    if (field === "phone") {
+      nextValue = value.replace(/\D/g, "").slice(0, 15);
+    }
+
+    if (field === "city" || field === "country") {
+      nextValue = value.replace(/[^A-Za-z ]/g, "");
+    }
+
+    if (field === "email") {
+      nextValue = value.trimStart().toLowerCase();
+    }
+
+    setProfileForm((prev) => ({ ...prev, [field]: nextValue }));
   };
 
   const handlePasswordChange = (field, value) => {
@@ -118,6 +141,42 @@ export default function ProfileSettingsPage() {
     setSavingProfile(true);
     setError("");
     setMessage("");
+
+    if (!NAME_WITH_SPACES_REGEX.test(profileForm.fullName.trim())) {
+      setError("Name must be at least 3 characters and contain letters and spaces only.");
+      setSavingProfile(false);
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(profileForm.email.trim())) {
+      setError("Please enter a valid email address.");
+      setSavingProfile(false);
+      return;
+    }
+
+    if (!PHONE_REGEX.test(profileForm.phone.trim())) {
+      setError("Phone must contain 9 to 15 digits.");
+      setSavingProfile(false);
+      return;
+    }
+
+    if (!profileForm.address.trim() || profileForm.address.trim().length < 5) {
+      setError("Address must be at least 5 characters.");
+      setSavingProfile(false);
+      return;
+    }
+
+    if (!CITY_COUNTRY_REGEX.test(profileForm.city.trim())) {
+      setError("City must contain letters only.");
+      setSavingProfile(false);
+      return;
+    }
+
+    if (!CITY_COUNTRY_REGEX.test(profileForm.country.trim())) {
+      setError("Country must contain letters only.");
+      setSavingProfile(false);
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -151,6 +210,24 @@ export default function ProfileSettingsPage() {
     setSavingPassword(true);
     setError("");
     setMessage("");
+
+    if (!passwordForm.currentPassword) {
+      setError("Current password is required.");
+      setSavingPassword(false);
+      return;
+    }
+
+    if (!PASSWORD_REGEX.test(passwordForm.newPassword)) {
+      setError("New password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+      setSavingPassword(false);
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setError("Confirm password must match new password.");
+      setSavingPassword(false);
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
