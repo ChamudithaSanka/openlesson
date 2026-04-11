@@ -41,7 +41,7 @@ const TeacherStudySessions = () => {
 
         // Fetch all sessions for this teacher
         const sessionsRes = await axios.get(
-          `${API_URL}/study-sessions`,
+          `${API_URL}/api/study-sessions`,
           config
         );
         setSessions(sessionsRes.data.data || sessionsRes.data || []);
@@ -90,7 +90,7 @@ const TeacherStudySessions = () => {
         },
       };
       const sessionsRes = await axios.get(
-        'http://localhost:5000/api/study-sessions',
+        `${API_URL}/api/study-sessions`,
         config
       );
       setSessions(sessionsRes.data.data || sessionsRes.data || []);
@@ -120,7 +120,7 @@ const TeacherStudySessions = () => {
         },
       };
       await axios.delete(
-        `${API_URL}/study-sessions/${deleteConfirm._id}`,
+        `${API_URL}/api/study-sessions/${deleteConfirm._id}`,
         config
       );
 
