@@ -33,7 +33,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext.jsx";
 
 // Student pages
-import StudentDashboard from './pages/student/StudentDashboard';
+import StudentDashboard from './pages/student/Studentdashboard';
 import StudentTeachers from './pages/student/StudentTeachers';
 import StudentSubjects from './pages/student/StudentSubjects';
 import StudentEnrolledTeachers from './pages/student/StudentEnrolledTeachers';
