@@ -1,0 +1,17 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+    - duration: 120
+      arrivalRate: 15
+
+scenarios:
+  - name: "General API load"
+    flow:
+      - get:
+          url: "/api/subjects"
+      - get:
+          url: "/api/teachers"
+      - get:
+          url: "/api/quizzes"
