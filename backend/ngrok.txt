@@ -1,3 +1,3 @@
 npm install       # installs all dependencies including ngrok
 npx ngrok http 5000
-npx ngrok config add-authtoken YOUR_TOKEN
+npx ngrok config add-authtoken 3BvhIwNWXA1GoC6EijTW93bMlkR_7d2roVEvfAxnDJXU9ELgX
