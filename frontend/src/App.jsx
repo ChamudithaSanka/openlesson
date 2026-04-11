@@ -50,7 +50,7 @@ export default function App() {
   const { userType } = useAuth();
 
   const hideFooter =
-    userType === "admin" ||
+    location.pathname.startsWith("/admin")
     location.pathname.startsWith("/donor") ||
     location.pathname.startsWith("/teacher");
 
