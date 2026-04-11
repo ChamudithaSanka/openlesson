@@ -58,7 +58,6 @@ const StudentFeedback = () => {
         },
         body: JSON.stringify({
           teacherId: form.teacherId,
-          teacherName: selectedTeacher?.fullName || 'Unknown',
           rating: form.rating,
           comment: form.comment,
         }),
