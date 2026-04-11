@@ -22,15 +22,42 @@ const StudentEnrolledSubjects = () => {
   };
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
-    setEnrolledSubjects(saved);
+    // Fetch enrolled subjects from backend
+    const fetchEnrolled = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5000/api/subject-enrollments/my-subjects', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setEnrolledSubjects(data.subjects || []);
+          localStorage.setItem('enrolledSubjects', JSON.stringify(data.subjects || []));
+        }
+      } catch {}
+    };
+    fetchEnrolled();
   }, []);
 
-  const handleUnenroll = (subjectId) => {
-    const updated = enrolledSubjects.filter((s) => s._id !== subjectId);
-    setEnrolledSubjects(updated);
-    localStorage.setItem('enrolledSubjects', JSON.stringify(updated));
-    showToast('Unenrolled from subject.');
+  const handleUnenroll = async (subjectId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/subject-enrollments/${subjectId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updated = enrolledSubjects.filter((s) => s._id !== subjectId);
+        setEnrolledSubjects(updated);
+        localStorage.setItem('enrolledSubjects', JSON.stringify(updated));
+        showToast('Unenrolled from subject.');
+      } else {
+        const data = await res.json();
+        showToast(data.message || 'Failed to unenroll.');
+      }
+    } catch {
+      showToast('Failed to unenroll.');
+    }
   };
 
   return (

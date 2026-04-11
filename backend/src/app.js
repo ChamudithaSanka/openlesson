@@ -1,3 +1,4 @@
+import subjectEnrollmentRoutes from "./routes/subjectEnrollment.route.js";
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -45,6 +46,9 @@ app.use("/api/payments/payhere", payhereRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/study-materials", studyMaterialRoutes);
+
+// Student-subject enrollments
+app.use("/api/subject-enrollments", subjectEnrollmentRoutes);
 
 // Student-teacher enrollments
 app.use("/api/enrollments", enrollmentRoutes);
