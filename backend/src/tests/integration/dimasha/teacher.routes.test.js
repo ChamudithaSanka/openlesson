@@ -114,7 +114,7 @@ describe("Dimasha - Teacher Routes Integration Tests", () => {
         .post("/api/teachers")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          fullName: "Teacher 1",
+          fullName: "Teacher One",
           email: "duplicate@test.com",
           password: "pass123",
         });
@@ -124,7 +124,7 @@ describe("Dimasha - Teacher Routes Integration Tests", () => {
         .post("/api/teachers")
         .set("Authorization", `Bearer ${token}`)
         .send({
-          fullName: "Teacher 2",
+          fullName: "Teacher Two",
           email: "duplicate@test.com",
           password: "pass123",
         });
@@ -151,7 +151,7 @@ describe("Dimasha - Teacher Routes Integration Tests", () => {
           fullName: "John Doe",
           email: "john@test.com",
           password: "pass123",
-          phone: "123456",
+          phone: "0712345678",
           qualification: "BSc Mathematics",
         });
 
@@ -380,12 +380,12 @@ describe("Dimasha - Teacher Routes Integration Tests", () => {
       const res = await request(app)
         .put(`/api/teachers/${teacher._id}`)
         .set("Authorization", `Bearer ${token}`)
-        .send({ fullName: "Updated Name", phone: "987654" });
+        .send({ fullName: "Updated Name", phone: "0771234567" });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.teacher.fullName).toBe("Updated Name");
-      expect(res.body.teacher.phone).toBe("987654");
+      expect(res.body.teacher.phone).toBe("0771234567");
     });
   });
 
