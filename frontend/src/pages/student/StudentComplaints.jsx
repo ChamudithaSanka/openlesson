@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { AlertTriangle, CheckCircle, AlertCircle, Clock, Search } from 'lucide-react';
-import StudentLayout from '../../components/student/StudentLayout';
+import { AlertTriangle, CheckCircle, AlertCircle, Clock, Search, Pencil, X } from 'lucide-react';
+import StudentLayout from '../../components/student/Studentlayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const CATEGORIES = ['Login Issue', 'Video/Content Issue', 'Technical Bug', 'Other'];
 
@@ -20,6 +20,13 @@ const StudentComplaints = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // ── Edit state ──────────────────────────────────────────────
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ subject: '', description: '' });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+  // ────────────────────────────────────────────────────────────
 
   const token = localStorage.getItem('token');
 
@@ -86,6 +93,50 @@ const StudentComplaints = () => {
       console.error(err);
     }
   };
+
+  // ── Edit handlers ────────────────────────────────────────────
+  const handleEditOpen = (c) => {
+    setEditingId(c._id);
+    setEditForm({ subject: c.subject, description: c.description });
+    setEditError('');
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setEditForm({ subject: '', description: '' });
+    setEditError('');
+  };
+
+  const handleEditSave = async (id) => {
+    setEditError('');
+    if (!editForm.subject.trim()) return setEditError('Subject is required.');
+    if (!editForm.description.trim()) return setEditError('Description is required.');
+
+    try {
+      setEditLoading(true);
+      const res = await fetch(`${API}/api/complaints/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update complaint');
+
+      // Update local state immediately so the UI reflects changes without a full refetch
+      setComplaints((prev) =>
+        prev.map((c) => (c._id === id ? { ...c, ...data.complaint } : c))
+      );
+      handleEditCancel();
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+  // ────────────────────────────────────────────────────────────
 
   const filtered = complaints.filter((c) =>
     c.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -234,22 +285,85 @@ const StudentComplaints = () => {
                           })}
                         </p>
                       </div>
+
+                      {/* ── Action buttons (only for Open complaints) ── */}
                       {c.status === 'Open' && (
-                        <button
-                          onClick={() => handleDelete(c._id)}
-                          className="text-red-400 hover:text-red-600 text-xs ml-3 transition font-semibold whitespace-nowrap"
-                          style={{ alignSelf: 'flex-start' }}
-                        >
-                          Delete
-                        </button>
+                        <div className="flex items-center gap-3 ml-3" style={{ alignSelf: 'flex-start' }}>
+                          {editingId !== c._id && (
+                            <button
+                              onClick={() => handleEditOpen(c)}
+                              className="text-blue-400 hover:text-blue-600 text-xs transition font-semibold whitespace-nowrap flex items-center gap-1"
+                            >
+                              <Pencil size={12} /> Edit
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDelete(c._id)}
+                            className="text-red-400 hover:text-red-600 text-xs transition font-semibold whitespace-nowrap"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
+                      {/* ─────────────────────────────────────────────── */}
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed mt-1">{c.description}</p>
-                    {c.adminNote && (
-                      <div className="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800">
-                        <span className="font-semibold">Admin Note:</span> {c.adminNote}
+
+                    {/* ── Inline edit form ───────────────────────────── */}
+                    {editingId === c._id ? (
+                      <div className="mt-3 space-y-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">Subject *</label>
+                          <input
+                            type="text"
+                            value={editForm.subject}
+                            onChange={(e) => setEditForm((p) => ({ ...p, subject: e.target.value }))}
+                            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">Description *</label>
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm((p) => ({ ...p, description: e.target.value }))}
+                            rows="3"
+                            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition text-sm resize-none"
+                          />
+                        </div>
+
+                        {editError && (
+                          <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs">
+                            <AlertCircle size={14} /> {editError}
+                          </div>
+                        )}
+
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={handleEditCancel}
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg transition"
+                          >
+                            <X size={12} /> Cancel
+                          </button>
+                          <button
+                            onClick={() => handleEditSave(c._id)}
+                            disabled={editLoading}
+                            className="px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition disabled:opacity-60 shadow-sm"
+                          >
+                            {editLoading ? 'Saving...' : 'Save Changes'}
+                          </button>
+                        </div>
                       </div>
+                    ) : (
+                      /* Normal read view */
+                      <>
+                        <p className="text-gray-600 text-sm leading-relaxed mt-1">{c.description}</p>
+                        {c.adminNote && (
+                          <div className="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800">
+                            <span className="font-semibold">Admin Note:</span> {c.adminNote}
+                          </div>
+                        )}
+                      </>
                     )}
+                    {/* ─────────────────────────────────────────────── */}
                   </div>
                 ))}
               </div>
