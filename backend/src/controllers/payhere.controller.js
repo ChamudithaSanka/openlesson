@@ -157,17 +157,6 @@ export const createPayHereCheckoutSession = async (req, res) => {
     const recurringTerms = buildRecurringTerms(donation_type);
     const isRecurring = donation_type !== "one-time";
 
-    console.log("PAYHERE DEBUG →", {
-      merchant_id: merchantId(),
-      merchant_secret_length: merchantSecret().length,
-      merchant_secret_raw: `[${merchantSecret()}]`,
-      order_id: orderId,
-      amount: normalizedAmount,
-      currency,
-      hash,
-      checkoutUrl: checkoutUrl(),
-    });
-
     const donation = await Donation.create({
       donorId,
       guest: donorId
