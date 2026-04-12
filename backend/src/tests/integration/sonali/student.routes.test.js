@@ -1,7 +1,3 @@
-describe("Sonali - Student Routes Integration Tests", () => {
-  test.todo("Add integration tests for student routes");
-});
-
 import request from "supertest";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
@@ -80,7 +76,7 @@ describe("Sonali - Student Routes Integration Tests", () => {
       expect(res.status).toBe(401);
     });
 
-    test("should return 404 when student profile does not exist", async () => {
+    test("should return 403 when student profile does not exist", async () => {
       const user = await User.create({
         email: "noprofile@test.com",
         password: "pass123",
@@ -93,8 +89,8 @@ describe("Sonali - Student Routes Integration Tests", () => {
         .get("/api/students/my-profile")
         .set("Authorization", `Bearer ${token}`);
 
-      expect(res.status).toBe(404);
-      expect(res.body.message).toMatch(/student profile not found/i);
+      expect(res.status).toBe(403);
+      expect(res.body.message).toMatch(/student account is inactive/i);
     });
 
     test("should return own student profile for logged-in student", async () => {
@@ -122,7 +118,7 @@ describe("Sonali - Student Routes Integration Tests", () => {
       expect(res.status).toBe(401);
     });
 
-    test("should return 404 when student profile does not exist", async () => {
+    test("should return 403 when student profile does not exist", async () => {
       const user = await User.create({
         email: "noprofile2@test.com",
         password: "pass123",
@@ -136,7 +132,8 @@ describe("Sonali - Student Routes Integration Tests", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ fullName: "Updated Name" });
 
-      expect(res.status).toBe(404);
+      expect(res.status).toBe(403);
+      expect(res.body.message).toMatch(/student account is inactive/i);
     });
 
     test("should update fullName successfully", async () => {
@@ -416,4 +413,3 @@ describe("Sonali - Student Routes Integration Tests", () => {
     });
   });
 });
->>>>>>> 8b840e0 (test: integration testing implementation)

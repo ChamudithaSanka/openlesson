@@ -28,6 +28,24 @@ export const getAllStudySessions = async (req, res) => {
   }
 };
 
+/**
+ * Get all study sessions (public endpoint - for students to view sessions from enrolled teachers)
+ */
+export const getStudySessionsPublic = async (req, res) => {
+  try {
+    const sessions = await StudySession.find()
+      .populate("gradeId", "gradeName description")
+      .populate("subjectId", "subjectName description")
+      .populate("teacherId", "_id fullName")
+      .sort({ date: -1 });
+
+    res.status(200).json({ success: true, data: sessions });
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // GET /api/study-sessions/:id
 export const getStudySessionById = async (req, res) => {
   try {

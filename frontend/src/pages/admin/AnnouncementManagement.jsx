@@ -23,7 +23,7 @@ const AnnouncementManagement = () => {
 
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
-  const API_URL = 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Fetch all announcements, subjects, and grades
   useEffect(() => {

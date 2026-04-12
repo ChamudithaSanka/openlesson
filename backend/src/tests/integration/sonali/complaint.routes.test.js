@@ -1,7 +1,3 @@
-describe("Sonali - Complaint Routes Integration Tests", () => {
-  test.todo("Add integration tests for complaint routes");
-});
-
 import request from "supertest";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
@@ -118,7 +114,7 @@ describe("Sonali - Complaint Routes Integration Tests", () => {
         .send({ subject: "Issue", description: "Details" });
 
       expect(res.status).toBe(403);
-      expect(res.body.message).toMatch(/only students can create complaints/i);
+      expect(res.body.message).toMatch(/student account is inactive/i);
     });
 
     test("should create complaint successfully and return 201", async () => {
@@ -473,4 +469,3 @@ describe("Sonali - Complaint Routes Integration Tests", () => {
     });
   });
 });
->>>>>>> 8b840e0 (test: integration testing implementation)

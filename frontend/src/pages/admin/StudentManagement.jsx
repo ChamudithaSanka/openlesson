@@ -19,7 +19,7 @@ const StudentManagement = () => {
   const [errors, setErrors] = useState({});
 
   const token = localStorage.getItem('token');
-  const API_URL = 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Validation functions
   const validateName = (name) => {

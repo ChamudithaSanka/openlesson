@@ -87,9 +87,7 @@ describe("Sonali - Feedback Controller Unit Tests", () => {
     test("should return all feedbacks", async () => {
       const fakeFeedbacks = [{ _id: "fb1", rating: 5 }, { _id: "fb2", rating: 3 }];
       jest.spyOn(Feedback, "find").mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockResolvedValue(fakeFeedbacks),
-        }),
+        populate: jest.fn().mockResolvedValue(fakeFeedbacks),
       });
 
       const req = mockReq();
@@ -103,9 +101,7 @@ describe("Sonali - Feedback Controller Unit Tests", () => {
 
     test("should return 500 on error", async () => {
       jest.spyOn(Feedback, "find").mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockRejectedValue(new Error("DB error")),
-        }),
+        populate: jest.fn().mockRejectedValue(new Error("DB error")),
       });
       const req = mockReq();
       const res = mockRes();
@@ -121,9 +117,7 @@ describe("Sonali - Feedback Controller Unit Tests", () => {
 
     test("should return 404 when feedback not found", async () => {
       jest.spyOn(Feedback, "findById").mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockResolvedValue(null),
-        }),
+        populate: jest.fn().mockResolvedValue(null),
       });
       const req = mockReq({ params: { id: "fb999" } });
       const res = mockRes();
@@ -137,9 +131,7 @@ describe("Sonali - Feedback Controller Unit Tests", () => {
     test("should return feedback when found", async () => {
       const fakeFeedback = { _id: "fb1", rating: 4, comment: "Good" };
       jest.spyOn(Feedback, "findById").mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockResolvedValue(fakeFeedback),
-        }),
+        populate: jest.fn().mockResolvedValue(fakeFeedback),
       });
       const req = mockReq({ params: { id: "fb1" } });
       const res = mockRes();
@@ -151,9 +143,7 @@ describe("Sonali - Feedback Controller Unit Tests", () => {
 
     test("should return 500 on error", async () => {
       jest.spyOn(Feedback, "findById").mockReturnValue({
-        populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockRejectedValue(new Error("DB error")),
-        }),
+        populate: jest.fn().mockRejectedValue(new Error("DB error")),
       });
       const req = mockReq({ params: { id: "fb1" } });
       const res = mockRes();
@@ -169,9 +159,7 @@ describe("Sonali - Feedback Controller Unit Tests", () => {
 
     test("should return feedbacks for a student", async () => {
       const fakeFeedbacks = [{ _id: "fb1", rating: 5 }];
-      jest.spyOn(Feedback, "find").mockReturnValue({
-        populate: jest.fn().mockResolvedValue(fakeFeedbacks),
-      });
+      jest.spyOn(Feedback, "find").mockResolvedValue(fakeFeedbacks);
       const req = mockReq({ params: { studentId: "student1" } });
       const res = mockRes();
       await getFeedbackByStudent(req, res);
@@ -181,9 +169,7 @@ describe("Sonali - Feedback Controller Unit Tests", () => {
     });
 
     test("should return 500 on error", async () => {
-      jest.spyOn(Feedback, "find").mockReturnValue({
-        populate: jest.fn().mockRejectedValue(new Error("DB error")),
-      });
+      jest.spyOn(Feedback, "find").mockRejectedValue(new Error("DB error"));
       const req = mockReq({ params: { studentId: "student1" } });
       const res = mockRes();
       await getFeedbackByStudent(req, res);

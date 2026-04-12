@@ -1,6 +1,3 @@
-describe("Sonali - Feedback Routes Integration Tests", () => {
-  test.todo("Add integration tests for feedback routes");
-});
 import request from "supertest";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
@@ -108,7 +105,7 @@ describe("Sonali - Feedback Routes Integration Tests", () => {
       expect(res.status).toBe(403);
     });
 
-    test("should return 404 when student profile not found", async () => {
+    test("should return 403 when student profile is missing or inactive", async () => {
       const user = await User.create({
         email: "noprofile@test.com",
         password: "pass123",
@@ -123,8 +120,8 @@ describe("Sonali - Feedback Routes Integration Tests", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ teacherId: teacher._id, rating: 5, comment: "Great!" });
 
-      expect(res.status).toBe(404);
-      expect(res.body.message).toMatch(/student profile not found/i);
+      expect(res.status).toBe(403);
+      expect(res.body.message).toMatch(/student account is inactive/i);
     });
 
     test("should create feedback successfully and return 201", async () => {
@@ -384,4 +381,3 @@ describe("Sonali - Feedback Routes Integration Tests", () => {
     });
   });
 });
->>>>>>> 8b840e0 (test: integration testing implementation)
