@@ -51,7 +51,8 @@ export default function DonateCheckoutPage() {
         setProfileLoading(true);
         setProfilePrefilled(false);
 
-        const response = await axios.get("http://localhost:5000/api/auth/me", {
+        const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+        const response = await axios.get(`${API_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

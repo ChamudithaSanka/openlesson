@@ -14,7 +14,8 @@ export const getStudentProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Student not found' });
     }
 
-    if (req.user.userType !== 'admin' && student.userId.toString() !== req.user.id) {
+    const studentUserId = student.userId?._id ? student.userId._id.toString() : student.userId.toString();
+    if (req.user.userType !== 'admin' && studentUserId !== req.user.id) {
       return res.status(403).json({ success: false, message: 'Not authorized to view this profile' });
     }
 

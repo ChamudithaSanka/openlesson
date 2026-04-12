@@ -3,6 +3,7 @@ import express from "express";
 // Import study session controller functions
 import {
   getAllStudySessions,
+  getStudySessionsPublic,
   getStudySessionById,
   createStudySession,
   updateStudySession,
@@ -12,7 +13,10 @@ import { protect, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// GET all study sessions
+// GET all study sessions (public - for students to view sessions from enrolled teachers)
+router.get("/public/all", getStudySessionsPublic);
+
+// GET all study sessions for logged-in teacher
 router.get("/", protect, authorize("teacher", "admin"), getAllStudySessions);
 
 // GET a single study session by ID

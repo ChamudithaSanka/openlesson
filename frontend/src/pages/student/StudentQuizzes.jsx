@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { HelpCircle, Clock, BookOpen, Search, Award } from 'lucide-react';
-import StudentLayout from '../../components/student/StudentLayout';
+import StudentLayout from '../../components/student/Studentlayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const StudentQuizzes = () => {
   const [quizzes, setQuizzes] = useState([]);

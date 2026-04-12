@@ -12,6 +12,7 @@ A comprehensive web application that connects volunteer teachers with underprivi
 - [API Documentation](#api-documentation)
 - [Authentication](#authentication)
 - [Environment Variables](#environment-variables)
+- [Deployment](#deployment)
 - [Testing Instruction Report](#testing-instruction-report)
 
 ---
@@ -1754,6 +1755,272 @@ GEMINI_API_KEY=your_api_key                  # Google Gemini API key
 ```env
 VITE_API_URL=http://localhost:5000           # Backend API URL
 ```
+
+---
+
+## Deployment
+
+This section documents the deployment of the OpenLesson application to production environments.
+
+### Live URLs
+
+| Component | Platform | URL | Status |
+|-----------|----------|-----|--------|
+| **Backend API** | Render | https://openlesson.onrender.com | ✅ Deployed |
+| **Frontend Application** | Vercel | https://openlesson-sooty.vercel.app | ✅ Deployed |
+
+---
+
+### Backend Deployment (Render)
+
+#### Prerequisites
+
+- GitHub account with repository pushed
+- Render account (https://render.com)
+- MongoDB Atlas connection string
+- All backend environment variables ready
+
+#### Step-by-Step Setup
+
+**1. Prepare GitHub Repository**
+```bash
+# Ensure all code is committed and pushed
+git add .
+git commit -m "Production ready"
+git push origin main
+```
+
+**2. Create Render Account**
+- Go to https://render.com
+- Sign up with GitHub
+- Authorize Render to access your repositories
+
+**3. Create Web Service on Render**
+- Click "New +" → "Web Service"
+- Select your `openlesson` repository
+- Click "Connect"
+
+**4. Configure Web Service**
+- **Name**: `openlesson-backend` (or preferred name)
+- **Environment**: `Node`
+- **Root Directory**: `backend` ← **Important!**
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- Click "Create Web Service"
+
+**5. Configure Environment Variables**
+
+Once service is created, go to **Settings** → **Environment** and add:
+
+```env
+# Database
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/openlesson
+
+# Node Environment
+NODE_ENV=production
+PORT=5000
+
+# Authentication
+JWT_SECRET=your_jwt_secret_key_here
+ADMIN_PASSWORD=your_admin_password
+
+# Email Service
+SENDGRID_API_KEY=your_sendgrid_key
+EMAIL_FROM=noreply@openlesson.com
+
+# Google AI Service
+GOOGLE_API_KEY=your_google_api_key
+
+# Zoom Integration
+ZOOM_CLIENT_ID=your_zoom_client_id
+ZOOM_CLIENT_SECRET=your_zoom_client_secret
+ZOOM_ACCOUNT_ID=your_zoom_account_id
+
+# PayHere Payment Gateway
+PAYHERE_MERCHANT_ID=your_merchant_id
+PAYHERE_MERCHANT_SECRET=your_merchant_secret
+PAYHERE_CHECKOUT_URL=https://sandbox.payhere.lk/pay/checkout
+PAYHERE_NOTIFY_URL=https://openlesson.onrender.com/api/payments/payhere/notify
+
+# URLs
+FRONTEND_URL=https://openlesson-sooty.vercel.app
+BACKEND_PUBLIC_URL=https://openlesson.onrender.com
+API_PUBLIC_URL=https://openlesson.onrender.com
+```
+
+**6. Deploy**
+- Click "Manual Deploy" → "Deploy latest commit"
+- Wait 2-3 minutes for deployment to complete
+- Check "Deployments" tab for status
+- Once deployed, you'll see a green checkmark
+
+**7. Verify Deployment**
+
+Test the backend with:
+```bash
+curl https://openlesson.onrender.com/api/subjects
+```
+
+Expected response: JSON array of subjects (or empty array if no data)
+
+---
+
+### Frontend Deployment (Vercel)
+
+#### Prerequisites
+
+- GitHub account with repository pushed
+- Vercel account (https://vercel.com)
+- Backend deployed and running (for environment variables)
+
+#### Step-by-Step Setup
+
+**1. Push Frontend Code to GitHub**
+```bash
+git add .
+git commit -m "Production ready"
+git push origin main
+```
+
+**2. Create Vercel Account**
+- Go to https://vercel.com
+- Click "Sign Up"
+- Choose "Sign Up with GitHub"
+- Authorize Vercel to access your repositories
+
+**3. Import Project**
+- Click "New Project"
+- Select `openlesson` repository
+- Click "Import"
+
+**4. Configure Build Settings**
+
+Vercel should auto-detect, but verify:
+- **Framework Preset**: Vite ✓
+- **Root Directory**: `frontend` ← **Important!**
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Install Command**: `npm install`
+
+**5. Add Environment Variables**
+
+Before deploying, add these in the **Environment Variables** section:
+
+```env
+VITE_API_URL=https://openlesson.onrender.com
+VITE_API_BASE_URL=https://openlesson.onrender.com
+```
+
+Click "Add" for each variable.
+
+**6. Deploy**
+- Click "Deploy"
+- Wait 2-3 minutes for build and deployment
+- You'll receive a deployment URL like `https://openlesson-sooty.vercel.app`
+
+**7. Verify Deployment**
+- Visit the deployment URL
+- Register/login with test credentials
+- Verify API calls are working (check browser Console)
+
+---
+
+### Environment Variables Summary
+
+#### Backend Environment Variables (Required)
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `MONGODB_URI` | Database connection | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
+| `NODE_ENV` | Environment type | `production` |
+| `JWT_SECRET` | Token signing key | `your-secret-key` |
+| `FRONTEND_URL` | CORS allowed origin | `https://openlesson-sooty.vercel.app` |
+| `SENDGRID_API_KEY` | Email service | `SG.xxxxx` |
+| `GOOGLE_API_KEY` | Google Generative AI | `AIzaSyxxx` |
+| `PAYHERE_MERCHANT_ID` | Payment gateway | `xxx` |
+| `PAYHERE_MERCHANT_SECRET` | Payment secret | `secret` |
+| `ZOOM_CLIENT_ID` | Video conference | `xxxxx` |
+
+#### Frontend Environment Variables (Required)
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `VITE_API_URL` | Backend API endpoint | `https://openlesson.onrender.com` |
+| `VITE_API_BASE_URL` | Payment API endpoint | `https://openlesson.onrender.com` |
+
+---
+
+### Deployment Troubleshooting
+
+#### Backend Issues
+
+| Issue | Solution |
+|-------|----------|
+| Build fails with `ENOENT` | Set Root Directory to `backend` in Render |
+| `FRONTEND_URL not configured` CORS error | Update CORS environment variable |
+| MongoDB connection fails | Verify `MONGODB_URI` is correct and IP is whitelisted |
+| API returns 404 | Verify backend routes have `/api/` prefix |
+
+#### Frontend Issues
+
+| Issue | Solution |
+|-------|----------|
+| Build fails - `UNRESOLVED_IMPORT` | Check file imports for case sensitivity (Linux is case-sensitive) |
+| API calls return 404 | Verify `VITE_API_URL` is set and includes `/api/` segment |
+| CORS errors | Update backend `FRONTEND_URL` to match Vercel URL (without trailing slash) |
+| Blank page or no data loads | Check browser Console (F12) for API errors |
+
+---
+
+### Post-Deployment Checklist
+
+- [x] Backend deployed and accessible at `https://openlesson.onrender.com`
+- [x] Frontend deployed and accessible at `https://openlesson-sooty.vercel.app`
+- [x] All environment variables configured
+- [x] CORS properly configured on backend
+- [x] CORS frontend URL matches deployed frontend
+- [x] Database connection working
+- [x] Email service configured
+- [x] Payment gateway tested
+- [x] Authentication working
+- [x] API endpoints responding correctly
+- [x] Frontend loading data from backend
+- [x] SSL/HTTPS enabled on both platforms
+
+---
+
+### Testing the Deployed Application
+
+**1. Test Backend API**
+```bash
+# Get all subjects
+curl https://openlesson.onrender.com/api/subjects
+
+# Login
+curl -X POST https://openlesson.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"password123"}'
+```
+
+**2. Test Frontend Application**
+- Visit https://openlesson-sooty.vercel.app
+- Register a new account
+- Login with credentials
+- Navigate through different pages
+- Verify all data loads correctly
+- Test payment flow (if implemented)
+
+**3. Monitor Deployment**
+
+**Render Dashboard**:
+- Go to Deployments → Check logs for errors
+- Check Metrics for CPU/Memory usage
+- Monitor error tracking
+
+**Vercel Dashboard**:
+- Go to Deployments → View build logs
+- Check Analytics for page performance
+- Monitor error tracking
 
 ---
 

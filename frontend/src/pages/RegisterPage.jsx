@@ -56,7 +56,8 @@ export default function RegisterPage() {
       try {
         setGradesLoading(true);
         setGradesError("");
-        const response = await axios.get("http://localhost:5000/api/grades");
+        const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+        const response = await axios.get(`${API_URL}/grades`);
         setGrades(response.data?.data || []);
       } catch (err) {
         setGrades([]);
@@ -74,7 +75,8 @@ export default function RegisterPage() {
       try {
         setSubjectsLoading(true);
         setSubjectsError("");
-        const response = await axios.get("http://localhost:5000/api/subjects");
+        const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+        const response = await axios.get(`${API_URL}/subjects`);
         setSubjects(response.data?.data || []);
       } catch (err) {
         setSubjects([]);
@@ -225,7 +227,8 @@ export default function RegisterPage() {
         payload.append("gradesTheyTeach", JSON.stringify(teacherGrades));
       }
 
-      const response = await axios.post("http://localhost:5000/api/auth/register", payload, {
+      const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api";
+      const response = await axios.post(`${API_URL}/auth/register`, payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
