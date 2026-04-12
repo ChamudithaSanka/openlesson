@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserCheck, BookOpen, Clock, MessageSquare, Trash2 } from 'lucide-react';
-import StudentLayout from '../../components/student/StudentLayout';
+import StudentLayout from '../../components/student/Studentlayout';
 
 const StudentEnrolledTeachers = () => {
   const [enrolledTeachers, setEnrolledTeachers] = useState([]);
   const [toast, setToast] = useState('');
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api';
 
   const showToast = (msg) => {
     setToast(msg);
@@ -13,15 +14,42 @@ const StudentEnrolledTeachers = () => {
   };
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('enrolledTeachers') || '[]');
-    setEnrolledTeachers(saved);
+    // Fetch enrolled teachers from backend
+    const fetchEnrolled = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/enrollments/my-teachers`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setEnrolledTeachers(data.teachers || []);
+          localStorage.setItem('enrolledTeachers', JSON.stringify(data.teachers || []));
+        }
+      } catch {}
+    };
+    fetchEnrolled();
   }, []);
 
-  const handleUnenroll = (teacherId) => {
-    const updated = enrolledTeachers.filter((t) => t._id !== teacherId);
-    setEnrolledTeachers(updated);
-    localStorage.setItem('enrolledTeachers', JSON.stringify(updated));
-    showToast('Unenrolled successfully.');
+  const handleUnenroll = async (teacherId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/enrollments/${teacherId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updated = enrolledTeachers.filter((t) => t._id !== teacherId);
+        setEnrolledTeachers(updated);
+        localStorage.setItem('enrolledTeachers', JSON.stringify(updated));
+        showToast('Unenrolled successfully.');
+      } else {
+        const data = await res.json();
+        showToast(data.message || 'Failed to unenroll.');
+      }
+    } catch {
+      showToast('Failed to unenroll.');
+    }
   };
 
   return (

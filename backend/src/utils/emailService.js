@@ -1,19 +1,10 @@
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
-/**
- * Create email transporter
- */
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: process.env.EMAIL_SECURE === "true",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
-};
+// Initialize SendGrid
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log("✅ SendGrid initialized with API key");
+}
 
 /**
  * Send teacher approval email
@@ -23,8 +14,6 @@ const createTransporter = () => {
  */
 export const sendApprovalEmail = async (teacherEmail, teacherName) => {
   try {
-    const transporter = createTransporter();
-
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -82,14 +71,14 @@ export const sendApprovalEmail = async (teacherEmail, teacherName) => {
       </html>
     `;
 
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    const msg = {
       to: teacherEmail,
+      from: process.env.EMAIL_FROM || "noreply@openlesson.com",
       subject: "Your Teacher Application Has Been Approved! 🎉",
       html: htmlContent,
     };
 
-    const result = await transporter.sendMail(mailOptions);
+    const result = await sgMail.send(msg);
     console.log(`✅ Approval email sent to ${teacherEmail}`);
     return result;
   } catch (error) {
@@ -107,8 +96,6 @@ export const sendApprovalEmail = async (teacherEmail, teacherName) => {
  */
 export const sendRejectionEmail = async (teacherEmail, teacherName, rejectionReason = "") => {
   try {
-    const transporter = createTransporter();
-
     const reasonSection = rejectionReason 
       ? `
         <div class="highlight">
@@ -177,14 +164,14 @@ export const sendRejectionEmail = async (teacherEmail, teacherName, rejectionRea
       </html>
     `;
 
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    const msg = {
       to: teacherEmail,
+      from: process.env.EMAIL_FROM || "noreply@openlesson.com",
       subject: "Your Teacher Application Status Update",
       html: htmlContent,
     };
 
-    const result = await transporter.sendMail(mailOptions);
+    const result = await sgMail.send(msg);
     console.log(`✅ Rejection email sent to ${teacherEmail}`);
     return result;
   } catch (error) {
@@ -199,9 +186,11 @@ export const sendRejectionEmail = async (teacherEmail, teacherName, rejectionRea
  */
 export const testEmailConnection = async () => {
   try {
-    const transporter = createTransporter();
-    await transporter.verify();
-    console.log("✅ Email service configured correctly");
+    if (!process.env.SENDGRID_API_KEY) {
+      console.warn("⚠️  SENDGRID_API_KEY not configured");
+      return false;
+    }
+    console.log("✅ SendGrid API key is configured");
     return true;
   } catch (error) {
     console.error("❌ Email service configuration error:", error.message);
