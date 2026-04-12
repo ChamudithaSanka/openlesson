@@ -1,3 +1,4 @@
+import subjectEnrollmentRoutes from "./routes/subjectEnrollment.route.js";
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -16,13 +17,23 @@ import studyMaterialRoutes from "./routes/studyMaterial.route.js";
 import studentRegRoutes from "./routes/studentRegRoute.js"; 
 import feedbackRoutes from "./routes/feedbackRoute.js"; 
 import reportRoutes from "./routes/Complaintroute.js";
+import enrollmentRoutes from "./routes/enrollment.route.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:3000",
+  "http://localhost:3000",
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  optionsSuccessStatus: 200,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
@@ -44,6 +55,12 @@ app.use("/api/payments/payhere", payhereRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/study-materials", studyMaterialRoutes);
+
+// Student-subject enrollments
+app.use("/api/subject-enrollments", subjectEnrollmentRoutes);
+
+// Student-teacher enrollments
+app.use("/api/enrollments", enrollmentRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

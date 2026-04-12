@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Library, Trash2 } from 'lucide-react';
-import StudentLayout from '../../components/student/StudentLayout';
+import StudentLayout from '../../components/student/Studentlayout';
 
 const colors = [
   'from-indigo-500 to-indigo-700',
@@ -15,6 +15,7 @@ const colors = [
 const StudentEnrolledSubjects = () => {
   const [enrolledSubjects, setEnrolledSubjects] = useState([]);
   const [toast, setToast] = useState('');
+  const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api';
 
   const showToast = (msg) => {
     setToast(msg);
@@ -22,15 +23,42 @@ const StudentEnrolledSubjects = () => {
   };
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
-    setEnrolledSubjects(saved);
+    // Fetch enrolled subjects from backend
+    const fetchEnrolled = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/subject-enrollments/my-subjects`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setEnrolledSubjects(data.subjects || []);
+          localStorage.setItem('enrolledSubjects', JSON.stringify(data.subjects || []));
+        }
+      } catch {}
+    };
+    fetchEnrolled();
   }, []);
 
-  const handleUnenroll = (subjectId) => {
-    const updated = enrolledSubjects.filter((s) => s._id !== subjectId);
-    setEnrolledSubjects(updated);
-    localStorage.setItem('enrolledSubjects', JSON.stringify(updated));
-    showToast('Unenrolled from subject.');
+  const handleUnenroll = async (subjectId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/subject-enrollments/${subjectId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updated = enrolledSubjects.filter((s) => s._id !== subjectId);
+        setEnrolledSubjects(updated);
+        localStorage.setItem('enrolledSubjects', JSON.stringify(updated));
+        showToast('Unenrolled from subject.');
+      } else {
+        const data = await res.json();
+        showToast(data.message || 'Failed to unenroll.');
+      }
+    } catch {
+      showToast('Failed to unenroll.');
+    }
   };
 
   return (

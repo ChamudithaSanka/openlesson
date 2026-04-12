@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Search, BookOpen, CheckCircle, ChevronRight } from 'lucide-react';
-import StudentLayout from '../../components/student/StudentLayout';
+import StudentLayout from '../../components/student/Studentlayout';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const SUBJECT_THEMES = [
   { bg: 'from-indigo-500 to-indigo-700',  light: 'bg-indigo-50',  text: 'text-indigo-700',  border: 'border-indigo-200',  btn: 'bg-indigo-600 hover:bg-indigo-700'  },
@@ -40,21 +40,52 @@ const StudentSubjects = () => {
   }, []);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
-    setEnrolledIds(saved.map((s) => s._id));
+    // Fetch enrolled subjects from backend
+    const fetchEnrolled = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API}/api/subject-enrollments/my-subjects`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setEnrolledIds((data.subjects || []).map((s) => s._id));
+          localStorage.setItem('enrolledSubjects', JSON.stringify(data.subjects || []));
+        }
+      } catch {}
+    };
+    fetchEnrolled();
     fetchSubjects();
   }, [fetchSubjects]);
 
   const handleEnroll = async (subject) => {
     if (enrolledIds.includes(subject._id)) return;
     setEnrolling(subject._id);
-    await new Promise((r) => setTimeout(r, 500));
-    const current = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
-    const updated = [...current, subject];
-    localStorage.setItem('enrolledSubjects', JSON.stringify(updated));
-    setEnrolledIds((prev) => [...prev, subject._id]);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API}/api/subject-enrollments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ subjectId: subject._id }),
+      });
+      if (res.ok) {
+        setEnrolledIds((prev) => [...prev, subject._id]);
+        // Optionally update localStorage for compatibility
+        const current = JSON.parse(localStorage.getItem('enrolledSubjects') || '[]');
+        const updated = [...current, subject];
+        localStorage.setItem('enrolledSubjects', JSON.stringify(updated));
+        showToast(`Enrolled in ${subject.subjectName}!`);
+      } else {
+        const data = await res.json();
+        showToast(data.message || 'Enrollment failed');
+      }
+    } catch {
+      showToast('Enrollment failed');
+    }
     setEnrolling(null);
-    showToast(`Enrolled in ${subject.subjectName}!`);
   };
 
   const filtered = subjects.filter(

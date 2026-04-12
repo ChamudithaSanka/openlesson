@@ -9,7 +9,7 @@ const checkoutUrl = () =>
     ? "https://www.payhere.lk/pay/checkout"
     : "https://sandbox.payhere.lk/pay/checkout");
 
-const frontendUrl = () => process.env.FRONTEND_URL || "http://localhost:5173";
+const frontendUrl = () => process.env.FRONTEND_URL || "http://localhost:3000";
 
 const merchantId = () => process.env.PAYHERE_MERCHANT_ID || "";
 const merchantSecret = () => process.env.PAYHERE_MERCHANT_SECRET || "";

@@ -26,7 +26,7 @@ const TeachersManagement = () => {
   const [errors, setErrors] = useState({});
 
   const token = localStorage.getItem('token');
-  const API_URL = 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Validation functions
   const validateName = (name) => {
@@ -379,7 +379,7 @@ const TeachersManagement = () => {
     try {
       // Use the new API endpoint to download from database
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/teachers/${teacherId}/cv-download`, {
+      const response = await fetch(`${API_URL}/api/teachers/${teacherId}/cv-download`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
